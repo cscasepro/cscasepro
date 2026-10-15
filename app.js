@@ -120,7 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderStoreCatalog();
     populateLiveFeed();
     updateWheelArc(0);
-    document.getElementById('cash-slider').max = balance.toFixed(2);
+    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
     setInterval(() => {
         const el = document.getElementById('online-counter');
         let count = parseInt(el.innerText.replace(/,/g, ''));
@@ -205,6 +205,7 @@ function sellSelectedItem() {
     const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
     if (idx > -1) inventory.splice(idx, 1);
     clearSourceItem();
+    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
     recalculateOdds();
 }
 
@@ -233,11 +234,12 @@ function clearTargetItem() {
 
 function onCashSliderChange(val) {
     if (isSpinning) return;
-    addedCash = parseFloat(val);
-    if (addedCash > balance) {
-        addedCash = balance;
-        document.getElementById('cash-slider').value = balance;
-    }
+    const slider = document.getElementById('cash-slider');
+    let v = parseFloat(val);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > balance) v = balance;
+    addedCash = v;
+    slider.value = v;
     document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
     recalculateOdds();
 }
@@ -248,10 +250,11 @@ function recalculateOdds() {
 
     // Suwak ograniczony do aktualnego salda
     const slider = document.getElementById('cash-slider');
-    slider.max = balance.toFixed(2);
-    if (addedCash > balance) {
-        addedCash = balance;
-        slider.value = balance;
+    const safeBalance = Math.max(0, balance);
+    slider.max = safeBalance.toFixed(2);
+    if (addedCash > safeBalance) {
+        addedCash = safeBalance;
+        slider.value = safeBalance;
         document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
     }
 
@@ -356,6 +359,7 @@ async function startUpgrade() {
     if (addedCash > 0) {
         balance -= addedCash;
         document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+        document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
     }
 
     isSpinning = true;
@@ -469,7 +473,9 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
         needle.style.transform = 'rotate(0deg)';
     }, 800);
 
-    document.getElementById('cash-slider').value = 0;
+    const sliderEl = document.getElementById('cash-slider');
+    sliderEl.max = Math.max(0, balance).toFixed(2);
+    sliderEl.value = 0;
     onCashSliderChange(0);
     clearSourceItem();
     clearTargetItem();
@@ -584,7 +590,6 @@ function redeemPromoCode() {
         return;
     }
 
-    // Skiny za kod (~2.46zł łącznie)
     const promoItems = [
         {
             id: 'promo1_' + Date.now(),
