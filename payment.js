@@ -12,33 +12,27 @@ function closePaymentModal() {
     document.getElementById('payment-modal').classList.add('hidden');
 }
 
-// Losuje skiny ze storeCatalog aż suma nie przekroczy zadanej kwoty,
-// a resztę zwraca jako remainder (do salda).
 function generateItemsForAmount(amount) {
     const items = [];
     let remaining = amount;
-    // Sortuj od najtańszego do najdroższego
     const sorted = [...storeCatalog].sort((a, b) => a.price - b.price);
 
-    // Znajdź najtańszy item
     const cheapest = sorted[0].price;
     if (amount < cheapest) return { items: [], remainder: amount };
 
     let safety = 0;
     while (remaining >= cheapest && safety < 100) {
         safety++;
-        // Kandydaci: wszystkie itemy <= remaining
         const candidates = sorted.filter(i => i.price <= remaining);
         if (candidates.length === 0) break;
 
-        // Preferuj droższe itemy, gdy zostaje dużo kasy (żeby nie robić 50 tanich)
         const pool = candidates.filter(i => i.price >= remaining * 0.3);
         const chosenPool = pool.length > 0 ? pool : candidates;
         const chosen = chosenPool[Math.floor(Math.random() * chosenPool.length)];
 
         items.push(chosen);
         remaining -= chosen.price;
-        remaining = Math.round(remaining * 100) / 100; // zaokrąglenie do groszy
+        remaining = Math.round(remaining * 100) / 100;
     }
 
     return { items, remainder: Math.round(remaining * 100) / 100 };
@@ -62,7 +56,6 @@ function confirmPayment() {
     const { items, remainder } = generateItemsForAmount(amount);
 
     if (items.length === 0) {
-        // Kwota mniejsza niż najtańszy skin – wszystko do salda
         balance += amount;
         document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
         document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
@@ -72,7 +65,6 @@ function confirmPayment() {
         return;
     }
 
-    // Dodaj skiny do ekwipunku
     items.forEach((it, idx) => {
         inventory.push({
             ...it,
@@ -80,7 +72,6 @@ function confirmPayment() {
         });
     });
 
-    // Reszta do salda
     if (remainder > 0) {
         balance += remainder;
         document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
