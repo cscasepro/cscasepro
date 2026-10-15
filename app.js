@@ -51,16 +51,15 @@ let calculatedChance = 0;
 // ============================================
 const HouseEngine = (() => {
     const STORAGE_KEY = 'cscasepro_house_state';
-    const FREE_WINS = 3; // ile darmowych wygranych na start
+    const FREE_WINS = 3;
 
-    // Stan ładowany z localStorage
     let state = {
         totalSpins: 0,
         totalWins: 0,
         totalLosses: 0,
-        currentStreak: 0,      // + wygrane, - przegrane
-        forcedNextOutcome: null, // 'win' | 'loss' | null – wymuszenie
-        streakPattern: [],     // kolejka wymuszonych wyników
+        currentStreak: 0,
+        forcedNextOutcome: null,
+        streakPattern: [],
         freeWinsLeft: FREE_WINS
     };
 
@@ -80,12 +79,9 @@ const HouseEngine = (() => {
         } catch (e) {}
     }
 
-    // Zwraca zmodyfikowaną szansę (w %) – "prawdziwą" do losowania
-    // oraz informację, czy to był forced outcome.
     function getAdjustedOutcome(playerChance) {
         load();
 
-        // 1) FORY: pierwsze 3 spiny zawsze wygrane
         if (state.freeWinsLeft > 0) {
             state.freeWinsLeft--;
             state.totalSpins++;
@@ -95,7 +91,6 @@ const HouseEngine = (() => {
             return { isWin: true, forced: true, reason: 'FREE_WIN', playerChance };
         }
 
-        // 2) Wymuszony wynik z kolejki (passa / przegrana)
         if (state.streakPattern.length > 0) {
             const forced = state.streakPattern.shift();
             state.totalSpins++;
@@ -110,13 +105,8 @@ const HouseEngine = (() => {
             return { isWin: forced === 'win', forced: true, reason: 'PATTERN', playerChance };
         }
 
-        // 3) Normalne losowanie z house edge
-        // Im więcej spinów, tym większa przewaga strony.
-        const spinsFactor = Math.min(state.totalSpins / 100, 0.5); // 0 → 0.5 (po 100 spinach)
-        // Bazowy house edge 15% + rosnący z czasem do ~30%
+        const spinsFactor = Math.min(state.totalSpins / 100, 0.5);
         const houseEdge = 0.15 + spinsFactor * 0.15;
-
-        // Zmniejsz szansę gracza
         const adjusted = Math.max(1, playerChance * (1 - houseEdge));
         const roll = Math.random() * 100;
         const isWin = roll <= adjusted;
@@ -130,9 +120,6 @@ const HouseEngine = (() => {
             state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
         }
 
-        // 4) Planowanie passy / nagłej przegranej
-        // Jeśli gracz przegrał 3+ razy z rzędu – daj mu 2 wygrane (żeby nie odejść)
-        // Jeśli gracz wygrał 3+ razy z rzędu – daj mu przegraną (nagła)
         if (state.currentStreak <= -3) {
             state.streakPattern = ['win', 'win'];
         } else if (state.currentStreak >= 3) {
@@ -143,11 +130,7 @@ const HouseEngine = (() => {
         return { isWin, forced: false, reason: 'NORMAL', playerChance, adjustedChance: adjusted, houseEdge };
     }
 
-    function getStats() {
-        load();
-        return { ...state };
-    }
-
+    function getStats() { load(); return { ...state }; }
     function reset() {
         state = {
             totalSpins: 0, totalWins: 0, totalLosses: 0,
@@ -160,9 +143,6 @@ const HouseEngine = (() => {
     return { getAdjustedOutcome, getStats, reset };
 })();
 
-// ============================================
-// AUDIO
-// ============================================
 const AudioSynth = {
     ctx: null,
     init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -470,17 +450,10 @@ async function startUpgrade() {
     const targetVal = selectedTargetItem.price;
     const rawChance = Math.min(Math.max((sourceVal / targetVal) * 100, 1.0), 80.0);
 
-    // ============================================
-    // HOUSE ENGINE – decyduje o wyniku (for / pattern / house edge)
-    // ============================================
     const houseResult = HouseEngine.getAdjustedOutcome(rawChance);
     const isWin = houseResult.isWin;
-    const realChance = isWin ? 100 : 0; // dla wizualizacji – igła pokaże wynik
 
     console.log(`[HOUSE] ${houseResult.reason} | player=${rawChance.toFixed(2)}% | forced=${houseResult.forced} → ${isWin ? '✅ WIN' : '❌ LOSS'}`);
-    if (houseResult.adjustedChance !== undefined) {
-        console.log(`[HOUSE] adjusted=${houseResult.adjustedChance.toFixed(2)}% | houseEdge=${(houseResult.houseEdge*100).toFixed(1)}%`);
-    }
 
     if (addedCash > 0) {
         balance -= addedCash;
@@ -502,10 +475,9 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // Rysowanie igły – jeśli wygrana, wjedzie w zielony obszar, jeśli przegrana – obok
     const targetOffsetDeg = isWin
-        ? (Math.random() * (rawChance / 2) + 1)   // w obszar szansy
-        : (rawChance / 2 + 5 + Math.random() * (360 - rawChance - 10)); // poza obszar
+        ? (Math.random() * (rawChance / 2) + 1)
+        : (rawChance / 2 + 5 + Math.random() * (360 - rawChance - 10));
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
@@ -723,7 +695,7 @@ function redeemPromoCode() {
             wear: 'FT',
             price: 0.46,
             rarity: 'rarity-milspec',
-            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk'
+            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47+Safari+Mesh'
         },
         {
             id: 'promo2_' + Date.now(),
@@ -731,7 +703,7 @@ function redeemPromoCode() {
             wear: 'FT',
             price: 0.75,
             rarity: 'rarity-milspec',
-            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9'
+            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=M4A4+Urban+DDPAT'
         },
         {
             id: 'promo3_' + Date.now(),
@@ -739,7 +711,7 @@ function redeemPromoCode() {
             wear: 'MW',
             price: 1.25,
             rarity: 'rarity-restricted',
-            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F'
+            img: 'https://placehold.co/180x130/1a1830/8847ff?text=P2000+Imperial'
         }
     ];
 
