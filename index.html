@@ -115,6 +115,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <span class="text-gray-500 hidden sm:inline">SALDO:</span>
             <span id="user-balance" class="text-white font-mono font-bold text-sm">$0.00</span>
         </div>
+        <button onclick="openPaymentModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-sm">
+            <i class="fa-solid fa-credit-card text-accentViolet"></i>
+            <span class="hidden sm:inline">Doładuj</span>
+        </button>
         <button onclick="openPromoModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-sm">
             <i class="fa-solid fa-gift text-accentViolet"></i>
             <span class="hidden sm:inline">Kod</span>
@@ -349,7 +353,24 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
+<div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden">
+<div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full mx-4 flex flex-col items-center text-center shadow-2xl shadow-black/60">
+    <div class="w-12 h-12 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
+        <i class="fa-solid fa-credit-card text-accentViolet"></i>
+    </div>
+    <h3 class="font-rajdhani text-xl font-bold uppercase text-white mb-1">Doładuj Konto</h3>
+    <p class="text-xs text-gray-400 mb-3">Wpisz kwotę – dostaniesz skiny o zbliżonej wartości, reszta do salda:</p>
+    <input type="number" id="payment-input" value="5.00" min="0.01" step="0.01" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-lg px-3 py-2 text-center text-white text-lg font-mono font-bold mb-3 focus:outline-none focus:border-accentViolet/60 transition">
+    <div id="payment-message" class="text-xs mb-3 h-4"></div>
+    <div class="flex gap-2 w-full">
+        <button onclick="closePaymentModal()" class="flex-1 py-2 bg-cardBg/80 hover:bg-borderBorder text-gray-300 font-semibold text-xs rounded-lg transition border border-borderBorder/60">Anuluj</button>
+        <button onclick="confirmPayment()" class="flex-1 py-2 bg-gradient-to-r from-accentViolet to-accentBlue hover:from-violet-600 hover:to-sky-500 text-white font-semibold text-xs rounded-lg transition shadow-lg shadow-accentViolet/30">Doładuj</button>
+    </div>
+</div>
+</div>
+
 <script src="items.js"></script>
+<script src="payment.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
