@@ -89,6 +89,14 @@ const storeCatalog = [
     },
     {
         id: 's11',
+        name: 'Glock-18 | Candy Apple',
+        wear: 'MW',
+        price: 4.64,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1I4M28baBSLPmUBnPelb93teA-FivjzB5wsjzTyI2pIn_CPAMoW8N3ROJZshm5w9zgNbnk5xue1dyMA9ZU_Q'
+    },
+    {
+        id: 's12',
         name: 'Tec-9 | Sultan',
         wear: 'MW',
         price: 5.50,
@@ -96,7 +104,7 @@ const storeCatalog = [
         img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLlm5W5wjZe7KuRe7FhNPGdMWuZxuZi_rQ9F3yykUV_42_Qytiuc32VPQMoX5EjReZfshG8kYWyPr7ks1DeiYNbjXKpvEFNuPw'
     },
     {
-        id: 's12',
+        id: 's13',
         name: 'P250 | X-Ray',
         wear: 'MW',
         price: 6.37,
@@ -104,11 +112,59 @@ const storeCatalog = [
         img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLhzMOwwiFO0Oq8ab1SMKLGXlicyOl-pK8_HSjjxx9wsmXQnIv6cH2TaAQoWZd4RuAKshe7wdS1NOvi5VCIi48Q02yg2fSIc8-4'
     },
     {
-        id: 's13',
+        id: 's14',
         name: 'StatTrak™ Glock-18 | Catacombs',
         wear: 'MW',
         price: 6.98,
         rarity: 'rarity-classified',
         img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1Y-s2pZKtuK8-XC2aEyfp5vO1WQyC0nQlptWWDzIz8dy6QalMgXsMiQbEJtRjskdW2M7nn71Dcj49Fm3qsiClB7jErvbhnnfwjgw'
+    },
+    {
+        id: 's15',
+        name: 'Desert Eagle | Blue Ply',
+        wear: 'FT',
+        price: 7.50,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL1m5fn8Sdk7OeRbKFsJ_yWMXWV0eJ_s-BWQyC0nQlpsjzdwtqgIHqfZgAgDZBwROBbtRDsm4HiM7zislfYitpBniz6iy5K7DErvbjLUTqBnA'
+    },
+    {
+        id: 's16',
+        name: 'AK-47 | Uncharted',
+        wear: 'MW',
+        price: 7.91,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wiFO0POlPPNSIeqHC2SvzedxuPUnFnCwwBl_5D_Syon8dnyUaQUlD5oiQ7ECuxW7l920ZL-w4AfX2IlByTK-0H0PRM7cOA'
+    },
+    {
+        id: 's17',
+        name: 'StatTrak™ Galil AR | Akoben',
+        wear: 'WW',
+        price: 8.27,
+        rarity: 'rarity-classified',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2n5rp8SNJ0OG-V6NsLPmfMWabzuxzvt5lRi67gVMlt2_dzd6qcH2TOgN0CpIlE7Ve5hbukdW0MrixslPW2IgQzyv8jypI8G81tJzCUipD'
+    },
+    {
+        id: 's18',
+        name: 'M4A4 | Magnesium',
+        wear: 'FT',
+        price: 9.63,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwiVI0P_6afBSI_icHneV09FxuO56Wxa_nBovp3OAzo2vdHPFPFUmCJRxRbNZ4xewx9W1Nb7j4gzXg99Ayy73iC1Aun1q_a9cBiEfMG3G'
+    },
+    {
+        id: 's19',
+        name: 'UMP-45 | Arctic Wolf',
+        wear: 'FT',
+        price: 10.63,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkk4a0qB1Y-s27ZbQ5dc-EBm6ExNFwse9ucCW6khUz_WiGzY6pJyjCZwN1A5p5Q-MCuxa7ldW0Ne3ntQHW2YpFmSv63S1B73t1o7FVFkKgM50'
+    },
+    {
+        id: 's20',
+        name: 'Glock-18 | Moonrise',
+        wear: 'FT',
+        price: 11.00,
+        rarity: 'rarity-restricted',
+        img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1a7s2pZKtuK8_CVliF0-x3vt5kQCa9qhsipTiXpYPwJiPTcANzXJNyFOEMthXsktHhMLzl4FaK3toWn3iqhi9BvHw9su5UU6Zw-_bJz1aWcX-Jd_0'
     },
 ];
