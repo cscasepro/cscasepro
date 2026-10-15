@@ -38,7 +38,7 @@ const GameEngine = (() => {
     try { Object.freeze(GameEngine); } catch (e) {}
 })();
 
-let balance = 125.00;
+let balance = 0.00;
 let addedCash = 0.00;
 let isSpinning = false;
 let audioMuted = false;
@@ -115,6 +115,7 @@ function spawnParticles(container, count, colors) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
     renderPlayerInventory();
     renderStoreCatalog();
     populateLiveFeed();
@@ -535,4 +536,71 @@ function toggleAudio() {
 function toggleLogin() {
     const btn = document.getElementById('steam-btn-text');
     btn.innerText = btn.innerText === "Steam User" ? "Niezalogowany" : "Steam User";
+}
+
+// ============================================
+// KOD POLECAJĄCY (jednorazowy na konto)
+// ============================================
+const PROMO_CODE = '98CASE';
+const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
+
+function openPromoModal() {
+    document.getElementById('promo-modal').classList.remove('hidden');
+    document.getElementById('promo-message').innerHTML = '';
+    document.getElementById('promo-input').value = '';
+}
+
+function closePromoModal() {
+    document.getElementById('promo-modal').classList.add('hidden');
+}
+
+function redeemPromoCode() {
+    const input = document.getElementById('promo-input').value.trim().toUpperCase();
+    const msg = document.getElementById('promo-message');
+
+    if (localStorage.getItem(PROMO_STORAGE_KEY) === 'true') {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Ten kod został już wykorzystany na tym koncie.</span>`;
+        return;
+    }
+
+    if (input !== PROMO_CODE) {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Nieprawidłowy kod.</span>`;
+        return;
+    }
+
+    // Skiny za kod (~2.46zł łącznie)
+    const promoItems = [
+        {
+            id: 'promo1_' + Date.now(),
+            name: 'AK-47 | Safari Mesh',
+            wear: 'FT',
+            price: 0.46,
+            rarity: 'rarity-milspec',
+            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk'
+        },
+        {
+            id: 'promo2_' + Date.now(),
+            name: 'M4A4 | Urban DDPAT',
+            wear: 'FT',
+            price: 0.75,
+            rarity: 'rarity-milspec',
+            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9'
+        },
+        {
+            id: 'promo3_' + Date.now(),
+            name: 'P2000 | Imperial',
+            wear: 'MW',
+            price: 1.25,
+            rarity: 'rarity-restricted',
+            img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F'
+        }
+    ];
+
+    promoItems.forEach(it => inventory.push(it));
+    localStorage.setItem(PROMO_STORAGE_KEY, 'true');
+
+    renderPlayerInventory();
+    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano 3 skiny do ekwipunku.</span>`;
+
+    setTimeout(() => closePromoModal(), 1500);
 }
