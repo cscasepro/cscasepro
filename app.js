@@ -120,6 +120,7 @@ window.addEventListener('DOMContentLoaded', () => {
     renderStoreCatalog();
     populateLiveFeed();
     updateWheelArc(0);
+    document.getElementById('cash-slider').max = balance.toFixed(2);
     setInterval(() => {
         const el = document.getElementById('online-counter');
         let count = parseInt(el.innerText.replace(/,/g, ''));
@@ -204,6 +205,7 @@ function sellSelectedItem() {
     const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
     if (idx > -1) inventory.splice(idx, 1);
     clearSourceItem();
+    recalculateOdds();
 }
 
 function selectTargetItem(item) {
@@ -232,6 +234,10 @@ function clearTargetItem() {
 function onCashSliderChange(val) {
     if (isSpinning) return;
     addedCash = parseFloat(val);
+    if (addedCash > balance) {
+        addedCash = balance;
+        document.getElementById('cash-slider').value = balance;
+    }
     document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
     recalculateOdds();
 }
@@ -239,6 +245,16 @@ function onCashSliderChange(val) {
 function recalculateOdds() {
     const btn = document.getElementById('upgrade-btn');
     const statusMsg = document.getElementById('status-msg');
+
+    // Suwak ograniczony do aktualnego salda
+    const slider = document.getElementById('cash-slider');
+    slider.max = balance.toFixed(2);
+    if (addedCash > balance) {
+        addedCash = balance;
+        slider.value = balance;
+        document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
+    }
+
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
     document.getElementById('total-source-val').innerText = `$${sourceVal.toFixed(2)}`;
     const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
