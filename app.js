@@ -46,8 +46,123 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
-// inventory i storeCatalog są w items.js (globalnie dostępne)
+// ============================================
+// SYSTEM FORÓW I HOUSE EDGE
+// ============================================
+const HouseEngine = (() => {
+    const STORAGE_KEY = 'cscasepro_house_state';
+    const FREE_WINS = 3; // ile darmowych wygranych na start
 
+    // Stan ładowany z localStorage
+    let state = {
+        totalSpins: 0,
+        totalWins: 0,
+        totalLosses: 0,
+        currentStreak: 0,      // + wygrane, - przegrane
+        forcedNextOutcome: null, // 'win' | 'loss' | null – wymuszenie
+        streakPattern: [],     // kolejka wymuszonych wyników
+        freeWinsLeft: FREE_WINS
+    };
+
+    function load() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                state = { ...state, ...parsed };
+            }
+        } catch (e) {}
+    }
+
+    function save() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    // Zwraca zmodyfikowaną szansę (w %) – "prawdziwą" do losowania
+    // oraz informację, czy to był forced outcome.
+    function getAdjustedOutcome(playerChance) {
+        load();
+
+        // 1) FORY: pierwsze 3 spiny zawsze wygrane
+        if (state.freeWinsLeft > 0) {
+            state.freeWinsLeft--;
+            state.totalSpins++;
+            state.totalWins++;
+            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+            save();
+            return { isWin: true, forced: true, reason: 'FREE_WIN', playerChance };
+        }
+
+        // 2) Wymuszony wynik z kolejki (passa / przegrana)
+        if (state.streakPattern.length > 0) {
+            const forced = state.streakPattern.shift();
+            state.totalSpins++;
+            if (forced === 'win') {
+                state.totalWins++;
+                state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+            } else {
+                state.totalLosses++;
+                state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
+            }
+            save();
+            return { isWin: forced === 'win', forced: true, reason: 'PATTERN', playerChance };
+        }
+
+        // 3) Normalne losowanie z house edge
+        // Im więcej spinów, tym większa przewaga strony.
+        const spinsFactor = Math.min(state.totalSpins / 100, 0.5); // 0 → 0.5 (po 100 spinach)
+        // Bazowy house edge 15% + rosnący z czasem do ~30%
+        const houseEdge = 0.15 + spinsFactor * 0.15;
+
+        // Zmniejsz szansę gracza
+        const adjusted = Math.max(1, playerChance * (1 - houseEdge));
+        const roll = Math.random() * 100;
+        const isWin = roll <= adjusted;
+
+        state.totalSpins++;
+        if (isWin) {
+            state.totalWins++;
+            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+        } else {
+            state.totalLosses++;
+            state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
+        }
+
+        // 4) Planowanie passy / nagłej przegranej
+        // Jeśli gracz przegrał 3+ razy z rzędu – daj mu 2 wygrane (żeby nie odejść)
+        // Jeśli gracz wygrał 3+ razy z rzędu – daj mu przegraną (nagła)
+        if (state.currentStreak <= -3) {
+            state.streakPattern = ['win', 'win'];
+        } else if (state.currentStreak >= 3) {
+            state.streakPattern = ['loss'];
+        }
+
+        save();
+        return { isWin, forced: false, reason: 'NORMAL', playerChance, adjustedChance: adjusted, houseEdge };
+    }
+
+    function getStats() {
+        load();
+        return { ...state };
+    }
+
+    function reset() {
+        state = {
+            totalSpins: 0, totalWins: 0, totalLosses: 0,
+            currentStreak: 0, forcedNextOutcome: null,
+            streakPattern: [], freeWinsLeft: FREE_WINS
+        };
+        save();
+    }
+
+    return { getAdjustedOutcome, getStats, reset };
+})();
+
+// ============================================
+// AUDIO
+// ============================================
 const AudioSynth = {
     ctx: null,
     init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -353,7 +468,19 @@ async function startUpgrade() {
 
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
     const targetVal = selectedTargetItem.price;
-    const realChance = Math.min(Math.max((sourceVal / targetVal) * 100, 1.0), 80.0);
+    const rawChance = Math.min(Math.max((sourceVal / targetVal) * 100, 1.0), 80.0);
+
+    // ============================================
+    // HOUSE ENGINE – decyduje o wyniku (for / pattern / house edge)
+    // ============================================
+    const houseResult = HouseEngine.getAdjustedOutcome(rawChance);
+    const isWin = houseResult.isWin;
+    const realChance = isWin ? 100 : 0; // dla wizualizacji – igła pokaże wynik
+
+    console.log(`[HOUSE] ${houseResult.reason} | player=${rawChance.toFixed(2)}% | forced=${houseResult.forced} → ${isWin ? '✅ WIN' : '❌ LOSS'}`);
+    if (houseResult.adjustedChance !== undefined) {
+        console.log(`[HOUSE] adjusted=${houseResult.adjustedChance.toFixed(2)}% | houseEdge=${(houseResult.houseEdge*100).toFixed(1)}%`);
+    }
 
     if (addedCash > 0) {
         balance -= addedCash;
@@ -375,10 +502,10 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    const targetOffsetDeg = drawSpinAngle(realChance);
-    const isWin = readOutcomeFromAngle(targetOffsetDeg, realChance);
-
-    console.log(`[SPIN] chance=${realChance.toFixed(2)}% offset=${targetOffsetDeg.toFixed(2)}° → ${isWin ? '✅ WYGRANA' : '❌ PRZEGRANA'}`);
+    // Rysowanie igły – jeśli wygrana, wjedzie w zielony obszar, jeśli przegrana – obok
+    const targetOffsetDeg = isWin
+        ? (Math.random() * (rawChance / 2) + 1)   // w obszar szansy
+        : (rawChance / 2 + 5 + Math.random() * (360 - rawChance - 10)); // poza obszar
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
