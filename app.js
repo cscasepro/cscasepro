@@ -1,5 +1,5 @@
 // ============================================
-// GAME ENGINE (silnik losujący)
+// GAME ENGINE
 // ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
@@ -25,32 +25,24 @@ const GameEngine = (() => {
             throw new Error('Invalid chance');
         }
         const roll = secureRandom() * 100;
-        return {
-            roll,
-            chance,
-            outcome: roll <= chance,
-            timestamp: Date.now()
-        };
+        return { roll, chance, outcome: roll <= chance, timestamp: Date.now() };
     }
 
     return {
         canSpin,
         rollOutcome,
         getSpinCount: () => _spinCount,
-        registerSpin: () => {
-            _lastSpinTime = Date.now();
-            _spinCount++;
-        }
+        registerSpin: () => { _lastSpinTime = Date.now(); _spinCount++; }
     };
 })();
 
 // ============================================
-// STAN APLIKACJI
+// STAN
 // ============================================
 const state = {
     balance: 0,
-    sourceItem: null,   // przedmiot z ekwipunku
-    targetItem: null,   // przedmiot ze sklepu (cel)
+    sourceItem: null,
+    targetItem: null,
     selectedInventoryId: null,
     cashAdd: 0,
     audioEnabled: true,
@@ -64,6 +56,8 @@ const state = {
 const $ = (id) => document.getElementById(id);
 const fmt = (n) => '$' + Number(n).toFixed(2);
 
+const FALLBACK_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%231a1830'/><path d='M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z' fill='%234a4a6a'/></svg>";
+
 function updateBalance() {
     const el = $('user-balance');
     if (el) el.textContent = fmt(state.balance);
@@ -74,6 +68,12 @@ function setStatus(msg, color = 'text-gray-400') {
     if (!el) return;
     el.className = `h-6 text-xs font-semibold text-center uppercase tracking-wider ${color}`;
     el.textContent = msg;
+}
+
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
 }
 
 // ============================================
@@ -96,15 +96,23 @@ function renderInventory() {
         return;
     }
 
-    grid.innerHTML = inventory.map(item => `
-        <div class="item-card ${item.rarity} bg-cardBg/60 border border-borderBorder/60 rounded-lg p-2 flex flex-col items-center cursor-pointer ${state.selectedInventoryId === item.id ? 'ring-2 ring-accentViolet' : ''}"
+    grid.innerHTML = inventory.map((item, i) => {
+        const isSelected = state.selectedInventoryId === item.id;
+        return `
+        <div class="item-card ${item.rarity} bg-cardBg/60 border ${isSelected ? 'selected-inventory' : 'border-borderBorder/60'} rounded-xl p-2 flex flex-col items-center cursor-pointer group"
+             style="animation-delay: ${i * 20}ms"
              data-id="${item.id}" onclick="selectInventoryItem('${item.id}')">
-            <img src="${item.img}" alt="${item.name}" class="w-full h-12 object-contain mb-1" loading="lazy">
-            <div class="text-[9px] font-bold text-white truncate w-full text-center">${item.name}</div>
-            <div class="text-[9px] text-gray-500 font-mono">${item.wear}</div>
-            <div class="text-[10px] font-bold text-accentViolet font-mono">${fmt(item.price)}</div>
-        </div>
-    `).join('');
+            <div class="w-full aspect-square bg-gradient-to-b from-black/20 to-transparent rounded-lg flex items-center justify-center mb-1.5 overflow-hidden">
+                <img src="${item.img}" alt="${esc(item.name)}"
+                     class="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-110"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
+            </div>
+            <div class="text-[10px] font-bold text-white truncate w-full text-center leading-tight" title="${esc(item.name)}">${esc(item.name)}</div>
+            <div class="text-[9px] text-gray-500 font-mono mt-0.5">${item.wear}</div>
+            <div class="text-[11px] font-bold text-accentViolet font-mono mt-1">${fmt(item.price)}</div>
+        </div>`;
+    }).join('');
 }
 
 // ============================================
@@ -114,14 +122,14 @@ function renderStoreCatalog() {
     const grid = $('catalog-grid');
     if (!grid) return;
 
-    const search = ($('catalog-search')?.value || '').toLowerCase();
+    const search = ($('catalog-search')?.value || '').toLowerCase().trim();
     const sort = $('catalog-sort')?.value || 'asc';
 
-    let items = storeCatalog.filter(it =>
-        it.name.toLowerCase().includes(search)
-    );
-
+    let items = storeCatalog.filter(it => it.name.toLowerCase().includes(search));
     items.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
+
+    const badge = $('catalog-count-badge');
+    if (badge) badge.textContent = items.length;
 
     if (items.length === 0) {
         grid.innerHTML = `
@@ -132,15 +140,23 @@ function renderStoreCatalog() {
         return;
     }
 
-    grid.innerHTML = items.map(item => `
-        <div class="item-card ${item.rarity} bg-cardBg/60 border border-borderBorder/60 rounded-lg p-2 flex flex-col items-center cursor-pointer"
+    grid.innerHTML = items.map((item, i) => {
+        const isSelected = state.targetItem?.id === item.id;
+        return `
+        <div class="item-card ${item.rarity} bg-cardBg/60 border ${isSelected ? 'selected-target' : 'border-borderBorder/60'} rounded-xl p-2 flex flex-col items-center cursor-pointer group"
+             style="animation-delay: ${i * 20}ms"
              data-id="${item.id}" onclick="selectTargetItem('${item.id}')">
-            <img src="${item.img}" alt="${item.name}" class="w-full h-12 object-contain mb-1" loading="lazy">
-            <div class="text-[9px] font-bold text-white truncate w-full text-center">${item.name}</div>
-            <div class="text-[9px] text-gray-500 font-mono">${item.wear}</div>
-            <div class="text-[10px] font-bold text-accentBlue font-mono">${fmt(item.price)}</div>
-        </div>
-    `).join('');
+            <div class="w-full aspect-square bg-gradient-to-b from-black/20 to-transparent rounded-lg flex items-center justify-center mb-1.5 overflow-hidden">
+                <img src="${item.img}" alt="${esc(item.name)}"
+                     class="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-110"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
+            </div>
+            <div class="text-[10px] font-bold text-white truncate w-full text-center leading-tight" title="${esc(item.name)}">${esc(item.name)}</div>
+            <div class="text-[9px] text-gray-500 font-mono mt-0.5">${item.wear}</div>
+            <div class="text-[11px] font-bold text-accentBlue font-mono mt-1">${fmt(item.price)}</div>
+        </div>`;
+    }).join('');
 }
 
 // ============================================
@@ -150,13 +166,9 @@ function selectInventoryItem(id) {
     const item = inventory.find(i => i.id === id);
     if (!item) return;
     state.selectedInventoryId = id;
-
-    // Ustaw jako source
     state.sourceItem = item;
     renderSourceItem();
     renderInventory();
-
-    // Suwak – maksymalna kwota = różnica między celem a source
     updateCashSliderMax();
     updateUpgradeChance();
 }
@@ -166,6 +178,7 @@ function selectTargetItem(id) {
     if (!item) return;
     state.targetItem = item;
     renderTargetItem();
+    renderStoreCatalog();
     updateCashSliderMax();
     updateUpgradeChance();
 }
@@ -186,6 +199,7 @@ function renderSourceItem() {
     empty.classList.add('hidden');
     filled.classList.remove('hidden');
     $('source-img').src = state.sourceItem.img;
+    $('source-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
     $('source-name').textContent = state.sourceItem.name;
     $('source-price').textContent = fmt(state.sourceItem.price);
     $('offered-item-wear').textContent = state.sourceItem.wear;
@@ -208,6 +222,7 @@ function renderTargetItem() {
     empty.classList.add('hidden');
     filled.classList.remove('hidden');
     $('target-img').src = state.targetItem.img;
+    $('target-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
     $('target-name').textContent = state.targetItem.name;
     $('target-price').textContent = fmt(state.targetItem.price);
     $('target-item-wear').textContent = state.targetItem.wear;
@@ -230,12 +245,13 @@ function clearSourceItem() {
 function clearTargetItem() {
     state.targetItem = null;
     renderTargetItem();
+    renderStoreCatalog();
     updateCashSliderMax();
     updateUpgradeChance();
 }
 
 // ============================================
-// SUWAK DODATKOWEJ KWOTY
+// SUWAK
 // ============================================
 function updateCashSliderMax() {
     const slider = $('cash-slider');
@@ -246,6 +262,7 @@ function updateCashSliderMax() {
         slider.value = 0;
         state.cashAdd = 0;
         $('cash-add-label').textContent = fmt(0);
+        updateTotalSource();
         return;
     }
 
@@ -273,19 +290,24 @@ function updateTotalSource() {
 }
 
 // ============================================
-// OBLICZANIE SZANSY// ============================================
+// SZANSA
+// ============================================
 function updateUpgradeChance() {
     const chanceEl = $('win-chance-text');
     const multEl = $('multiplier-text');
     const btn = $('upgrade-btn');
     if (!chanceEl || !multEl || !btn) return;
 
+    const disabledClass = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10';
+    const activeClass = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all upgrade-btn-active text-white border border-accentViolet/40 cursor-pointer z-10';
+
     if (!state.sourceItem || !state.targetItem) {
         chanceEl.textContent = '0.00%';
         multEl.textContent = '0.00x';
         btn.disabled = true;
-        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10';
+        btn.className = disabledClass;
         setStatus('Wybierz przedmioty do ulepszenia');
+        updateWheelArcs(0);
         return;
     }
 
@@ -296,27 +318,24 @@ function updateUpgradeChance() {
 
     chanceEl.textContent = chance.toFixed(2) + '%';
     multEl.textContent = multiplier.toFixed(2) + 'x';
-
-    // Aktualizuj łuki na kole
     updateWheelArcs(chance);
 
-    // Walidacja
     if (target <= totalSource) {
         btn.disabled = true;
-        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10';
+        btn.className = disabledClass;
         setStatus('Cel musi być droższy od wpłaty', 'text-yellow-500');
         return;
     }
 
     if (state.cashAdd > state.balance) {
         btn.disabled = true;
-        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10';
+        btn.className = disabledClass;
         setStatus('Za mało środków na saldzie', 'text-red-500');
         return;
     }
 
     btn.disabled = false;
-    btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all upgrade-btn-active text-white border border-accentViolet/40 cursor-pointer z-10';
+    btn.className = activeClass;
     setStatus('Gotowe do ulepszenia', 'text-green-400');
 }
 
@@ -325,13 +344,11 @@ function updateWheelArcs(chance) {
     const rightArc = $('win-arc-right');
     if (!leftArc || !rightArc) return;
 
-    const circumference = 2 * Math.PI * 72; // ~452.38
+    const circumference = 2 * Math.PI * 72;
     const winLen = (chance / 100) * circumference;
     const loseLen = circumference - winLen;
 
-    // Lewy łuk – wygrana (kolor czerwony w oryginale, ale to Twój wybór)
     leftArc.setAttribute('stroke-dasharray', `${winLen} ${circumference}`);
-    // Prawy łuk – przegrana
     rightArc.setAttribute('stroke-dasharray', `${loseLen} ${circumference}`);
     rightArc.setAttribute('stroke', 'url(#gradOrange)');
 }
@@ -360,7 +377,6 @@ function startUpgrade() {
     btn.textContent = 'KRĘCENIE...';
     btn.classList.add('spinning-glow');
 
-    // Animacja igły
     const needle = $('needle');
     const targetRot = 360 * 5 + Math.random() * 360;
     if (needle) {
@@ -376,19 +392,16 @@ function startUpgrade() {
             result = GameEngine.rollOutcome(chance);
         } catch (e) {
             console.error(e);
-            result = { outcome: false };
+            result = { outcome: false, roll: 0 };
         }
 
-        // Zatrzymaj igłę dokładnie tam, gdzie wypadło
         const finalDeg = (result.roll / 100) * 360;
         if (needle) {
             needle.style.transition = 'transform 0.4s ease-out';
             needle.style.transform = `rotate(${finalDeg}deg)`;
         }
 
-        setTimeout(() => {
-            finishUpgrade(result.outcome);
-        }, 450);
+        setTimeout(() => finishUpgrade(result.outcome), 450);
     }, 3000);
 }
 
@@ -398,7 +411,6 @@ function finishUpgrade(won) {
     btn.classList.remove('spinning-glow');
     btn.textContent = 'ULEPSZ';
 
-    // Reset igły
     const needle = $('needle');
     if (needle) {
         setTimeout(() => {
@@ -408,9 +420,8 @@ function finishUpgrade(won) {
     }
 
     if (won) {
-        // Wygrana – sourceItem znika, targetItem trafia do ekwipunku
         const wonItem = {
-            id: 'inv_' + Date.now(),
+            id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
             name: state.targetItem.name,
             wear: state.targetItem.wear,
             price: state.targetItem.price,
@@ -418,20 +429,15 @@ function finishUpgrade(won) {
             img: state.targetItem.img,
         };
 
-        // Usuń source z ekwipunku (jeśli to był item z inventory)
         const srcIdx = inventory.findIndex(i => i.id === state.sourceItem.id);
         if (srcIdx !== -1) inventory.splice(srcIdx, 1);
 
-        // Odejmij dodatek z salda
         state.balance -= state.cashAdd;
-
-        // Dodaj wygrany przedmiot
         inventory.push(wonItem);
 
         showResultModal(true, wonItem);
         spawnParticles(true);
     } else {
-        // Przegrana – sourceItem znika z ekwipunku, dodatek z salda też
         const srcIdx = inventory.findIndex(i => i.id === state.sourceItem.id);
         if (srcIdx !== -1) inventory.splice(srcIdx, 1);
         state.balance -= state.cashAdd;
@@ -440,7 +446,6 @@ function finishUpgrade(won) {
         spawnParticles(false);
     }
 
-    // Reset stanu
     state.sourceItem = null;
     state.targetItem = null;
     state.cashAdd = 0;
@@ -453,6 +458,7 @@ function finishUpgrade(won) {
     renderSourceItem();
     renderTargetItem();
     renderInventory();
+    renderStoreCatalog();
     updateBalance();
     updateUpgradeChance();
 }
@@ -484,6 +490,7 @@ function showResultModal(won, item) {
     }
 
     $('modal-item-img').src = item.img;
+    $('modal-item-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
     $('modal-item-name').textContent = item.name;
     $('modal-item-price').textContent = fmt(item.price);
 
@@ -509,7 +516,9 @@ function closeResultModal() {
 function spawnParticles(won) {
     const container = $('result-modal-content');
     if (!container) return;
-    const colors = won ? ['#22c55e', '#8b5cf6', '#38bdf8', '#fde047'] : ['#ef4444', '#b91c1c', '#7f1d1d'];
+    const colors = won
+        ? ['#22c55e', '#8b5cf6', '#38bdf8', '#fde047']
+        : ['#ef4444', '#b91c1c', '#7f1d1d'];
     for (let i = 0; i < 20; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
@@ -535,7 +544,6 @@ function sellSelectedItem() {
     if (idx === -1) return;
 
     const item = inventory[idx];
-    // Sprzedaż za 85% ceny
     const sellPrice = item.price * 0.85;
     state.balance += sellPrice;
     inventory.splice(idx, 1);
@@ -557,9 +565,7 @@ function openPaymentModal() {
     $('payment-modal')?.classList.remove('hidden');
     $('payment-message').textContent = '';
 }
-function closePaymentModal() {
-    $('payment-modal')?.classList.add('hidden');
-}
+function closePaymentModal() { $('payment-modal')?.classList.add('hidden'); }
 
 function confirmPayment() {
     const input = $('payment-input');
@@ -572,28 +578,20 @@ function confirmPayment() {
         return;
     }
 
-    // Symulacja: dodaj skiny o wartości ~kwoty + resztę do salda
-    // (w prawdziwej aplikacji – integracja z API płatności)
     state.balance += amount;
 
-    // Dodaj losowy skin z sklepu o podobnej wartości
     const affordable = storeCatalog.filter(i => i.price <= amount);
     if (affordable.length > 0) {
         const pick = affordable[Math.floor(Math.random() * affordable.length)];
-        const remaining = amount - pick.price;
-
         inventory.push({
-            id: 'inv_' + Date.now(),
+            id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
             name: pick.name,
             wear: pick.wear,
             price: pick.price,
             rarity: pick.rarity,
             img: pick.img,
         });
-
         state.balance -= pick.price;
-        state.balance += 0; // reszta już dodana wcześniej
-
         msg.textContent = `Dodano: ${pick.name} + ${fmt(amount - pick.price)} salda`;
     } else {
         msg.textContent = `Dodano ${fmt(amount)} do salda`;
@@ -612,9 +610,7 @@ function openPromoModal() {
     $('promo-input').value = '';
     $('promo-message').textContent = '';
 }
-function closePromoModal() {
-    $('promo-modal')?.classList.add('hidden');
-}
+function closePromoModal() { $('promo-modal')?.classList.add('hidden'); }
 
 function redeemPromoCode() {
     const code = $('promo-input').value.trim().toUpperCase();
@@ -626,12 +622,7 @@ function redeemPromoCode() {
         return;
     }
 
-    // Przykładowe kody
-    const codes = {
-        'WELCOME': 5,
-        'CS2PRO': 10,
-        'FREE': 1,
-    };
+    const codes = { 'WELCOME': 5, 'CS2PRO': 10, 'FREE': 1 };
 
     if (codes[code]) {
         state.balance += codes[code];
@@ -666,7 +657,7 @@ function toggleAudio() {
 }
 
 // ============================================
-// LIVE FEED (symulacja)
+// LIVE FEED
 // ============================================
 function startLiveFeed() {
     const feed = $('live-feed');
@@ -681,7 +672,7 @@ function startLiveFeed() {
         el.innerHTML = `
             <span class="font-mono text-gray-500">User${Math.floor(Math.random()*9999)}</span>
             <span class="${win ? 'text-green-400' : 'text-red-400'}">${win ? 'wygrał' : 'przegrał'}</span>
-            <span class="text-white font-semibold truncate max-w-[140px]">${name}</span>
+            <span class="text-white font-semibold truncate max-w-[140px]">${esc(name)}</span>
         `;
         feed.insertBefore(el, feed.firstChild);
         while (feed.children.length > 15) feed.removeChild(feed.lastChild);
@@ -692,7 +683,7 @@ function startLiveFeed() {
 }
 
 // ============================================
-// LICZNIKI (symulacja)
+// LICZNIKI
 // ============================================
 function startCounters() {
     const setCounters = (val) => {
@@ -727,10 +718,9 @@ function startCounters() {
 }
 
 // ============================================
-// INICJALIZACJA
+// INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
-    // Startowy bonus
     state.balance = 0;
 
     renderInventory();
@@ -739,8 +729,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUpgradeChance();
     startLiveFeed();
     startCounters();
-
-    // Wyszukiwarka i sort już mają oninput/onchange w HTML
 
     console.log('[CSCASEPRO] Zainicjalizowano. Sklep:', storeCatalog.length, 'pozycji.');
 });
