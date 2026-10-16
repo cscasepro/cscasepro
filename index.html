@@ -19,9 +19,7 @@
 tailwind.config = {
     theme: {
         extend: {
-            screens: {
-                'xs': '420px',
-            },
+            screens: { 'xs': '420px' },
             colors: {
                 siteBg: '#0d0b1f',
                 panelBg: '#151329',
@@ -194,23 +192,13 @@ input[type=range]::-moz-range-track {
 
 /* === MOBILE FIXES === */
 @media (max-width: 640px) {
-    input[type=range]::-webkit-slider-thumb {
-        height: 26px; width: 26px; margin-top: -10px;
-    }
-    input[type=range]::-webkit-slider-runnable-track {
-        height: 8px;
-    }
+    input[type=range]::-webkit-slider-thumb { height: 26px; width: 26px; margin-top: -10px; }
+    input[type=range]::-webkit-slider-runnable-track { height: 8px; }
     input[type=range]::-moz-range-thumb { height: 26px; width: 26px; }
     input[type=range]::-moz-range-track { height: 8px; }
 
-    .item-card:active {
-        transform: scale(0.97);
-        box-shadow: 0 0 0 2px rgba(139,92,246,0.5);
-    }
-    .stat-badge:active {
-        border-color: rgba(139,92,246,0.5);
-        background: rgba(139,92,246,0.08);
-    }
+    .item-card:active { transform: scale(0.97); box-shadow: 0 0 0 2px rgba(139,92,246,0.5); }
+    .stat-badge:active { border-color: rgba(139,92,246,0.5); background: rgba(139,92,246,0.08); }
     #promo-input, #payment-input { scroll-margin-bottom: 120px; }
 }
 
@@ -218,7 +206,6 @@ input[type=range]::-moz-range-track {
     .wheel-label { font-size: 9px; }
 }
 
-/* Ograniczenie animacji dla użytkowników z prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -536,7 +523,7 @@ input[type=range]::-moz-range-track {
 <!-- ============ RESULT MODAL ============ -->
 <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-200 p-3">
     <div id="result-modal-content"
-         class="bg-panelBg border border-borderBorder rounded-2xl p-5 lg:p-6 max-w-sm w-full flex flex-col items-center text-center shadow-2xl shadow-black/60 relative overflow-hidden max-h-[90vh] overflow-y-auto modal-in">
+         class="bg-panelBg border border-borderBorder rounded-2xl p-5 lg:p-6 max-w-sm w-full flex flex-col items-center text-center shadow-2xl shadow-black/60 relative overflow-hidden max-h-[90vh] overflow-y-auto">
         <div class="absolute inset-0 bg-gradient-to-b from-accentViolet/5 to-transparent pointer-events-none"></div>
 
         <div id="modal-status-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 border relative z-10">
@@ -560,7 +547,7 @@ input[type=range]::-moz-range-track {
 
 <!-- ============ PROMO MODAL ============ -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl shadow-black/60 modal-in">
+    <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl shadow-black/60">
         <div class="w-12 h-12 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
             <i class="fa-solid fa-gift text-accentViolet"></i>
         </div>
@@ -584,7 +571,7 @@ input[type=range]::-moz-range-track {
 
 <!-- ============ PAYMENT MODAL ============ -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl shadow-black/60 modal-in">
+    <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl shadow-black/60">
         <div class="w-12 h-12 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
             <i class="fa-solid fa-credit-card text-accentViolet"></i>
         </div>
@@ -606,8 +593,8 @@ input[type=range]::-moz-range-track {
     </div>
 </div>
 
+<!-- ============ SCRIPTS ============ -->
 <script src="items.js"></script>
-<script src="payment.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
