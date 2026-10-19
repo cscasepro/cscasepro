@@ -172,20 +172,20 @@ function renderPlayerInventory() {
     const badge = document.getElementById('inventory-count-badge');
     if (!grid) return;
     grid.innerHTML = '';
-    if (badge) badge.innerText = `${inventory.length} przedmiotów`;
+    if (badge) badge.innerText = `${inventory.length} szt.`;
     
     inventory.forEach(item => {
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
         const node = document.createElement('div');
-        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentViolet bg-accentViolet/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28`;
+        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentViolet bg-accentViolet/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28`;
         node.onclick = () => selectSourceItem(item);
         node.innerHTML = `
             <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
                 <span>${item.wear}</span>
                 <span class="text-white font-mono">$${item.price.toFixed(2)}</span>
             </div>
-            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
-            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+            <img src="${item.img}" class="w-14 sm:w-16 h-10 sm:h-12 object-contain mx-auto my-0.5">
+            <div class="text-[9px] sm:text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
         `;
         grid.appendChild(node);
     });
@@ -208,21 +208,20 @@ function renderStoreCatalog() {
     items.forEach(item => {
         const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
         const node = document.createElement('div');
-        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentBlue bg-accentBlue/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28`;
+        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentBlue bg-accentBlue/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28`;
         node.onclick = () => selectTargetItem(item);
         node.innerHTML = `
             <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
                 <span>${item.wear}</span>
                 <span class="text-white font-mono">$${item.price.toFixed(2)}</span>
             </div>
-            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
-            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+            <img src="${item.img}" class="w-14 sm:w-16 h-10 sm:h-12 object-contain mx-auto my-0.5">
+            <div class="text-[9px] sm:text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
         `;
         grid.appendChild(node);
     });
 }
 
-// Funkcje Pop-up Sklepu
 function openShopModal() {
     const modal = document.getElementById('shop-modal');
     if (modal) {
@@ -255,15 +254,15 @@ function renderPopShop() {
     items.forEach(item => {
         const canAfford = balance >= item.price;
         const node = document.createElement('div');
-        node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28 ${canAfford ? 'hover:border-emerald-500/60' : 'opacity-60 cursor-not-allowed'}`;
+        node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28 ${canAfford ? 'hover:border-emerald-500/60' : 'opacity-60 cursor-not-allowed'}`;
         node.onclick = () => buyItemDirectly(item);
         node.innerHTML = `
             <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
                 <span>${item.wear}</span>
                 <span class="${canAfford ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold">Kup $${item.price.toFixed(2)}</span>
             </div>
-            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
-            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+            <img src="${item.img}" class="w-14 sm:w-16 h-10 sm:h-12 object-contain mx-auto my-0.5">
+            <div class="text-[9px] sm:text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
         `;
         grid.appendChild(node);
     });
@@ -437,7 +436,7 @@ function recalculateOdds() {
         if (multEl) multEl.innerText = '0.00x';
         if (btn) {
             btn.disabled = true;
-            btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10";
+            btn.className = "w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10";
         }
         if (statusMsg) statusMsg.innerText = "Wybierz przedmioty do ulepszenia";
         return;
@@ -455,13 +454,13 @@ function recalculateOdds() {
 
     if (addedCash > balance) {
         btn.disabled = true;
-        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10";
+        btn.className = "w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10";
         if (statusMsg) statusMsg.innerText = "Brak wystarczającego salda";
         return;
     }
     
     btn.disabled = false;
-    btn.className = "upgrade-btn-active w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest text-white border border-accentViolet/50 cursor-pointer z-10";
+    btn.className = "upgrade-btn-active w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest text-white border border-accentViolet/50 cursor-pointer z-10";
     if (statusMsg) statusMsg.innerText = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
 }
 
@@ -520,7 +519,7 @@ async function startUpgrade() {
     const btn = document.getElementById('upgrade-btn');
     if (btn) {
         btn.disabled = true;
-        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-500 border border-borderBorder cursor-not-allowed z-10";
+        btn.className = "w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-500 border border-borderBorder cursor-not-allowed z-10";
         btn.innerText = "LOSOWANIE...";
     }
 
@@ -656,21 +655,21 @@ function openResultModal(isWin, item) {
 
     if (isWin) {
         if (icon) {
-            icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
+            icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
             icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
         }
         if (title) {
-            title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
+            title.className = "font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
             title.innerText = "WYGRANA!";
         }
         if (desc) desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
     } else {
         if (icon) {
-            icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
+            icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
             icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
         }
         if (title) {
-            title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
+            title.className = "font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
             title.innerText = "PORAŻKA!";
         }
         if (desc) desc.innerText = "Przedmiot spłonął podczas próby ulepszenia.";
@@ -710,11 +709,11 @@ function pushLiveFeed(item, isWin) {
     const feed = document.getElementById('live-feed');
     if (!feed) return;
     const node = document.createElement('div');
-    node.className = `bg-cardBg/80 border ${isWin ? 'border-emerald-500/40' : 'border-red-500/40'} rounded-lg px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0 min-w-[130px] transition`;
+    node.className = `bg-cardBg/80 border ${isWin ? 'border-emerald-500/40' : 'border-red-500/40'} rounded-lg px-2 py-1 flex items-center gap-1.5 flex-shrink-0 min-w-[110px] transition`;
     node.innerHTML = `
-        <img src="${item.img}" class="w-8 h-6 object-contain">
-        <div class="flex flex-col text-[10px]">
-            <span class="font-bold text-gray-200 truncate max-w-[70px]">${item.name}</span>
+        <img src="${item.img}" class="w-7 h-5 object-contain">
+        <div class="flex flex-col text-[9px]">
+            <span class="font-bold text-gray-200 truncate max-w-[60px]">${item.name}</span>
             <span class="${isWin ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold">$${item.price.toFixed(2)}</span>
         </div>
     `;
@@ -740,7 +739,7 @@ function toggleAudio() {
 
 function toggleLogin() {
     const btn = document.getElementById('steam-btn-text');
-    if (btn) btn.innerText = btn.innerText === "Steam User" ? "Niezalogowany" : "Steam User";
+    if (btn) btn.innerText = btn.innerText === "Steam" ? "Niezalogowany" : "Steam";
 }
 
 const PROMO_CODE = '98CASE';
