@@ -717,7 +717,9 @@ function redeemPromoCode() {
 
 function openPaymentModal() {
     const modal = document.getElementById('payment-modal');
+    const msg = document.getElementById('payment-message');
     if (modal) modal.classList.remove('hidden');
+    if (msg) msg.innerHTML = '';
 }
 
 function closePaymentModal() {
@@ -736,16 +738,48 @@ function confirmPayment() {
         return;
     }
 
-    balance += amount;
+    if (!storeCatalog || storeCatalog.length === 0) {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
+        return;
+    }
+
+    let remainingAmount = amount;
+    let addedItemsCount = 0;
+
+    const sortedCatalog = [...storeCatalog].sort((a, b) => a.price - b.price);
+    const minPrice = sortedCatalog[0].price;
+
+    while (remainingAmount >= minPrice) {
+        const affordableItems = sortedCatalog.filter(item => item.price <= remainingAmount);
+        if (affordableItems.length === 0) break;
+
+        const randomItem = affordableItems[Math.floor(Math.random() * affordableItems.length)];
+        
+        inventory.push({ 
+            ...randomItem, 
+            id: 'dep_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) 
+        });
+
+        remainingAmount -= randomItem.price;
+        addedItemsCount++;
+    }
+
+    balance += remainingAmount;
+
+    renderPlayerInventory();
+    
     const balanceEl = document.getElementById('user-balance');
     if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
 
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
-    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Doładowano $${amount.toFixed(2)}!</span>`;
+    recalculateOdds();
+
+    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Otrzymano ${addedItemsCount} skin(ów)! Reszta ($${remainingAmount.toFixed(2)}) trafiła do salda.</span>`;
+
     setTimeout(() => {
         closePaymentModal();
         msg.innerHTML = '';
-    }, 1200);
+    }, 2000);
 }
