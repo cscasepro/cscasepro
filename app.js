@@ -1,24 +1,49 @@
+// ============================================
+// MOCKI DANYCH (jeśli brak w głównym pliku)
+// ============================================
+let inventory = window.inventory || [
+    { id: 'i1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
+    { id: 'i2', name: 'AWP | Asiimov', wear: 'WW', price: 45.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=AWP' }
+];
+
+let storeCatalog = window.storeCatalog || [
+    { id: 's1', name: 'Knife | Doppler', wear: 'FN', price: 150.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Knife' },
+    { id: 's2', name: 'Gloves | Emerald', wear: 'MW', price: 220.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Gloves' }
+];
+
+// ============================================
+// GAME ENGINE
+// ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
     let _spinCount = 0;
     const MIN_SPIN_INTERVAL = 2500;
+    
     function secureRandom() {
         const arr = new Uint32Array(1);
         crypto.getRandomValues(arr);
         return arr[0] / 4294967296;
     }
+    
     function canSpin() {
         const now = Date.now();
         if (now - _lastSpinTime < MIN_SPIN_INTERVAL) return { allowed: false, reason: 'Zwolnij! Odczekaj chwilę.' };
         return { allowed: true };
     }
+    
     function rollOutcome(chance) {
         if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) throw new Error('Invalid chance');
         const roll = secureRandom() * 100;
         return { roll, chance, outcome: roll <= chance, timestamp: Date.now(), spinId: 'spin_' + (++_spinCount) };
     }
-    return { canSpin, rollOutcome, getSpinCount: () => _spinCount,
-        resetRateLimit: () => { _lastSpinTime = 0; }, recordSpin: () => { _lastSpinTime = Date.now(); } };
+    
+    return { 
+        canSpin, 
+        rollOutcome, 
+        getSpinCount: () => _spinCount,
+        resetRateLimit: () => { _lastSpinTime = 0; }, 
+        recordSpin: () => { _lastSpinTime = Date.now(); } 
+    };
 })();
 
 (function protectAgainstTampering() {
@@ -38,7 +63,7 @@ const GameEngine = (() => {
     try { Object.freeze(GameEngine); } catch (e) {}
 })();
 
-let balance = 0.00;
+let balance = 100.00; // Ustawiono startowy budżet dla testów
 let addedCash = 0.00;
 let isSpinning = false;
 let audioMuted = false;
@@ -47,7 +72,7 @@ let selectedTargetItem = null;
 let calculatedChance = 0;
 
 // ============================================
-// SYSTEM FORÓW I HOUSE EDGE
+// SYSTEM HOUSE EDGE
 // ============================================
 const HouseEngine = (() => {
     const STORAGE_KEY = 'cscasepro_house_state';
@@ -143,12 +168,21 @@ const HouseEngine = (() => {
     return { getAdjustedOutcome, getStats, reset };
 })();
 
+// ============================================
+// AUDIO SYNTH
+// ============================================
 const AudioSynth = {
     ctx: null,
-    init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+    init() { 
+        if (!this.ctx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (AudioContext) this.ctx = new AudioContext();
+        } 
+    },
     playTick(speedFactor = 1) {
         if (audioMuted) return;
         this.init();
+        if (!this.ctx) return;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'sine';
@@ -164,6 +198,7 @@ const AudioSynth = {
     playWin() {
         if (audioMuted) return;
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [440, 554.37, 659.25, 880].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -179,6 +214,7 @@ const AudioSynth = {
     playLoss() {
         if (audioMuted) return;
         this.init();
+        if (!this.ctx) return;
         const now = this.ctx.currentTime;
         [200, 160, 120].forEach((freq, idx) => {
             const osc = this.ctx.createOscillator();
@@ -194,6 +230,7 @@ const AudioSynth = {
 };
 
 function spawnParticles(container, count, colors) {
+    if (!container) return;
     for (let i = 0; i < count; i++) {
         const p = document.createElement('div');
         p.className = 'particle';
@@ -210,24 +247,34 @@ function spawnParticles(container, count, colors) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+    const balanceEl = document.getElementById('user-balance');
+    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+    
     renderPlayerInventory();
     renderStoreCatalog();
     populateLiveFeed();
     updateWheelArc(0);
-    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+    
+    const slider = document.getElementById('cash-slider');
+    if (slider) slider.max = Math.max(0, balance).toFixed(2);
+    
     setInterval(() => {
         const el = document.getElementById('online-counter');
-        let count = parseInt(el.innerText.replace(/,/g, ''));
-        count += Math.floor(Math.random() * 5) - 2;
-        el.innerText = count.toLocaleString('en-US');
+        if (el) {
+            let count = parseInt(el.innerText.replace(/,/g, '')) || 1000;
+            count += Math.floor(Math.random() * 5) - 2;
+            el.innerText = count.toLocaleString('en-US');
+        }
     }, 4000);
 });
 
 function renderPlayerInventory() {
     const grid = document.getElementById('inventory-grid');
+    const badge = document.getElementById('inventory-count-badge');
+    if (!grid) return;
     grid.innerHTML = '';
-    document.getElementById('inventory-count-badge').innerText = `${inventory.length} przedmiotów`;
+    if (badge) badge.innerText = `${inventory.length} przedmiotów`;
+    
     inventory.forEach(item => {
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
         const node = document.createElement('div');
@@ -246,12 +293,18 @@ function renderPlayerInventory() {
 }
 
 function renderStoreCatalog() {
-    const search = document.getElementById('catalog-search').value.toLowerCase();
-    const sort = document.getElementById('catalog-sort').value;
+    const searchInput = document.getElementById('catalog-search');
+    const sortInput = document.getElementById('catalog-sort');
+    const grid = document.getElementById('catalog-grid');
+    if (!grid) return;
+
+    const search = searchInput ? searchInput.value.toLowerCase() : '';
+    const sort = sortInput ? sortInput.value : 'default';
+
     let items = storeCatalog.filter(i => i.name.toLowerCase().includes(search));
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
-    const grid = document.getElementById('catalog-grid');
+
     grid.innerHTML = '';
     items.forEach(item => {
         const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
@@ -273,12 +326,22 @@ function renderStoreCatalog() {
 function selectSourceItem(item) {
     if (isSpinning) return;
     selectedSourceItem = item;
-    document.getElementById('source-empty').classList.add('hidden');
-    document.getElementById('source-filled').classList.remove('hidden');
-    document.getElementById('source-img').src = item.img;
-    document.getElementById('source-name').innerText = item.name;
-    document.getElementById('source-price').innerText = `$${item.price.toFixed(2)}`;
-    document.getElementById('offered-item-wear').innerText = item.wear;
+    
+    const emptyEl = document.getElementById('source-empty');
+    const filledEl = document.getElementById('source-filled');
+    if (emptyEl) emptyEl.classList.add('hidden');
+    if (filledEl) filledEl.classList.remove('hidden');
+    
+    const imgEl = document.getElementById('source-img');
+    const nameEl = document.getElementById('source-name');
+    const priceEl = document.getElementById('source-price');
+    const wearEl = document.getElementById('offered-item-wear');
+
+    if (imgEl) imgEl.src = item.img;
+    if (nameEl) nameEl.innerText = item.name;
+    if (priceEl) priceEl.innerText = `$${item.price.toFixed(2)}`;
+    if (wearEl) wearEl.innerText = item.wear;
+
     renderPlayerInventory();
     recalculateOdds();
 }
@@ -286,33 +349,38 @@ function selectSourceItem(item) {
 function clearSourceItem() {
     if (isSpinning) return;
     selectedSourceItem = null;
-    document.getElementById('source-empty').classList.remove('hidden');
-    document.getElementById('source-filled').classList.add('hidden');
-    document.getElementById('offered-item-wear').innerText = 'Brak';
-    renderPlayerInventory();
-    recalculateOdds();
-}
+    
+    const emptyEl = document.getElementById('source-empty');
+    const filledEl = document.getElementById('source-filled');
+    const wearEl = document.getElementById('offered-item-wear');
 
-function sellSelectedItem() {
-    if (!selectedSourceItem || isSpinning) return;
-    balance += selectedSourceItem.price;
-    document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
-    const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
-    if (idx > -1) inventory.splice(idx, 1);
-    clearSourceItem();
-    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    if (filledEl) filledEl.classList.add('hidden');
+    if (wearEl) wearEl.innerText = 'Brak';
+
+    renderPlayerInventory();
     recalculateOdds();
 }
 
 function selectTargetItem(item) {
     if (isSpinning) return;
     selectedTargetItem = item;
-    document.getElementById('target-empty').classList.add('hidden');
-    document.getElementById('target-filled').classList.remove('hidden');
-    document.getElementById('target-img').src = item.img;
-    document.getElementById('target-name').innerText = item.name;
-    document.getElementById('target-price').innerText = `$${item.price.toFixed(2)}`;
-    document.getElementById('target-item-wear').innerText = item.wear;
+
+    const emptyEl = document.getElementById('target-empty');
+    const filledEl = document.getElementById('target-filled');
+    if (emptyEl) emptyEl.classList.add('hidden');
+    if (filledEl) filledEl.classList.remove('hidden');
+
+    const imgEl = document.getElementById('target-img');
+    const nameEl = document.getElementById('target-name');
+    const priceEl = document.getElementById('target-price');
+    const wearEl = document.getElementById('target-item-wear');
+
+    if (imgEl) imgEl.src = item.img;
+    if (nameEl) nameEl.innerText = item.name;
+    if (priceEl) priceEl.innerText = `$${item.price.toFixed(2)}`;
+    if (wearEl) wearEl.innerText = item.wear;
+
     renderStoreCatalog();
     recalculateOdds();
 }
@@ -320,9 +388,15 @@ function selectTargetItem(item) {
 function clearTargetItem() {
     if (isSpinning) return;
     selectedTargetItem = null;
-    document.getElementById('target-empty').classList.remove('hidden');
-    document.getElementById('target-filled').classList.add('hidden');
-    document.getElementById('target-item-wear').innerText = 'Brak';
+
+    const emptyEl = document.getElementById('target-empty');
+    const filledEl = document.getElementById('target-filled');
+    const wearEl = document.getElementById('target-item-wear');
+
+    if (emptyEl) emptyEl.classList.remove('hidden');
+    if (filledEl) filledEl.classList.add('hidden');
+    if (wearEl) wearEl.innerText = 'Brak';
+
     renderStoreCatalog();
     recalculateOdds();
 }
@@ -334,55 +408,72 @@ function onCashSliderChange(val) {
     if (isNaN(v) || v < 0) v = 0;
     if (v > balance) v = balance;
     addedCash = v;
-    slider.value = v;
-    document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
+    if (slider) slider.value = v;
+    
+    const label = document.getElementById('cash-add-label');
+    if (label) label.innerText = `$${addedCash.toFixed(2)}`;
     recalculateOdds();
 }
 
 function recalculateOdds() {
     const btn = document.getElementById('upgrade-btn');
     const statusMsg = document.getElementById('status-msg');
-
     const slider = document.getElementById('cash-slider');
+    
     const safeBalance = Math.max(0, balance);
-    slider.max = safeBalance.toFixed(2);
+    if (slider) slider.max = safeBalance.toFixed(2);
+    
     if (addedCash > safeBalance) {
         addedCash = safeBalance;
-        slider.value = safeBalance;
-        document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
+        if (slider) slider.value = safeBalance;
+        const label = document.getElementById('cash-add-label');
+        if (label) label.innerText = `$${addedCash.toFixed(2)}`;
     }
 
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
-    document.getElementById('total-source-val').innerText = `$${sourceVal.toFixed(2)}`;
-    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
-    document.getElementById('total-target-val').innerText = `$${targetVal.toFixed(2)}`;
+    const totalSourceValEl = document.getElementById('total-source-val');
+    if (totalSourceValEl) totalSourceValEl.innerText = `$${sourceVal.toFixed(2)}`;
 
-    if (sourceVal <= 0 || targetVal <= 0) {
+    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
+    const totalTargetValEl = document.getElementById('total-target-val');
+    if (totalTargetValEl) totalTargetValEl.innerText = `$${targetVal.toFixed(2)}`;
+
+    if (sourceVal <= 0 || targetVal <= 0 || !btn) {
         calculatedChance = 0;
         updateWheelArc(0);
-        document.getElementById('win-chance-text').innerText = '0.00%';
-        document.getElementById('multiplier-text').innerText = '0.00x';
-        btn.disabled = true;
-        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10";
-        statusMsg.innerText = "Wybierz przedmioty do ulepszenia";
+        const winChanceEl = document.getElementById('win-chance-text');
+        const multEl = document.getElementById('multiplier-text');
+        if (winChanceEl) winChanceEl.innerText = '0.00%';
+        if (multEl) multEl.innerText = '0.00x';
+        if (btn) {
+            btn.disabled = true;
+            btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10";
+        }
+        if (statusMsg) statusMsg.innerText = "Wybierz przedmioty do ulepszenia";
         return;
     }
+
     let rawChance = (sourceVal / targetVal) * 100;
     calculatedChance = Math.min(Math.max(rawChance, 1.0), 80.0);
     const multiplier = (100 / calculatedChance).toFixed(2);
-    document.getElementById('win-chance-text').innerText = `${calculatedChance.toFixed(2)}%`;
-    document.getElementById('multiplier-text').innerText = `${multiplier}x`;
+    
+    const winChanceEl = document.getElementById('win-chance-text');
+    const multEl = document.getElementById('multiplier-text');
+    if (winChanceEl) winChanceEl.innerText = `${calculatedChance.toFixed(2)}%`;
+    if (multEl) multEl.innerText = `${multiplier}x`;
+    
     updateWheelArc(calculatedChance);
 
     if (addedCash > balance) {
         btn.disabled = true;
         btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10";
-        statusMsg.innerText = "Brak wystarczającego salda";
+        if (statusMsg) statusMsg.innerText = "Brak wystarczającego salda";
         return;
     }
+    
     btn.disabled = false;
     btn.className = "upgrade-btn-active w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest text-white border border-accentViolet/50 cursor-pointer z-10";
-    statusMsg.innerText = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
+    if (statusMsg) statusMsg.innerText = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
 }
 
 function pickGradient(percentage) {
@@ -395,8 +486,9 @@ function pickGradient(percentage) {
 function updateWheelArc(percentage) {
     const leftArc = document.getElementById('win-arc-left');
     const rightArc = document.getElementById('win-arc-right');
-    const circumference = 452.38;
+    if (!leftArc || !rightArc) return;
 
+    const circumference = 452.38;
     const halfPercent = percentage / 2;
     const strokeLength = (halfPercent / 100) * circumference;
 
@@ -408,41 +500,14 @@ function updateWheelArc(percentage) {
     rightArc.setAttribute('stroke', gradient);
 }
 
-function drawSpinAngle(realChance) {
-    const halfAngleDeg = (realChance / 2 / 100) * 360;
-    const EDGE = 1.5;
-    const roll = Math.random() * 100;
-
-    if (roll < realChance) {
-        const side = Math.random() < 0.5 ? 'right' : 'left';
-        const minA = EDGE;
-        const maxA = Math.max(halfAngleDeg - EDGE, minA + 0.5);
-        const angleInArc = minA + Math.random() * (maxA - minA);
-        return side === 'right' ? angleInArc : (360 - angleInArc);
-    } else {
-        const minA = halfAngleDeg + EDGE;
-        const maxA = 360 - halfAngleDeg - EDGE;
-        if (maxA <= minA) return 180;
-        return minA + Math.random() * (maxA - minA);
-    }
-}
-
-function readOutcomeFromAngle(offsetDeg, realChance) {
-    const halfAngleDeg = (realChance / 2 / 100) * 360;
-    const a = ((offsetDeg % 360) + 360) % 360;
-    const inRight = a <= halfAngleDeg;
-    const inLeft = a >= 360 - halfAngleDeg;
-    return inRight || inLeft;
-}
-
 async function startUpgrade() {
     if (isSpinning || !selectedTargetItem) return;
     if (addedCash > balance) return;
 
     const rateCheck = GameEngine.canSpin();
+    const statusMsg = document.getElementById('status-msg');
     if (!rateCheck.allowed) {
-        const statusMsg = document.getElementById('status-msg');
-        statusMsg.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-clock mr-1"></i> ${rateCheck.reason}</span>`;
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-clock mr-1"></i> ${rateCheck.reason}</span>`;
         return;
     }
 
@@ -453,24 +518,26 @@ async function startUpgrade() {
     const houseResult = HouseEngine.getAdjustedOutcome(rawChance);
     const isWin = houseResult.isWin;
 
-    console.log(`[HOUSE] ${houseResult.reason} | player=${rawChance.toFixed(2)}% | forced=${houseResult.forced} → ${isWin ? '✅ WIN' : '❌ LOSS'}`);
-
     if (addedCash > 0) {
         balance -= addedCash;
-        document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
-        document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+        const balanceEl = document.getElementById('user-balance');
+        const slider = document.getElementById('cash-slider');
+        if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+        if (slider) slider.max = Math.max(0, balance).toFixed(2);
     }
 
     isSpinning = true;
     GameEngine.recordSpin();
 
     const btn = document.getElementById('upgrade-btn');
-    btn.disabled = true;
-    btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-500 border border-borderBorder cursor-not-allowed z-10";
-    btn.innerText = "LOSOWANIE...";
+    if (btn) {
+        btn.disabled = true;
+        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-500 border border-borderBorder cursor-not-allowed z-10";
+        btn.innerText = "LOSOWANIE...";
+    }
 
     const wheelSvg = document.getElementById('wheel-svg');
-    wheelSvg.classList.add('spinning-glow');
+    if (wheelSvg) wheelSvg.classList.add('spinning-glow');
 
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
@@ -483,8 +550,10 @@ async function startUpgrade() {
     const needle = document.getElementById('needle');
     const duration = 4500;
 
-    needle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
-    needle.style.transform = `rotate(${totalRotations}deg)`;
+    if (needle) {
+        needle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
+        needle.style.transform = `rotate(${totalRotations}deg)`;
+    }
 
     const TICK_STEP = 6;
     let lastTickAngle = 0;
@@ -510,6 +579,7 @@ async function startUpgrade() {
         const progress = Math.min(elapsed / duration, 1);
         const easedProgress = cubicBezier(progress, 0.1, 0.9, 0.2, 1);
         const currentAngle = easedProgress * totalRotations;
+        
         if (currentAngle - lastTickAngle >= TICK_STEP) {
             const steps = Math.floor((currentAngle - lastTickAngle) / TICK_STEP);
             lastTickAngle += steps * TICK_STEP;
@@ -523,7 +593,7 @@ async function startUpgrade() {
 
     setTimeout(() => {
         if (rafId) cancelAnimationFrame(rafId);
-        wheelSvg.classList.remove('spinning-glow');
+        if (wheelSvg) wheelSvg.classList.remove('spinning-glow');
         finishUpgrade(isWin, totalRotations, wonItemSnapshot, sacrificedItemSnapshot);
     }, duration);
 }
@@ -533,14 +603,16 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
 
     const normalizedDegree = finalDegree % 360;
     const needle = document.getElementById('needle');
-    needle.style.transition = 'none';
-    needle.style.transform = `rotate(${normalizedDegree}deg)`;
+    if (needle) {
+        needle.style.transition = 'none';
+        needle.style.transform = `rotate(${normalizedDegree}deg)`;
+    }
 
     const statusMsg = document.getElementById('status-msg');
 
     if (isWin) {
         AudioSynth.playWin();
-        statusMsg.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
         if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
         inventory.push({ ...wonItem, id: 'i' + Date.now() });
         if (sacrificedItem) {
@@ -551,7 +623,7 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
         openResultModal(true, wonItem);
     } else {
         AudioSynth.playLoss();
-        statusMsg.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-xmark mr-1"></i> ULEPSZENIE NIEUDANE</span>`;
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-xmark mr-1"></i> ULEPSZENIE NIEUDANE</span>`;
         if (navigator.vibrate) navigator.vibrate(200);
         if (sacrificedItem) {
             const idx = inventory.findIndex(i => i.id === sacrificedItem.id);
@@ -567,17 +639,23 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
     }
 
     setTimeout(() => {
-        needle.style.transition = 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)';
-        needle.style.transform = 'rotate(0deg)';
+        if (needle) {
+            needle.style.transition = 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)';
+            needle.style.transform = 'rotate(0deg)';
+        }
     }, 800);
 
     const sliderEl = document.getElementById('cash-slider');
-    sliderEl.max = Math.max(0, balance).toFixed(2);
-    sliderEl.value = 0;
+    if (sliderEl) {
+        sliderEl.max = Math.max(0, balance).toFixed(2);
+        sliderEl.value = 0;
+    }
     onCashSliderChange(0);
     clearSourceItem();
     clearTargetItem();
-    document.getElementById('upgrade-btn').innerText = "ULEPSZ";
+    
+    const btn = document.getElementById('upgrade-btn');
+    if (btn) btn.innerText = "ULEPSZ";
 
     setTimeout(() => GameEngine.resetRateLimit(), 2500);
 }
@@ -590,44 +668,63 @@ function openResultModal(isWin, item) {
     const title = document.getElementById('modal-title');
     const desc = document.getElementById('modal-desc');
 
+    if (!modal) return;
+
     if (isWin) {
-        icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
-        icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
-        title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
-        title.innerText = "WYGRANA!";
-        desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
+        if (icon) {
+            icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
+            icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
+        }
+        if (title) {
+            title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
+            title.innerText = "WYGRANA!";
+        }
+        if (desc) desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
     } else {
-        icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
-        icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-        title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
-        title.innerText = "PORAŻKA!";
-        desc.innerText = "Przedmiot spłonął podczas próby ulepszenia.";
+        if (icon) {
+            icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
+            icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+        }
+        if (title) {
+            title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
+            title.innerText = "PORAŻKA!";
+        }
+        if (desc) desc.innerText = "Przedmiot spłonął podczas próby ulepszenia.";
     }
-    document.getElementById('modal-item-img').src = item.img;
-    document.getElementById('modal-item-name').innerText = item.name;
-    document.getElementById('modal-item-price').innerText = `$${item.price.toFixed(2)}`;
+    
+    const imgEl = document.getElementById('modal-item-img');
+    const nameEl = document.getElementById('modal-item-name');
+    const priceEl = document.getElementById('modal-item-price');
+
+    if (imgEl) imgEl.src = item.img;
+    if (nameEl) nameEl.innerText = item.name;
+    if (priceEl) priceEl.innerText = `$${item.price.toFixed(2)}`;
 
     modal.classList.remove('hidden');
     setTimeout(() => {
         modal.classList.remove('opacity-0');
-        content.classList.remove('modal-in');
-        void content.offsetWidth;
-        content.classList.add('modal-in');
+        if (content) {
+            content.classList.remove('modal-in');
+            void content.offsetWidth;
+            content.classList.add('modal-in');
+        }
     }, 10);
 
-    if (isWin) {
+    if (isWin && content) {
         setTimeout(() => spawnParticles(content, 25, ['#10b981', '#34d399', '#6ee7b7', '#8b5cf6', '#38bdf8']), 100);
     }
 }
 
 function closeResultModal() {
     const modal = document.getElementById('result-modal');
+    if (!modal) return;
     modal.classList.add('opacity-0');
     setTimeout(() => modal.classList.add('hidden'), 200);
 }
 
 function pushLiveFeed(item, isWin) {
     const feed = document.getElementById('live-feed');
+    if (!feed) return;
     const node = document.createElement('div');
     node.className = `bg-cardBg/80 border ${isWin ? 'border-emerald-500/40' : 'border-red-500/40'} rounded-lg px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0 min-w-[130px] transition hover:border-accentViolet/40`;
     node.innerHTML = `
@@ -650,33 +747,43 @@ function populateLiveFeed() {
 
 function toggleAudio() {
     audioMuted = !audioMuted;
-    document.getElementById('sound-icon').className = audioMuted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high text-gray-400";
+    const icon = document.getElementById('sound-icon');
+    if (icon) {
+        icon.className = audioMuted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high text-gray-400";
+    }
 }
 
 function toggleLogin() {
     const btn = document.getElementById('steam-btn-text');
-    btn.innerText = btn.innerText === "Steam User" ? "Niezalogowany" : "Steam User";
+    if (btn) btn.innerText = btn.innerText === "Steam User" ? "Niezalogowany" : "Steam User";
 }
 
 // ============================================
-// KOD POLECAJĄCY (jednorazowy na konto)
+// KOD PROMO
 // ============================================
 const PROMO_CODE = '98CASE';
 const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
 
 function openPromoModal() {
-    document.getElementById('promo-modal').classList.remove('hidden');
-    document.getElementById('promo-message').innerHTML = '';
-    document.getElementById('promo-input').value = '';
+    const modal = document.getElementById('promo-modal');
+    const msg = document.getElementById('promo-message');
+    const input = document.getElementById('promo-input');
+    if (modal) modal.classList.remove('hidden');
+    if (msg) msg.innerHTML = '';
+    if (input) input.value = '';
 }
 
 function closePromoModal() {
-    document.getElementById('promo-modal').classList.add('hidden');
+    const modal = document.getElementById('promo-modal');
+    if (modal) modal.classList.add('hidden');
 }
 
 function redeemPromoCode() {
-    const input = document.getElementById('promo-input').value.trim().toUpperCase();
+    const inputEl = document.getElementById('promo-input');
     const msg = document.getElementById('promo-message');
+    if (!inputEl || !msg) return;
+
+    const input = inputEl.value.trim().toUpperCase();
 
     if (localStorage.getItem(PROMO_STORAGE_KEY) === 'true') {
         msg.innerHTML = `<span class="text-red-400 font-bold">❌ Ten kod został już wykorzystany na tym koncie.</span>`;
@@ -689,30 +796,9 @@ function redeemPromoCode() {
     }
 
     const promoItems = [
-        {
-            id: 'promo1_' + Date.now(),
-            name: 'AK-47 | Safari Mesh',
-            wear: 'FT',
-            price: 0.46,
-            rarity: 'rarity-milspec',
-            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47+Safari+Mesh'
-        },
-        {
-            id: 'promo2_' + Date.now(),
-            name: 'M4A4 | Urban DDPAT',
-            wear: 'FT',
-            price: 0.75,
-            rarity: 'rarity-milspec',
-            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=M4A4+Urban+DDPAT'
-        },
-        {
-            id: 'promo3_' + Date.now(),
-            name: 'P2000 | Imperial',
-            wear: 'MW',
-            price: 1.25,
-            rarity: 'rarity-restricted',
-            img: 'https://placehold.co/180x130/1a1830/8847ff?text=P2000+Imperial'
-        }
+        { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
+        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=M4A4' },
+        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/8847ff?text=P2000' }
     ];
 
     promoItems.forEach(it => inventory.push(it));
