@@ -108,7 +108,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </span>
         </a>
     </div>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2.5">
+        <!-- IKONKA / PRZYCISK SKLEPU POP-UP -->
+        <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/60 text-white font-rajdhani font-bold px-3.5 py-1.5 rounded-lg flex items-center gap-2 transition text-sm">
+            <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+            <span class="hidden sm:inline">Sklep</span>
+        </button>
+
         <div class="stat-badge flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs">
             <i class="fa-solid fa-wallet text-accentViolet"></i>
             <span class="text-gray-500 hidden sm:inline">SALDO:</span>
@@ -287,7 +293,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 </div>
 
-<!-- Sekcja Ekwipunku oraz Sklepu Ulepszacza -->
+<!-- Sekcja Ekwipunku i Wyboru Celu -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
     <div class="panel-premium rounded-2xl p-4 flex flex-col gap-3">
         <div class="flex justify-between items-center pb-2 border-b border-borderBorder/40">
@@ -315,26 +321,48 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
         <div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1" id="catalog-grid"></div>
     </div>
 </div>
-
-<!-- DODANY SKLEP NA DOLE (Kupowanie skinów za saldo) -->
-<div class="panel-premium rounded-2xl p-4 flex flex-col gap-3 mt-2">
-    <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-borderBorder/40">
-        <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide flex items-center gap-2">
-            <i class="fa-solid fa-store text-emerald-400"></i> Sklep Skinów (Kup za saldo)
-        </span>
-        <div class="flex items-center gap-2">
-            <input type="text" id="bottom-catalog-search" oninput="renderBottomStore()" placeholder="Szukaj w sklepie..." class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/60 w-28 sm:w-36 transition">
-            <select id="bottom-catalog-sort" onchange="renderBottomStore()" class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-emerald-500/60 transition">
-                <option value="asc">Najtańsze</option>
-                <option value="desc">Najdroższe</option>
-            </select>
-        </div>
-    </div>
-    <div class="grid grid-cols-3 sm:grid-cols-6 gap-2.5 max-h-80 overflow-y-auto pr-1" id="bottom-catalog-grid"></div>
-</div>
-
 </main>
 
+<!-- POP-UP SKLEPU (Modal ze wszystkimi skinami) -->
+<div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden">
+<div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-2xl w-full mx-4 flex flex-col shadow-2xl max-h-[85vh]">
+    <div class="flex justify-between items-center pb-3 border-b border-borderBorder/40 mb-3">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center">
+                <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+            </div>
+            <div>
+                <h3 class="font-rajdhani text-xl font-bold uppercase text-white leading-none">Sklep Skinów</h3>
+                <p class="text-[11px] text-gray-400">Kupuj skiny bezpośrednio ze swojego salda</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="text-xs text-gray-400 font-semibold bg-cardBg border border-borderBorder/60 px-3 py-1 rounded-lg">
+                Saldo: <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold">$0.00</span>
+            </div>
+            <button onclick="closeShopModal()" class="text-gray-400 hover:text-white text-lg p-1 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtry i szukanie w sklepie pop-up -->
+    <div class="flex justify-between items-center gap-2 mb-3">
+        <input type="text" id="pop-shop-search" oninput="renderPopShop()" placeholder="Szukaj skina..." class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/60 w-48 transition">
+        <select id="pop-shop-sort" onchange="renderPopShop()" class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-emerald-500/60 transition">
+            <option value="asc">Najtańsze</option>
+            <option value="desc">Najdroższe</option>
+        </select>
+    </div>
+
+    <div id="shop-pop-msg" class="text-xs text-center font-bold h-4 mb-2"></div>
+
+    <!-- Siatka ze skinami -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 overflow-y-auto pr-1 flex-1 min-h-[300px]" id="pop-shop-grid"></div>
+</div>
+</div>
+
+<!-- Modal wyniku -->
 <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity duration-200">
 <div id="result-modal-content" class="bg-panelBg border border-borderBorder rounded-2xl p-6 max-w-sm w-full mx-4 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
     <div id="modal-status-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 border relative z-10">
@@ -353,6 +381,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
+<!-- Modal Kodu -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden">
 <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full mx-4 flex flex-col items-center text-center shadow-2xl">
     <div class="w-12 h-12 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
@@ -369,7 +398,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
-<!-- Modal doładowania z przełącznikiem trybu -->
+<!-- Modal doładowania z opcją na saldo -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden">
 <div class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full mx-4 flex flex-col items-center text-center shadow-2xl">
     <div class="w-12 h-12 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
@@ -379,7 +408,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     <p class="text-xs text-gray-400 mb-3">Wpisz kwotę doładowania:</p>
     <input type="number" id="payment-input" value="5.00" min="0.01" step="0.01" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-lg px-3 py-2 text-center text-white text-lg font-mono font-bold mb-3 focus:outline-none focus:border-accentViolet/60 transition">
     
-    <!-- Przełącznik wyboru trybu doładowania -->
     <div class="flex items-center gap-2 mb-3 text-left w-full bg-cardBg/50 p-2 rounded-lg border border-borderBorder/40">
         <input type="checkbox" id="direct-balance-checkbox" class="w-4 h-4 accent-accentViolet cursor-pointer">
         <label for="direct-balance-checkbox" class="text-[11px] text-gray-300 cursor-pointer leading-tight">
