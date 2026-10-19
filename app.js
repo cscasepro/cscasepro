@@ -140,12 +140,9 @@ function spawnParticles(container, count, colors) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    const balanceEl = document.getElementById('user-balance');
-    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
-    
+    updateBalanceDisplay();
     renderPlayerInventory();
     renderStoreCatalog();
-    renderBottomStore();
     populateLiveFeed();
     updateWheelArc(0);
     
@@ -161,6 +158,14 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }, 4000);
 });
+
+function updateBalanceDisplay() {
+    const balanceEl = document.getElementById('user-balance');
+    const modalBalanceEl = document.getElementById('modal-user-balance');
+    const val = `$${balance.toFixed(2)}`;
+    if (balanceEl) balanceEl.innerText = val;
+    if (modalBalanceEl) modalBalanceEl.innerText = val;
+}
 
 function renderPlayerInventory() {
     const grid = document.getElementById('inventory-grid');
@@ -186,7 +191,7 @@ function renderPlayerInventory() {
     });
 }
 
-// Sklep górny (Cel ulepszenia)
+// Sklep wyboru celu ulepszenia
 function renderStoreCatalog() {
     const searchInput = document.getElementById('catalog-search');
     const sortInput = document.getElementById('catalog-sort');
@@ -218,11 +223,26 @@ function renderStoreCatalog() {
     });
 }
 
-// Sklep dolny (Kupowanie skinów za saldo)
-function renderBottomStore() {
-    const searchInput = document.getElementById('bottom-catalog-search');
-    const sortInput = document.getElementById('bottom-catalog-sort');
-    const grid = document.getElementById('bottom-catalog-grid');
+// Sklep w wyskakującym okienku (Pop-up)
+function openShopModal() {
+    const modal = document.getElementById('shop-modal');
+    if (modal) {
+        modal.classList.remove('hidden');
+        renderPopShop();
+        const msg = document.getElementById('shop-pop-msg');
+        if (msg) msg.innerHTML = '';
+    }
+}
+
+function closeShopModal() {
+    const modal = document.getElementById('shop-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function renderPopShop() {
+    const searchInput = document.getElementById('pop-shop-search');
+    const sortInput = document.getElementById('pop-shop-sort');
+    const grid = document.getElementById('pop-shop-grid');
     if (!grid) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
@@ -234,13 +254,14 @@ function renderBottomStore() {
 
     grid.innerHTML = '';
     items.forEach(item => {
+        const canAfford = balance >= item.price;
         const node = document.createElement('div');
-        node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28 hover:border-emerald-500/50`;
+        node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28 ${canAfford ? 'hover:border-emerald-500/60' : 'opacity-60 cursor-not-allowed'}`;
         node.onclick = () => buyItemDirectly(item);
         node.innerHTML = `
             <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
                 <span>${item.wear}</span>
-                <span class="text-emerald-400 font-mono font-bold">Kup $${item.price.toFixed(2)}</span>
+                <span class="${canAfford ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold">Kup $${item.price.toFixed(2)}</span>
             </div>
             <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
             <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
@@ -250,8 +271,9 @@ function renderBottomStore() {
 }
 
 function buyItemDirectly(item) {
+    const msg = document.getElementById('shop-pop-msg');
     if (balance < item.price) {
-        alert("Brak wystarczającego salda, aby kupić ten skin!");
+        if (msg) msg.innerHTML = `<span class="text-red-400 font-bold">❌ Masz za mało środków w saldzie!</span>`;
         return;
     }
     balance -= item.price;
@@ -260,15 +282,18 @@ function buyItemDirectly(item) {
         id: 'buy_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)
     });
 
-    const balanceEl = document.getElementById('user-balance');
-    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+    updateBalanceDisplay();
 
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
     renderPlayerInventory();
+    renderPopShop();
     recalculateOdds();
     AudioSynth.playWin();
+
+    if (msg) msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Zakupiono ${item.name}! Dodano do ekwipunku.</span>`;
+    setTimeout(() => { if (msg) msg.innerHTML = ''; }, 2500);
 }
 
 function selectSourceItem(item) {
@@ -314,8 +339,7 @@ function sellSelectedItem() {
     if (!selectedSourceItem || isSpinning) return;
     balance += selectedSourceItem.price;
     
-    const balanceEl = document.getElementById('user-balance');
-    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+    updateBalanceDisplay();
     
     const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
     if (idx > -1) inventory.splice(idx, 1);
@@ -486,9 +510,8 @@ async function startUpgrade() {
 
     if (addedCash > 0) {
         balance -= addedCash;
-        const balanceEl = document.getElementById('user-balance');
+        updateBalanceDisplay();
         const slider = document.getElementById('cash-slider');
-        if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
         if (slider) slider.max = Math.max(0, balance).toFixed(2);
     }
 
@@ -641,7 +664,7 @@ function openResultModal(isWin, item) {
             title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
             title.innerText = "WYGRANA!";
         }
-        if (desc) desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
+        if (desc) desc.innerText = "Twój nový skin powędrował do ekwipunku.";
     } else {
         if (icon) {
             icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
@@ -797,11 +820,9 @@ function confirmPayment() {
     const directToBalance = directCheckbox ? directCheckbox.checked : false;
 
     if (directToBalance) {
-        // Opcja: doładowanie bezpośrednio do salda
         balance += amount;
         msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Doładowano $${amount.toFixed(2)} do salda!</span>`;
     } else {
-        // Opcja domyślna: kupowanie skinów do ekwipunku za kwotę, reszta do salda
         if (!storeCatalog || storeCatalog.length === 0) {
             msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
             return;
@@ -833,9 +854,7 @@ function confirmPayment() {
     }
 
     renderPlayerInventory();
-    
-    const balanceEl = document.getElementById('user-balance');
-    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+    updateBalanceDisplay();
 
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
