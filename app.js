@@ -1,4 +1,4 @@
-const CASINO_CONFIG = {
+[cite: 1]const CASINO_CONFIG = {
     RTP_FACTOR: 0.95,
     MIN_CHANCE: 1.0,  
     MAX_CHANCE: 80.0  
@@ -526,9 +526,16 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    const targetOffsetDeg = isWin
-        ? (Math.random() * (chance / 2) + 1)
-        : (chance / 2 + 5 + Math.random() * (360 - chance - 10));
+    // POPRAWIONY FRAGMENT: Kąt docelowy jest teraz w 100% zgodny z wynikiem (isWin)
+    let targetOffsetDeg;
+    if (isWin) {
+        const safeMargin = Math.min(2, chance * 0.1);
+        targetOffsetDeg = safeMargin + Math.random() * (chance - (safeMargin * 2));
+    } else {
+        const minLossDeg = chance + 2;
+        const maxLossDeg = 360 - 2;
+        targetOffsetDeg = minLossDeg + Math.random() * (maxLossDeg - minLossDeg);
+    }
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
