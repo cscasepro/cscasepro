@@ -503,6 +503,9 @@ async function startUpgrade() {
     const targetVal = selectedTargetItem.price;
     const chance = GameEngine.calculateRealChance(sourceVal, targetVal);
 
+    const rollRes = GameEngine.rollOutcome(chance);
+    const isWin = rollRes.outcome;
+
     if (addedCash > 0) {
         balance -= addedCash;
         updateBalanceDisplay();
@@ -523,14 +526,9 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // POPRAWKA: Najpierw losujemy kąt zatrzymania strzałki, a potem sprawdzamy czy wpada w łuk wygranej!
-    // Koło ma zakres 0 - 360 stopni. Łuk wygranej rozciąga się od 0 do `chance` stopni (oraz 360-chance do 360).
-    const targetOffsetDeg = Math.random() * 360;
-    
-    // Sprawdzamy czy wylosowany kąt mieści się w wygranej strefie (górny łuk koła)
-    const normalizedCheckDeg = targetOffsetDeg % 360;
-    const halfChance = chance / 2;
-    const isWin = (normalizedCheckDeg <= halfChance) || (normalizedCheckDeg >= (360 - halfChance));
+    const targetOffsetDeg = isWin
+        ? (Math.random() * (chance / 2) + 1)
+        : (chance / 2 + 5 + Math.random() * (360 - chance - 10));
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
