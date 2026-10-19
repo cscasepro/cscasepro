@@ -31,9 +31,8 @@ window.storeCatalog = [
     { id: 's27', name: 'MAG-7 | Hard Water', wear: 'MW', price: 16.80, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8n5G3wiNW0P-vb_NSI_GGHXOZwtF6ueZhW2eykx534j_VydygIi6fPQJ0DJcmQrIMukK7k9HvZO224FbajI8WnC-tkGoXudK2z8cj' }
 ];
 
-window.inventory = [
-    { id: 'inv1', name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' }
-];
+// Wyczyszczony ekwipunek startowy (pusty)
+window.inventory = [];
 
 // ============================================
 // KONFIGURACJA KASYNA (RTP / House Edge)
@@ -98,9 +97,9 @@ const GameEngine = (() => {
 })();
 
 // ============================================
-// STAN APLIKACJI
+// STAN APLIKACJI (Wyzerowane saldo: $0.00)
 // ============================================
-let balance = 100.00;
+let balance = 0.00;
 let addedCash = 0.00;
 let isSpinning = false;
 let audioMuted = false;
