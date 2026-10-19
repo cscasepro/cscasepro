@@ -145,6 +145,7 @@ window.addEventListener('DOMContentLoaded', () => {
     
     renderPlayerInventory();
     renderStoreCatalog();
+    renderBottomStore();
     populateLiveFeed();
     updateWheelArc(0);
     
@@ -185,6 +186,7 @@ function renderPlayerInventory() {
     });
 }
 
+// Sklep górny (Cel ulepszenia)
 function renderStoreCatalog() {
     const searchInput = document.getElementById('catalog-search');
     const sortInput = document.getElementById('catalog-sort');
@@ -214,6 +216,59 @@ function renderStoreCatalog() {
         `;
         grid.appendChild(node);
     });
+}
+
+// Sklep dolny (Kupowanie skinów za saldo)
+function renderBottomStore() {
+    const searchInput = document.getElementById('bottom-catalog-search');
+    const sortInput = document.getElementById('bottom-catalog-sort');
+    const grid = document.getElementById('bottom-catalog-grid');
+    if (!grid) return;
+
+    const search = searchInput ? searchInput.value.toLowerCase() : '';
+    const sort = sortInput ? sortInput.value : 'default';
+
+    let items = storeCatalog.filter(i => i.name.toLowerCase().includes(search));
+    if (sort === 'asc') items.sort((a, b) => a.price - b.price);
+    if (sort === 'desc') items.sort((a, b) => b.price - a.price);
+
+    grid.innerHTML = '';
+    items.forEach(item => {
+        const node = document.createElement('div');
+        node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28 hover:border-emerald-500/50`;
+        node.onclick = () => buyItemDirectly(item);
+        node.innerHTML = `
+            <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
+                <span>${item.wear}</span>
+                <span class="text-emerald-400 font-mono font-bold">Kup $${item.price.toFixed(2)}</span>
+            </div>
+            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
+            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+        `;
+        grid.appendChild(node);
+    });
+}
+
+function buyItemDirectly(item) {
+    if (balance < item.price) {
+        alert("Brak wystarczającego salda, aby kupić ten skin!");
+        return;
+    }
+    balance -= item.price;
+    inventory.push({
+        ...item,
+        id: 'buy_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5)
+    });
+
+    const balanceEl = document.getElementById('user-balance');
+    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+
+    const slider = document.getElementById('cash-slider');
+    if (slider) slider.max = Math.max(0, balance).toFixed(2);
+
+    renderPlayerInventory();
+    recalculateOdds();
+    AudioSynth.playWin();
 }
 
 function selectSourceItem(item) {
@@ -730,6 +785,7 @@ function closePaymentModal() {
 function confirmPayment() {
     const inputEl = document.getElementById('payment-input');
     const msg = document.getElementById('payment-message');
+    const directCheckbox = document.getElementById('direct-balance-checkbox');
     if (!inputEl || !msg) return;
 
     const amount = parseFloat(inputEl.value);
@@ -738,33 +794,43 @@ function confirmPayment() {
         return;
     }
 
-    if (!storeCatalog || storeCatalog.length === 0) {
-        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
-        return;
+    const directToBalance = directCheckbox ? directCheckbox.checked : false;
+
+    if (directToBalance) {
+        // Opcja: doładowanie bezpośrednio do salda
+        balance += amount;
+        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Doładowano $${amount.toFixed(2)} do salda!</span>`;
+    } else {
+        // Opcja domyślna: kupowanie skinów do ekwipunku za kwotę, reszta do salda
+        if (!storeCatalog || storeCatalog.length === 0) {
+            msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
+            return;
+        }
+
+        let remainingAmount = amount;
+        let addedItemsCount = 0;
+
+        const sortedCatalog = [...storeCatalog].sort((a, b) => a.price - b.price);
+        const minPrice = sortedCatalog[0].price;
+
+        while (remainingAmount >= minPrice) {
+            const affordableItems = sortedCatalog.filter(item => item.price <= remainingAmount);
+            if (affordableItems.length === 0) break;
+
+            const randomItem = affordableItems[Math.floor(Math.random() * affordableItems.length)];
+            
+            inventory.push({ 
+                ...randomItem, 
+                id: 'dep_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) 
+            });
+
+            remainingAmount -= randomItem.price;
+            addedItemsCount++;
+        }
+
+        balance += remainingAmount;
+        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Otrzymano ${addedItemsCount} skin(ów)! Reszta ($${remainingAmount.toFixed(2)}) w saldzie.</span>`;
     }
-
-    let remainingAmount = amount;
-    let addedItemsCount = 0;
-
-    const sortedCatalog = [...storeCatalog].sort((a, b) => a.price - b.price);
-    const minPrice = sortedCatalog[0].price;
-
-    while (remainingAmount >= minPrice) {
-        const affordableItems = sortedCatalog.filter(item => item.price <= remainingAmount);
-        if (affordableItems.length === 0) break;
-
-        const randomItem = affordableItems[Math.floor(Math.random() * affordableItems.length)];
-        
-        inventory.push({ 
-            ...randomItem, 
-            id: 'dep_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) 
-        });
-
-        remainingAmount -= randomItem.price;
-        addedItemsCount++;
-    }
-
-    balance += remainingAmount;
 
     renderPlayerInventory();
     
@@ -775,8 +841,6 @@ function confirmPayment() {
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
     recalculateOdds();
-
-    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Otrzymano ${addedItemsCount} skin(ów)! Reszta ($${remainingAmount.toFixed(2)}) trafiła do salda.</span>`;
 
     setTimeout(() => {
         closePaymentModal();
