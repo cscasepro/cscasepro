@@ -1,5 +1,5 @@
 // ============================================
-// BAZA WSZYSTKICH 27 SKINÓW I STAN GRY
+// BAZA WSZYSTKICH 27 SKINÓW SKLEPU
 // ============================================
 window.storeCatalog = [
     { id: 's1', name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
@@ -31,7 +31,7 @@ window.storeCatalog = [
     { id: 's27', name: 'MAG-7 | Hard Water', wear: 'MW', price: 16.80, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8n5G3wiNW0P-vb_NSI_GGHXOZwtF6ueZhW2eykx534j_VydygIi6fPQJ0DJcmQrIMukK7k9HvZO224FbajI8WnC-tkGoXudK2z8cj' }
 ];
 
-// Wyczyszczony ekwipunek startowy (pusty)
+// Całkowicie pusty ekwipunek na start
 window.inventory = [];
 
 // ============================================
@@ -96,8 +96,25 @@ const GameEngine = (() => {
     };
 })();
 
+(function protectAgainstTampering() {
+    let devtoolsOpen = false;
+    const threshold = 160;
+    setInterval(() => {
+        const w = window.outerWidth - window.innerWidth > threshold;
+        const h = window.outerHeight - window.innerHeight > threshold;
+        if (w || h) {
+            if (!devtoolsOpen) {
+                devtoolsOpen = true;
+                console.clear();
+                console.log('%c⚠️ WYKRYTO DEVTOOLS', 'color: #eb4b4b; font-size: 20px; font-weight: bold;');
+            }
+        } else devtoolsOpen = false;
+    }, 1000);
+    try { Object.freeze(GameEngine); } catch (e) {}
+})();
+
 // ============================================
-// STAN APLIKACJI (Wyzerowane saldo: $0.00)
+// STAN APLIKACJI (Saldo wyzerowane na $0.00)
 // ============================================
 let balance = 0.00;
 let addedCash = 0.00;
@@ -189,7 +206,7 @@ function spawnParticles(container, count, colors) {
 }
 
 // ============================================
-// AUTOMATYCZNE RENDEROWANIE PO ZAŁADOWANIU
+// INICJALIZACJA I RENDEROWANIE PO ZAŁADOWANIU
 // ============================================
 window.addEventListener('DOMContentLoaded', () => {
     const balanceEl = document.getElementById('user-balance');
