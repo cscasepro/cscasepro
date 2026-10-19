@@ -2,13 +2,13 @@
 // KONFIGURACJA KASYNA (House Edge / RTP)
 // ============================================
 const CASINO_CONFIG = {
-    RTP_FACTOR: 0.95, // Return To Player = 95% (Przewaga kasyna / House Edge = 5%)
-    MIN_CHANCE: 1.0,  // Minimalna szansa na wygraną (%)
-    MAX_CHANCE: 80.0  // Maksymalna szansa na wygraną (%)
+    RTP_FACTOR: 0.95, // Return To Player = 95% (Przewaga kasyna = 5%)
+    MIN_CHANCE: 1.0,  
+    MAX_CHANCE: 80.0  
 };
 
 // ============================================
-// GAME ENGINE (Bezpieczne losowanie probabilistyczne)
+// GAME ENGINE (Bezpieczne losowanie)
 // ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
@@ -78,7 +78,7 @@ const GameEngine = (() => {
 })();
 
 // ============================================
-// STAN APLIKACJI I DANE
+// STAN APLIKACJI
 // ============================================
 let balance = 100.00;
 let addedCash = 0.00;
@@ -88,15 +88,9 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
-let inventory = window.inventory || [
-    { id: 'i1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
-    { id: 'i2', name: 'AWP | Asiimov', wear: 'WW', price: 45.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=AWP' }
-];
-
-let storeCatalog = window.storeCatalog || [
-    { id: 's1', name: 'Knife | Doppler', wear: 'FN', price: 150.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Knife' },
-    { id: 's2', name: 'Gloves | Emerald', wear: 'MW', price: 220.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Gloves' }
-];
+// Odwołanie do zmiennych globalnych (rozwiązanie problemu ze znikanie skinów)
+var inventory = window.inventory || [];
+var storeCatalog = window.storeCatalog || [];
 
 // ============================================
 // AUDIO SYNTH
@@ -180,6 +174,10 @@ function spawnParticles(container, count, colors) {
 // INICJALIZACJA I RENDEROWANIE
 // ============================================
 window.addEventListener('DOMContentLoaded', () => {
+    // Ponowne sprawdzenie listy skinów przy ładowaniu
+    inventory = window.inventory || [];
+    storeCatalog = window.storeCatalog || [];
+
     const balanceEl = document.getElementById('user-balance');
     if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
     
@@ -230,6 +228,8 @@ function renderStoreCatalog() {
     const sortInput = document.getElementById('catalog-sort');
     const grid = document.getElementById('catalog-grid');
     if (!grid) return;
+
+    storeCatalog = window.storeCatalog || storeCatalog;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
     const sort = sortInput ? sortInput.value : 'default';
@@ -615,7 +615,7 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
 }
 
 // ============================================
-// MODALE I FEED NA ŻYWO
+// MODALE I LIVE FEED
 // ============================================
 function openResultModal(isWin, item) {
     if (!item) return;
@@ -696,6 +696,9 @@ function pushLiveFeed(item, isWin) {
 }
 
 function populateLiveFeed() {
+    storeCatalog = window.storeCatalog || storeCatalog;
+    if (!storeCatalog || storeCatalog.length === 0) return;
+    
     for (let i = 0; i < 8; i++) {
         const item = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
         pushLiveFeed(item, Math.random() > 0.5);
@@ -753,9 +756,9 @@ function redeemPromoCode() {
     }
 
     const promoItems = [
-        { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
-        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=M4A4' },
-        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/8847ff?text=P2000' }
+        { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
+        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' },
+        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' }
     ];
 
     promoItems.forEach(it => inventory.push(it));
