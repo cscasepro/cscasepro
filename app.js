@@ -1,14 +1,34 @@
 // ============================================
+// BAZA SKINÓW I STAN (Wszystko w jednym miejscu)
+// ============================================
+window.storeCatalog = [
+    { id: 's1', name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
+    { id: 's2', name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' },
+    { id: 's3', name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' },
+    { id: 's4', name: 'Five-SeveN | Violent Daimyo', wear: 'FT', price: 1.52, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL3l4Dl7idN6vyRa7FSJvmFC1iDxPhzvt5tTiC-jBIYvzSCkpu3cXjCPAB2WZMmQ-EK4BTqlNSzNOLk71GI3tpGmX2oii5N6nk667kDWL1lpPNv4wCTtw' },
+    { id: 's5', name: 'M4A1-S | Night Terror', wear: 'FT', price: 1.89, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwjFS4_ega6F_H_eAMWrEwL9lj-hnXCa-mxQmjDGMnYftby3FPFVxA5ZwRecOtUXuxtPiNL_jsQLc2NkTzS38jC5L7ydj5u8EUKo7uvqAgGSM4LM' },
+    { id: 's6', name: 'StatTrak™ PP-Bizon | Space Cat', wear: 'MW', price: 2.47, rarity: 'rarity-classified', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLzl4zv8x1Y-s2sYb5iLs-AHmaTxO13pN5lRi67gVN04jvcmYv6IHnGbw51XsYmQO5ftBG9xoexNrix4gPYjIJEzX_2iX9I8G81tOIzQC5J' },
+    { id: 's7', name: 'MAC-10 | Lapis Gator', wear: 'FT', price: 2.74, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8n5WxrR1a4s2jaac8cM-WAmKT1fx_s-h9Vha_nBovp3ODztegd3LEawcnX5ByFLQPtxSxldyxPrjg5QCPj94Ty3j8j3tLu30__a9cBu41m2up' },
+    { id: 's8', name: 'StatTrak™ USP-S | Silent Shot', wear: 'WW', price: 3.24, rarity: 'rarity-classified', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLkjYbf7itX6vytbbZSNeODHViDyOJzvvVWTSaqqhEutDWR1Nf8cn_CPAQmW8Z5Ee8P4UbuxILmMLu3tAXYj4hByyWsjCscvy89sOYcEf1yCvXTIoM' },
+    { id: 's9', name: 'Glock-18 | Green Line', wear: 'MW', price: 3.63, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL2kpnj9h1c4_2tY5t5MvGaAFiX0-tzvt5lRi67gVNw5TjSy4mseXqXagEpW8FyQu5cu0Hpw4ayNLjntFeNgoJEnyWqjCNN8G81tF3dwatE' },
+    { id: 's10', name: 'StatTrak™ Desert Eagle | Trigger Discipline', wear: 'BS', price: 4.15, rarity: 'rarity-classified', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL1m5fn8Sdk7OeRbKFsJ8-HHG6Xxutkj-VgXCq6hREuvTi6lob-KT-Ja1UlWMAkTOMCt0G9kIHlP77l5FbW344XxX_4iSJJv31r4bxRUKUn_rqX0V-d-rquYA' }
+];
+
+window.inventory = [
+    { id: 'inv1', name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' }
+];
+
+// ============================================
 // KONFIGURACJA KASYNA (House Edge / RTP)
 // ============================================
 const CASINO_CONFIG = {
-    RTP_FACTOR: 0.95, // Return To Player = 95% (Przewaga kasyna = 5%)
+    RTP_FACTOR: 0.95,
     MIN_CHANCE: 1.0,  
     MAX_CHANCE: 80.0  
 };
 
 // ============================================
-// GAME ENGINE (Bezpieczne losowanie)
+// GAME ENGINE
 // ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
@@ -60,23 +80,6 @@ const GameEngine = (() => {
     };
 })();
 
-(function protectAgainstTampering() {
-    let devtoolsOpen = false;
-    const threshold = 160;
-    setInterval(() => {
-        const w = window.outerWidth - window.innerWidth > threshold;
-        const h = window.outerHeight - window.innerHeight > threshold;
-        if (w || h) {
-            if (!devtoolsOpen) {
-                devtoolsOpen = true;
-                console.clear();
-                console.log('%c⚠️ WYKRYTO DEVTOOLS', 'color: #eb4b4b; font-size: 20px; font-weight: bold;');
-            }
-        } else devtoolsOpen = false;
-    }, 1000);
-    try { Object.freeze(GameEngine); } catch (e) {}
-})();
-
 // ============================================
 // STAN APLIKACJI
 // ============================================
@@ -88,9 +91,8 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
-// Odwołanie do zmiennych globalnych (rozwiązanie problemu ze znikanie skinów)
-var inventory = window.inventory || [];
-var storeCatalog = window.storeCatalog || [];
+let inventory = window.inventory;
+let storeCatalog = window.storeCatalog;
 
 // ============================================
 // AUDIO SYNTH
@@ -171,13 +173,9 @@ function spawnParticles(container, count, colors) {
 }
 
 // ============================================
-// INICJALIZACJA I RENDEROWANIE
+// AUTOMATYCZNE RENDEROWANIE PO ZAŁADOWANIU
 // ============================================
 window.addEventListener('DOMContentLoaded', () => {
-    // Ponowne sprawdzenie listy skinów przy ładowaniu
-    inventory = window.inventory || [];
-    storeCatalog = window.storeCatalog || [];
-
     const balanceEl = document.getElementById('user-balance');
     if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
     
@@ -228,8 +226,6 @@ function renderStoreCatalog() {
     const sortInput = document.getElementById('catalog-sort');
     const grid = document.getElementById('catalog-grid');
     if (!grid) return;
-
-    storeCatalog = window.storeCatalog || storeCatalog;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
     const sort = sortInput ? sortInput.value : 'default';
@@ -696,9 +692,7 @@ function pushLiveFeed(item, isWin) {
 }
 
 function populateLiveFeed() {
-    storeCatalog = window.storeCatalog || storeCatalog;
     if (!storeCatalog || storeCatalog.length === 0) return;
-    
     for (let i = 0; i < 8; i++) {
         const item = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
         pushLiveFeed(item, Math.random() > 0.5);
@@ -757,15 +751,14 @@ function redeemPromoCode() {
 
     const promoItems = [
         { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
-        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL8ypexwipC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' },
-        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' }
+        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAopC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' }
     ];
 
     promoItems.forEach(it => inventory.push(it));
     localStorage.setItem(PROMO_STORAGE_KEY, 'true');
 
     renderPlayerInventory();
-    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano 3 skiny do ekwipunku.</span>`;
+    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano skiny do ekwipunku.</span>`;
 
     setTimeout(() => closePromoModal(), 1500);
 }
