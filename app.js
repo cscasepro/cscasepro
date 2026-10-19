@@ -191,7 +191,6 @@ function renderPlayerInventory() {
     });
 }
 
-// Sklep wyboru celu ulepszenia
 function renderStoreCatalog() {
     const searchInput = document.getElementById('catalog-search');
     const sortInput = document.getElementById('catalog-sort');
@@ -223,7 +222,7 @@ function renderStoreCatalog() {
     });
 }
 
-// Sklep w wyskakującym okienku (Pop-up)
+// Funkcje Pop-up Sklepu
 function openShopModal() {
     const modal = document.getElementById('shop-modal');
     if (modal) {
@@ -664,7 +663,7 @@ function openResultModal(isWin, item) {
             title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
             title.innerText = "WYGRANA!";
         }
-        if (desc) desc.innerText = "Twój nový skin powędrował do ekwipunku.";
+        if (desc) desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
     } else {
         if (icon) {
             icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
