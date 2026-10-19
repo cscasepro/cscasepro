@@ -1,734 +1,725 @@
-// ============================================
-// GAME ENGINE
-// ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
     let _spinCount = 0;
     const MIN_SPIN_INTERVAL = 2500;
-
     function secureRandom() {
         const arr = new Uint32Array(1);
         crypto.getRandomValues(arr);
         return arr[0] / 4294967296;
     }
-
     function canSpin() {
         const now = Date.now();
-        if (now - _lastSpinTime < MIN_SPIN_INTERVAL) {
-            return { allowed: false, reason: 'Zwolnij! Odczekaj chwilę.' };
-        }
+        if (now - _lastSpinTime < MIN_SPIN_INTERVAL) return { allowed: false, reason: 'Zwolnij! Odczekaj chwilę.' };
         return { allowed: true };
     }
-
     function rollOutcome(chance) {
-        if (typeof chance !== 'number' || isNaN(chance) || chance < 0 || chance > 100) {
-            throw new Error('Invalid chance');
-        }
+        if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) throw new Error('Invalid chance');
         const roll = secureRandom() * 100;
-        return { roll, chance, outcome: roll <= chance, timestamp: Date.now() };
+        return { roll, chance, outcome: roll <= chance, timestamp: Date.now(), spinId: 'spin_' + (++_spinCount) };
     }
-
-    return {
-        canSpin,
-        rollOutcome,
-        getSpinCount: () => _spinCount,
-        registerSpin: () => { _lastSpinTime = Date.now(); _spinCount++; }
-    };
+    return { canSpin, rollOutcome, getSpinCount: () => _spinCount,
+        resetRateLimit: () => { _lastSpinTime = 0; }, recordSpin: () => { _lastSpinTime = Date.now(); } };
 })();
 
+(function protectAgainstTampering() {
+    let devtoolsOpen = false;
+    const threshold = 160;
+    setInterval(() => {
+        const w = window.outerWidth - window.innerWidth > threshold;
+        const h = window.outerHeight - window.innerHeight > threshold;
+        if (w || h) {
+            if (!devtoolsOpen) {
+                devtoolsOpen = true;
+                console.clear();
+                console.log('%c⚠️ WYKRYTO DEVTOOLS', 'color: #eb4b4b; font-size: 20px; font-weight: bold;');
+            }
+        } else devtoolsOpen = false;
+    }, 1000);
+    try { Object.freeze(GameEngine); } catch (e) {}
+})();
+
+let balance = 0.00;
+let addedCash = 0.00;
+let isSpinning = false;
+let audioMuted = false;
+let selectedSourceItem = null;
+let selectedTargetItem = null;
+let calculatedChance = 0;
+
 // ============================================
-// STAN
+// SYSTEM FORÓW I HOUSE EDGE
 // ============================================
-const state = {
-    balance: 0,
-    sourceItem: null,
-    targetItem: null,
-    selectedInventoryId: null,
-    cashAdd: 0,
-    audioEnabled: true,
-    loggedIn: false,
-    spinning: false,
+const HouseEngine = (() => {
+    const STORAGE_KEY = 'cscasepro_house_state';
+    const FREE_WINS = 3;
+
+    let state = {
+        totalSpins: 0,
+        totalWins: 0,
+        totalLosses: 0,
+        currentStreak: 0,
+        forcedNextOutcome: null,
+        streakPattern: [],
+        freeWinsLeft: FREE_WINS
+    };
+
+    function load() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                state = { ...state, ...parsed };
+            }
+        } catch (e) {}
+    }
+
+    function save() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {}
+    }
+
+    function getAdjustedOutcome(playerChance) {
+        load();
+
+        if (state.freeWinsLeft > 0) {
+            state.freeWinsLeft--;
+            state.totalSpins++;
+            state.totalWins++;
+            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+            save();
+            return { isWin: true, forced: true, reason: 'FREE_WIN', playerChance };
+        }
+
+        if (state.streakPattern.length > 0) {
+            const forced = state.streakPattern.shift();
+            state.totalSpins++;
+            if (forced === 'win') {
+                state.totalWins++;
+                state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+            } else {
+                state.totalLosses++;
+                state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
+            }
+            save();
+            return { isWin: forced === 'win', forced: true, reason: 'PATTERN', playerChance };
+        }
+
+        const spinsFactor = Math.min(state.totalSpins / 100, 0.5);
+        const houseEdge = 0.15 + spinsFactor * 0.15;
+        const adjusted = Math.max(1, playerChance * (1 - houseEdge));
+        const roll = Math.random() * 100;
+        const isWin = roll <= adjusted;
+
+        state.totalSpins++;
+        if (isWin) {
+            state.totalWins++;
+            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
+        } else {
+            state.totalLosses++;
+            state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
+        }
+
+        if (state.currentStreak <= -3) {
+            state.streakPattern = ['win', 'win'];
+        } else if (state.currentStreak >= 3) {
+            state.streakPattern = ['loss'];
+        }
+
+        save();
+        return { isWin, forced: false, reason: 'NORMAL', playerChance, adjustedChance: adjusted, houseEdge };
+    }
+
+    function getStats() { load(); return { ...state }; }
+    function reset() {
+        state = {
+            totalSpins: 0, totalWins: 0, totalLosses: 0,
+            currentStreak: 0, forcedNextOutcome: null,
+            streakPattern: [], freeWinsLeft: FREE_WINS
+        };
+        save();
+    }
+
+    return { getAdjustedOutcome, getStats, reset };
+})();
+
+const AudioSynth = {
+    ctx: null,
+    init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
+    playTick(speedFactor = 1) {
+        if (audioMuted) return;
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        const baseFreq = 500 + speedFactor * 500;
+        osc.frequency.setValueAtTime(baseFreq, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.025);
+        const vol = Math.min(0.02 + speedFactor * 0.025, 0.06);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+        osc.connect(gain); gain.connect(this.ctx.destination);
+        osc.start(); osc.stop(this.ctx.currentTime + 0.025);
+    },
+    playWin() {
+        if (audioMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        [440, 554.37, 659.25, 880].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.1, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.3);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.08); osc.stop(now + idx * 0.08 + 0.3);
+        });
+    },
+    playLoss() {
+        if (audioMuted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        [200, 160, 120].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+            gain.gain.setValueAtTime(0.07, now + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.2);
+            osc.connect(gain); gain.connect(this.ctx.destination);
+            osc.start(now + idx * 0.1); osc.stop(now + idx * 0.1 + 0.2);
+        });
+    }
 };
 
-// ============================================
-// HELPERS
-// ============================================
-const $ = (id) => document.getElementById(id);
-const fmt = (n) => '$' + Number(n).toFixed(2);
-
-const FALLBACK_SVG = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' fill='%231a1830'/><path d='M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z' fill='%234a4a6a'/></svg>";
-
-function updateBalance() {
-    const el = $('user-balance');
-    if (el) el.textContent = fmt(state.balance);
-}
-
-function setStatus(msg, color = 'text-gray-400') {
-    const el = $('status-msg');
-    if (!el) return;
-    el.className = `h-6 text-xs font-semibold text-center uppercase tracking-wider ${color}`;
-    el.textContent = msg;
-}
-
-function esc(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-}
-
-// ============================================
-// RENDER: EKWIPUNEK
-// ============================================
-function renderInventory() {
-    const grid = $('inventory-grid');
-    const badge = $('inventory-count-badge');
-    if (!grid) return;
-
-    if (badge) badge.textContent = `${inventory.length} przedmiotów`;
-
-    if (inventory.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-8 gap-2">
-                <i class="fa-solid fa-box-open text-2xl text-borderBorder"></i>
-                <span class="text-xs uppercase font-semibold">Ekwipunek jest pusty</span>
-                <span class="text-[10px] text-gray-600">Doładuj konto, aby otrzymać skiny</span>
-            </div>`;
-        return;
+function spawnParticles(container, count, colors) {
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 80 + Math.random() * 150;
+        p.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        p.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        p.style.left = '50%'; p.style.top = '50%';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.boxShadow = `0 0 8px ${p.style.background}`;
+        container.appendChild(p);
+        setTimeout(() => p.remove(), 1600);
     }
+}
 
-    grid.innerHTML = inventory.map((item, i) => {
-        const isSelected = state.selectedInventoryId === item.id;
-        return `
-        <div class="item-card ${item.rarity} bg-cardBg/60 border ${isSelected ? 'selected-inventory' : 'border-borderBorder/60'} rounded-xl p-2 flex flex-col items-center cursor-pointer group"
-             style="animation-delay: ${i * 20}ms"
-             data-id="${item.id}" onclick="selectInventoryItem('${item.id}')">
-            <div class="w-full aspect-square bg-gradient-to-b from-black/20 to-transparent rounded-lg flex items-center justify-center mb-1.5 overflow-hidden">
-                <img src="${item.img}" alt="${esc(item.name)}"
-                     class="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-110"
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
+window.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+    renderPlayerInventory();
+    renderStoreCatalog();
+    populateLiveFeed();
+    updateWheelArc(0);
+    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+    setInterval(() => {
+        const el = document.getElementById('online-counter');
+        let count = parseInt(el.innerText.replace(/,/g, ''));
+        count += Math.floor(Math.random() * 5) - 2;
+        el.innerText = count.toLocaleString('en-US');
+    }, 4000);
+});
+
+function renderPlayerInventory() {
+    const grid = document.getElementById('inventory-grid');
+    grid.innerHTML = '';
+    document.getElementById('inventory-count-badge').innerText = `${inventory.length} przedmiotów`;
+    inventory.forEach(item => {
+        const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
+        const node = document.createElement('div');
+        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentViolet bg-accentViolet/10 shadow-lg shadow-accentViolet/20' : 'border-borderBorder/60'} ${item.rarity} hover:border-accentViolet/60 rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28`;
+        node.onclick = () => selectSourceItem(item);
+        node.innerHTML = `
+            <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
+                <span>${item.wear}</span>
+                <span class="text-white font-mono">$${item.price.toFixed(2)}</span>
             </div>
-            <div class="text-[10px] font-bold text-white truncate w-full text-center leading-tight" title="${esc(item.name)}">${esc(item.name)}</div>
-            <div class="text-[9px] text-gray-500 font-mono mt-0.5">${item.wear}</div>
-            <div class="text-[11px] font-bold text-accentViolet font-mono mt-1">${fmt(item.price)}</div>
-        </div>`;
-    }).join('');
-}
-
-// ============================================
-// RENDER: SKLEP
-// ============================================
-function renderStoreCatalog() {
-    const grid = $('catalog-grid');
-    if (!grid) return;
-
-    const search = ($('catalog-search')?.value || '').toLowerCase().trim();
-    const sort = $('catalog-sort')?.value || 'asc';
-
-    let items = storeCatalog.filter(it => it.name.toLowerCase().includes(search));
-    items.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
-
-    const badge = $('catalog-count-badge');
-    if (badge) badge.textContent = items.length;
-
-    if (items.length === 0) {
-        grid.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center text-gray-500 py-8 gap-2">
-                <i class="fa-solid fa-magnifying-glass text-2xl text-borderBorder"></i>
-                <span class="text-xs uppercase font-semibold">Brak wyników</span>
-            </div>`;
-        return;
-    }
-
-    grid.innerHTML = items.map((item, i) => {
-        const isSelected = state.targetItem?.id === item.id;
-        return `
-        <div class="item-card ${item.rarity} bg-cardBg/60 border ${isSelected ? 'selected-target' : 'border-borderBorder/60'} rounded-xl p-2 flex flex-col items-center cursor-pointer group"
-             style="animation-delay: ${i * 20}ms"
-             data-id="${item.id}" onclick="selectTargetItem('${item.id}')">
-            <div class="w-full aspect-square bg-gradient-to-b from-black/20 to-transparent rounded-lg flex items-center justify-center mb-1.5 overflow-hidden">
-                <img src="${item.img}" alt="${esc(item.name)}"
-                     class="w-full h-full object-contain p-1.5 transition-transform duration-200 group-hover:scale-110"
-                     loading="lazy"
-                     onerror="this.onerror=null; this.src='${FALLBACK_SVG}';">
-            </div>
-            <div class="text-[10px] font-bold text-white truncate w-full text-center leading-tight" title="${esc(item.name)}">${esc(item.name)}</div>
-            <div class="text-[9px] text-gray-500 font-mono mt-0.5">${item.wear}</div>
-            <div class="text-[11px] font-bold text-accentBlue font-mono mt-1">${fmt(item.price)}</div>
-        </div>`;
-    }).join('');
-}
-
-// ============================================
-// WYBÓR PRZEDMIOTÓW
-// ============================================
-function selectInventoryItem(id) {
-    const item = inventory.find(i => i.id === id);
-    if (!item) return;
-    state.selectedInventoryId = id;
-    state.sourceItem = item;
-    renderSourceItem();
-    renderInventory();
-    updateCashSliderMax();
-    updateUpgradeChance();
-}
-
-function selectTargetItem(id) {
-    const item = storeCatalog.find(i => i.id === id);
-    if (!item) return;
-    state.targetItem = item;
-    renderTargetItem();
-    renderStoreCatalog();
-    updateCashSliderMax();
-    updateUpgradeChance();
-}
-
-function renderSourceItem() {
-    const empty = $('source-empty');
-    const filled = $('source-filled');
-    if (!empty || !filled) return;
-
-    if (!state.sourceItem) {
-        empty.classList.remove('hidden');
-        filled.classList.add('hidden');
-        $('offered-item-wear').textContent = 'Brak';
-        $('total-source-val').textContent = fmt(0);
-        return;
-    }
-
-    empty.classList.add('hidden');
-    filled.classList.remove('hidden');
-    $('source-img').src = state.sourceItem.img;
-    $('source-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
-    $('source-name').textContent = state.sourceItem.name;
-    $('source-price').textContent = fmt(state.sourceItem.price);
-    $('offered-item-wear').textContent = state.sourceItem.wear;
-    updateTotalSource();
-}
-
-function renderTargetItem() {
-    const empty = $('target-empty');
-    const filled = $('target-filled');
-    if (!empty || !filled) return;
-
-    if (!state.targetItem) {
-        empty.classList.remove('hidden');
-        filled.classList.add('hidden');
-        $('target-item-wear').textContent = 'Brak';
-        $('total-target-val').textContent = fmt(0);
-        return;
-    }
-
-    empty.classList.add('hidden');
-    filled.classList.remove('hidden');
-    $('target-img').src = state.targetItem.img;
-    $('target-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
-    $('target-name').textContent = state.targetItem.name;
-    $('target-price').textContent = fmt(state.targetItem.price);
-    $('target-item-wear').textContent = state.targetItem.wear;
-    $('total-target-val').textContent = fmt(state.targetItem.price);
-}
-
-function clearSourceItem() {
-    state.sourceItem = null;
-    state.selectedInventoryId = null;
-    state.cashAdd = 0;
-    const slider = $('cash-slider');
-    if (slider) slider.value = 0;
-    $('cash-add-label').textContent = fmt(0);
-    renderSourceItem();
-    renderInventory();
-    updateCashSliderMax();
-    updateUpgradeChance();
-}
-
-function clearTargetItem() {
-    state.targetItem = null;
-    renderTargetItem();
-    renderStoreCatalog();
-    updateCashSliderMax();
-    updateUpgradeChance();
-}
-
-// ============================================
-// SUWAK
-// ============================================
-function updateCashSliderMax() {
-    const slider = $('cash-slider');
-    if (!slider) return;
-
-    if (!state.sourceItem || !state.targetItem) {
-        slider.max = 0;
-        slider.value = 0;
-        state.cashAdd = 0;
-        $('cash-add-label').textContent = fmt(0);
-        updateTotalSource();
-        return;
-    }
-
-    const diff = Math.max(0, state.targetItem.price - state.sourceItem.price);
-    const maxAdd = Math.min(diff, state.balance);
-    slider.max = maxAdd.toFixed(2);
-    if (parseFloat(slider.value) > maxAdd) {
-        slider.value = maxAdd.toFixed(2);
-        state.cashAdd = maxAdd;
-    }
-    $('cash-add-label').textContent = fmt(state.cashAdd);
-    updateTotalSource();
-}
-
-function onCashSliderChange(val) {
-    state.cashAdd = Math.max(0, parseFloat(val) || 0);
-    $('cash-add-label').textContent = fmt(state.cashAdd);
-    updateTotalSource();
-    updateUpgradeChance();
-}
-
-function updateTotalSource() {
-    const total = (state.sourceItem?.price || 0) + state.cashAdd;
-    $('total-source-val').textContent = fmt(total);
-}
-
-// ============================================
-// SZANSA
-// ============================================
-function updateUpgradeChance() {
-    const chanceEl = $('win-chance-text');
-    const multEl = $('multiplier-text');
-    const btn = $('upgrade-btn');
-    if (!chanceEl || !multEl || !btn) return;
-
-    const disabledClass = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10';
-    const activeClass = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all upgrade-btn-active text-white border border-accentViolet/40 cursor-pointer z-10';
-
-    if (!state.sourceItem || !state.targetItem) {
-        chanceEl.textContent = '0.00%';
-        multEl.textContent = '0.00x';
-        btn.disabled = true;
-        btn.className = disabledClass;
-        setStatus('Wybierz przedmioty do ulepszenia');
-        updateWheelArcs(0);
-        return;
-    }
-
-    const totalSource = state.sourceItem.price + state.cashAdd;
-    const target = state.targetItem.price;
-    const chance = Math.min(100, (totalSource / target) * 100);
-    const multiplier = totalSource > 0 ? target / totalSource : 0;
-
-    chanceEl.textContent = chance.toFixed(2) + '%';
-    multEl.textContent = multiplier.toFixed(2) + 'x';
-    updateWheelArcs(chance);
-
-    if (target <= totalSource) {
-        btn.disabled = true;
-        btn.className = disabledClass;
-        setStatus('Cel musi być droższy od wpłaty', 'text-yellow-500');
-        return;
-    }
-
-    if (state.cashAdd > state.balance) {
-        btn.disabled = true;
-        btn.className = disabledClass;
-        setStatus('Za mało środków na saldzie', 'text-red-500');
-        return;
-    }
-
-    btn.disabled = false;
-    btn.className = activeClass;
-    setStatus('Gotowe do ulepszenia', 'text-green-400');
-}
-
-function updateWheelArcs(chance) {
-    const leftArc = $('win-arc-left');
-    const rightArc = $('win-arc-right');
-    if (!leftArc || !rightArc) return;
-
-    const circumference = 2 * Math.PI * 72;
-    const winLen = (chance / 100) * circumference;
-    const loseLen = circumference - winLen;
-
-    leftArc.setAttribute('stroke-dasharray', `${winLen} ${circumference}`);
-    rightArc.setAttribute('stroke-dasharray', `${loseLen} ${circumference}`);
-    rightArc.setAttribute('stroke', 'url(#gradOrange)');
-}
-
-// ============================================
-// START ULEPSZENIA
-// ============================================
-function startUpgrade() {
-    if (!state.sourceItem || !state.targetItem) return;
-    if (state.spinning) return;
-
-    const spinCheck = GameEngine.canSpin();
-    if (!spinCheck.allowed) {
-        setStatus(spinCheck.reason, 'text-yellow-500');
-        return;
-    }
-
-    const totalSource = state.sourceItem.price + state.cashAdd;
-    const chance = Math.min(100, (totalSource / state.targetItem.price) * 100);
-
-    state.spinning = true;
-    GameEngine.registerSpin();
-
-    const btn = $('upgrade-btn');
-    btn.disabled = true;
-    btn.textContent = 'KRĘCENIE...';
-    btn.classList.add('spinning-glow');
-
-    const needle = $('needle');
-    const targetRot = 360 * 5 + Math.random() * 360;
-    if (needle) {
-        needle.style.transition = 'transform 3s cubic-bezier(0.17, 0.67, 0.21, 0.99)';
-        needle.style.transform = `rotate(${targetRot}deg)`;
-    }
-
-    setStatus('Losowanie...', 'text-accentViolet');
-
-    setTimeout(() => {
-        let result;
-        try {
-            result = GameEngine.rollOutcome(chance);
-        } catch (e) {
-            console.error(e);
-            result = { outcome: false, roll: 0 };
-        }
-
-        const finalDeg = (result.roll / 100) * 360;
-        if (needle) {
-            needle.style.transition = 'transform 0.4s ease-out';
-            needle.style.transform = `rotate(${finalDeg}deg)`;
-        }
-
-        setTimeout(() => finishUpgrade(result.outcome), 450);
-    }, 3000);
-}
-
-function finishUpgrade(won) {
-    const btn = $('upgrade-btn');
-    state.spinning = false;
-    btn.classList.remove('spinning-glow');
-    btn.textContent = 'ULEPSZ';
-
-    const needle = $('needle');
-    if (needle) {
-        setTimeout(() => {
-            needle.style.transition = 'none';
-            needle.style.transform = 'rotate(0deg)';
-        }, 500);
-    }
-
-    if (won) {
-        const wonItem = {
-            id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-            name: state.targetItem.name,
-            wear: state.targetItem.wear,
-            price: state.targetItem.price,
-            rarity: state.targetItem.rarity,
-            img: state.targetItem.img,
-        };
-
-        const srcIdx = inventory.findIndex(i => i.id === state.sourceItem.id);
-        if (srcIdx !== -1) inventory.splice(srcIdx, 1);
-
-        state.balance -= state.cashAdd;
-        inventory.push(wonItem);
-
-        showResultModal(true, wonItem);
-        spawnParticles(true);
-    } else {
-        const srcIdx = inventory.findIndex(i => i.id === state.sourceItem.id);
-        if (srcIdx !== -1) inventory.splice(srcIdx, 1);
-        state.balance -= state.cashAdd;
-
-        showResultModal(false, state.targetItem);
-        spawnParticles(false);
-    }
-
-    state.sourceItem = null;
-    state.targetItem = null;
-    state.cashAdd = 0;
-    state.selectedInventoryId = null;
-
-    const slider = $('cash-slider');
-    if (slider) { slider.max = 0; slider.value = 0; }
-    $('cash-add-label').textContent = fmt(0);
-
-    renderSourceItem();
-    renderTargetItem();
-    renderInventory();
-    renderStoreCatalog();
-    updateBalance();
-    updateUpgradeChance();
-}
-
-// ============================================
-// MODAL WYNIKU
-// ============================================
-function showResultModal(won, item) {
-    const modal = $('result-modal');
-    const content = $('result-modal-content');
-    const icon = $('modal-status-icon');
-    const title = $('modal-title');
-    const desc = $('modal-desc');
-
-    if (!modal || !content) return;
-
-    if (won) {
-        icon.className = 'w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 border relative z-10 bg-green-500/20 border-green-500/50 text-green-400';
-        icon.innerHTML = '<i class="fa-solid fa-check"></i>';
-        title.textContent = 'WYGRANA!';
-        title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-green-400 relative z-10';
-        desc.textContent = 'Twój przedmiot został pomyślnie zastąpiony.';
-    } else {
-        icon.className = 'w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 border relative z-10 bg-red-500/20 border-red-500/50 text-red-400';
-        icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        title.textContent = 'PRZEGRANA';
-        title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10';
-        desc.textContent = 'Tym razem się nie udało. Spróbuj ponownie!';
-    }
-
-    $('modal-item-img').src = item.img;
-    $('modal-item-img').onerror = function() { this.onerror = null; this.src = FALLBACK_SVG; };
-    $('modal-item-name').textContent = item.name;
-    $('modal-item-price').textContent = fmt(item.price);
-
-    modal.classList.remove('hidden');
-    requestAnimationFrame(() => {
-        modal.classList.remove('opacity-0');
-        content.classList.add('modal-in');
+            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
+            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+        `;
+        grid.appendChild(node);
     });
 }
 
+function renderStoreCatalog() {
+    const search = document.getElementById('catalog-search').value.toLowerCase();
+    const sort = document.getElementById('catalog-sort').value;
+    let items = storeCatalog.filter(i => i.name.toLowerCase().includes(search));
+    if (sort === 'asc') items.sort((a, b) => a.price - b.price);
+    if (sort === 'desc') items.sort((a, b) => b.price - a.price);
+    const grid = document.getElementById('catalog-grid');
+    grid.innerHTML = '';
+    items.forEach(item => {
+        const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
+        const node = document.createElement('div');
+        node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentBlue bg-accentBlue/10 shadow-lg shadow-accentBlue/20' : 'border-borderBorder/60'} ${item.rarity} hover:border-accentBlue/60 rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-28`;
+        node.onclick = () => selectTargetItem(item);
+        node.innerHTML = `
+            <div class="flex justify-between items-center text-[9px] font-bold text-gray-400">
+                <span>${item.wear}</span>
+                <span class="text-white font-mono">$${item.price.toFixed(2)}</span>
+            </div>
+            <img src="${item.img}" class="w-16 h-12 object-contain mx-auto my-1">
+            <div class="text-[10px] font-semibold text-gray-200 truncate text-center">${item.name}</div>
+        `;
+        grid.appendChild(node);
+    });
+}
+
+function selectSourceItem(item) {
+    if (isSpinning) return;
+    selectedSourceItem = item;
+    document.getElementById('source-empty').classList.add('hidden');
+    document.getElementById('source-filled').classList.remove('hidden');
+    document.getElementById('source-img').src = item.img;
+    document.getElementById('source-name').innerText = item.name;
+    document.getElementById('source-price').innerText = `$${item.price.toFixed(2)}`;
+    document.getElementById('offered-item-wear').innerText = item.wear;
+    renderPlayerInventory();
+    recalculateOdds();
+}
+
+function clearSourceItem() {
+    if (isSpinning) return;
+    selectedSourceItem = null;
+    document.getElementById('source-empty').classList.remove('hidden');
+    document.getElementById('source-filled').classList.add('hidden');
+    document.getElementById('offered-item-wear').innerText = 'Brak';
+    renderPlayerInventory();
+    recalculateOdds();
+}
+
+function sellSelectedItem() {
+    if (!selectedSourceItem || isSpinning) return;
+    balance += selectedSourceItem.price;
+    document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+    const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
+    if (idx > -1) inventory.splice(idx, 1);
+    clearSourceItem();
+    document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+    recalculateOdds();
+}
+
+function selectTargetItem(item) {
+    if (isSpinning) return;
+    selectedTargetItem = item;
+    document.getElementById('target-empty').classList.add('hidden');
+    document.getElementById('target-filled').classList.remove('hidden');
+    document.getElementById('target-img').src = item.img;
+    document.getElementById('target-name').innerText = item.name;
+    document.getElementById('target-price').innerText = `$${item.price.toFixed(2)}`;
+    document.getElementById('target-item-wear').innerText = item.wear;
+    renderStoreCatalog();
+    recalculateOdds();
+}
+
+function clearTargetItem() {
+    if (isSpinning) return;
+    selectedTargetItem = null;
+    document.getElementById('target-empty').classList.remove('hidden');
+    document.getElementById('target-filled').classList.add('hidden');
+    document.getElementById('target-item-wear').innerText = 'Brak';
+    renderStoreCatalog();
+    recalculateOdds();
+}
+
+function onCashSliderChange(val) {
+    if (isSpinning) return;
+    const slider = document.getElementById('cash-slider');
+    let v = parseFloat(val);
+    if (isNaN(v) || v < 0) v = 0;
+    if (v > balance) v = balance;
+    addedCash = v;
+    slider.value = v;
+    document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
+    recalculateOdds();
+}
+
+function recalculateOdds() {
+    const btn = document.getElementById('upgrade-btn');
+    const statusMsg = document.getElementById('status-msg');
+
+    const slider = document.getElementById('cash-slider');
+    const safeBalance = Math.max(0, balance);
+    slider.max = safeBalance.toFixed(2);
+    if (addedCash > safeBalance) {
+        addedCash = safeBalance;
+        slider.value = safeBalance;
+        document.getElementById('cash-add-label').innerText = `$${addedCash.toFixed(2)}`;
+    }
+
+    const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
+    document.getElementById('total-source-val').innerText = `$${sourceVal.toFixed(2)}`;
+    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
+    document.getElementById('total-target-val').innerText = `$${targetVal.toFixed(2)}`;
+
+    if (sourceVal <= 0 || targetVal <= 0) {
+        calculatedChance = 0;
+        updateWheelArc(0);
+        document.getElementById('win-chance-text').innerText = '0.00%';
+        document.getElementById('multiplier-text').innerText = '0.00x';
+        btn.disabled = true;
+        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10";
+        statusMsg.innerText = "Wybierz przedmioty do ulepszenia";
+        return;
+    }
+    let rawChance = (sourceVal / targetVal) * 100;
+    calculatedChance = Math.min(Math.max(rawChance, 1.0), 80.0);
+    const multiplier = (100 / calculatedChance).toFixed(2);
+    document.getElementById('win-chance-text').innerText = `${calculatedChance.toFixed(2)}%`;
+    document.getElementById('multiplier-text').innerText = `${multiplier}x`;
+    updateWheelArc(calculatedChance);
+
+    if (addedCash > balance) {
+        btn.disabled = true;
+        btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10";
+        statusMsg.innerText = "Brak wystarczającego salda";
+        return;
+    }
+    btn.disabled = false;
+    btn.className = "upgrade-btn-active w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest text-white border border-accentViolet/50 cursor-pointer z-10";
+    statusMsg.innerText = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
+}
+
+function pickGradient(percentage) {
+    if (percentage < 35) return 'url(#gradRed)';
+    if (percentage < 50) return 'url(#gradOrange)';
+    if (percentage < 60) return 'url(#gradYellow)';
+    return 'url(#gradGreen)';
+}
+
+function updateWheelArc(percentage) {
+    const leftArc = document.getElementById('win-arc-left');
+    const rightArc = document.getElementById('win-arc-right');
+    const circumference = 452.38;
+
+    const halfPercent = percentage / 2;
+    const strokeLength = (halfPercent / 100) * circumference;
+
+    leftArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
+    rightArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
+
+    const gradient = pickGradient(percentage);
+    leftArc.setAttribute('stroke', gradient);
+    rightArc.setAttribute('stroke', gradient);
+}
+
+function drawSpinAngle(realChance) {
+    const halfAngleDeg = (realChance / 2 / 100) * 360;
+    const EDGE = 1.5;
+    const roll = Math.random() * 100;
+
+    if (roll < realChance) {
+        const side = Math.random() < 0.5 ? 'right' : 'left';
+        const minA = EDGE;
+        const maxA = Math.max(halfAngleDeg - EDGE, minA + 0.5);
+        const angleInArc = minA + Math.random() * (maxA - minA);
+        return side === 'right' ? angleInArc : (360 - angleInArc);
+    } else {
+        const minA = halfAngleDeg + EDGE;
+        const maxA = 360 - halfAngleDeg - EDGE;
+        if (maxA <= minA) return 180;
+        return minA + Math.random() * (maxA - minA);
+    }
+}
+
+function readOutcomeFromAngle(offsetDeg, realChance) {
+    const halfAngleDeg = (realChance / 2 / 100) * 360;
+    const a = ((offsetDeg % 360) + 360) % 360;
+    const inRight = a <= halfAngleDeg;
+    const inLeft = a >= 360 - halfAngleDeg;
+    return inRight || inLeft;
+}
+
+async function startUpgrade() {
+    if (isSpinning || !selectedTargetItem) return;
+    if (addedCash > balance) return;
+
+    const rateCheck = GameEngine.canSpin();
+    if (!rateCheck.allowed) {
+        const statusMsg = document.getElementById('status-msg');
+        statusMsg.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-clock mr-1"></i> ${rateCheck.reason}</span>`;
+        return;
+    }
+
+    const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
+    const targetVal = selectedTargetItem.price;
+    const rawChance = Math.min(Math.max((sourceVal / targetVal) * 100, 1.0), 80.0);
+
+    const houseResult = HouseEngine.getAdjustedOutcome(rawChance);
+    const isWin = houseResult.isWin;
+
+    console.log(`[HOUSE] ${houseResult.reason} | player=${rawChance.toFixed(2)}% | forced=${houseResult.forced} → ${isWin ? '✅ WIN' : '❌ LOSS'}`);
+
+    if (addedCash > 0) {
+        balance -= addedCash;
+        document.getElementById('user-balance').innerText = `$${balance.toFixed(2)}`;
+        document.getElementById('cash-slider').max = Math.max(0, balance).toFixed(2);
+    }
+
+    isSpinning = true;
+    GameEngine.recordSpin();
+
+    const btn = document.getElementById('upgrade-btn');
+    btn.disabled = true;
+    btn.className = "w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-500 border border-borderBorder cursor-not-allowed z-10";
+    btn.innerText = "LOSOWANIE...";
+
+    const wheelSvg = document.getElementById('wheel-svg');
+    wheelSvg.classList.add('spinning-glow');
+
+    const wonItemSnapshot = { ...selectedTargetItem };
+    const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
+
+    const targetOffsetDeg = isWin
+        ? (Math.random() * (rawChance / 2) + 1)
+        : (rawChance / 2 + 5 + Math.random() * (360 - rawChance - 10));
+
+    const totalRotations = (5 * 360) + targetOffsetDeg;
+    const needle = document.getElementById('needle');
+    const duration = 4500;
+
+    needle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
+    needle.style.transform = `rotate(${totalRotations}deg)`;
+
+    const TICK_STEP = 6;
+    let lastTickAngle = 0;
+    let animationStartTime = null;
+    let rafId = null;
+
+    function cubicBezier(t, p1x, p1y, p2x, p2y) {
+        const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+        const cy = 3 * p1y, by = 3 * (p2y - p1y) - cy, ay = 1 - cy - by;
+        let x = t;
+        for (let i = 0; i < 8; i++) {
+            const xEst = ((ax * x + bx) * x + cx) * x;
+            const dx = (3 * ax * x + 2 * bx) * x + cx;
+            if (Math.abs(dx) < 1e-6) break;
+            x -= (xEst - t) / dx;
+        }
+        return ((ay * x + by) * x + cy) * x;
+    }
+
+    function tickLoop(timestamp) {
+        if (!animationStartTime) animationStartTime = timestamp;
+        const elapsed = timestamp - animationStartTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = cubicBezier(progress, 0.1, 0.9, 0.2, 1);
+        const currentAngle = easedProgress * totalRotations;
+        if (currentAngle - lastTickAngle >= TICK_STEP) {
+            const steps = Math.floor((currentAngle - lastTickAngle) / TICK_STEP);
+            lastTickAngle += steps * TICK_STEP;
+            const speedDegPerSec = elapsed > 0 ? (currentAngle / elapsed) * 1000 : 0;
+            const speedFactor = Math.min(speedDegPerSec / 2000, 1.5);
+            AudioSynth.playTick(speedFactor);
+        }
+        if (progress < 1) rafId = requestAnimationFrame(tickLoop);
+    }
+    rafId = requestAnimationFrame(tickLoop);
+
+    setTimeout(() => {
+        if (rafId) cancelAnimationFrame(rafId);
+        wheelSvg.classList.remove('spinning-glow');
+        finishUpgrade(isWin, totalRotations, wonItemSnapshot, sacrificedItemSnapshot);
+    }, duration);
+}
+
+function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
+    isSpinning = false;
+
+    const normalizedDegree = finalDegree % 360;
+    const needle = document.getElementById('needle');
+    needle.style.transition = 'none';
+    needle.style.transform = `rotate(${normalizedDegree}deg)`;
+
+    const statusMsg = document.getElementById('status-msg');
+
+    if (isWin) {
+        AudioSynth.playWin();
+        statusMsg.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
+        inventory.push({ ...wonItem, id: 'i' + Date.now() });
+        if (sacrificedItem) {
+            const idx = inventory.findIndex(i => i.id === sacrificedItem.id);
+            if (idx > -1) inventory.splice(idx, 1);
+        }
+        pushLiveFeed(wonItem, true);
+        openResultModal(true, wonItem);
+    } else {
+        AudioSynth.playLoss();
+        statusMsg.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-xmark mr-1"></i> ULEPSZENIE NIEUDANE</span>`;
+        if (navigator.vibrate) navigator.vibrate(200);
+        if (sacrificedItem) {
+            const idx = inventory.findIndex(i => i.id === sacrificedItem.id);
+            if (idx > -1) inventory.splice(idx, 1);
+        }
+        const wheelContainer = document.querySelector('.lg\\:col-span-4 .relative');
+        if (wheelContainer) {
+            wheelContainer.classList.add('shake');
+            setTimeout(() => wheelContainer.classList.remove('shake'), 400);
+        }
+        pushLiveFeed(wonItem, false);
+        openResultModal(false, wonItem);
+    }
+
+    setTimeout(() => {
+        needle.style.transition = 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)';
+        needle.style.transform = 'rotate(0deg)';
+    }, 800);
+
+    const sliderEl = document.getElementById('cash-slider');
+    sliderEl.max = Math.max(0, balance).toFixed(2);
+    sliderEl.value = 0;
+    onCashSliderChange(0);
+    clearSourceItem();
+    clearTargetItem();
+    document.getElementById('upgrade-btn').innerText = "ULEPSZ";
+
+    setTimeout(() => GameEngine.resetRateLimit(), 2500);
+}
+
+function openResultModal(isWin, item) {
+    if (!item) return;
+    const modal = document.getElementById('result-modal');
+    const content = document.getElementById('result-modal-content');
+    const icon = document.getElementById('modal-status-icon');
+    const title = document.getElementById('modal-title');
+    const desc = document.getElementById('modal-desc');
+
+    if (isWin) {
+        icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
+        icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
+        title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
+        title.innerText = "WYGRANA!";
+        desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
+    } else {
+        icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-2xl mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
+        icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+        title.className = "font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
+        title.innerText = "PORAŻKA!";
+        desc.innerText = "Przedmiot spłonął podczas próby ulepszenia.";
+    }
+    document.getElementById('modal-item-img').src = item.img;
+    document.getElementById('modal-item-name').innerText = item.name;
+    document.getElementById('modal-item-price').innerText = `$${item.price.toFixed(2)}`;
+
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        content.classList.remove('modal-in');
+        void content.offsetWidth;
+        content.classList.add('modal-in');
+    }, 10);
+
+    if (isWin) {
+        setTimeout(() => spawnParticles(content, 25, ['#10b981', '#34d399', '#6ee7b7', '#8b5cf6', '#38bdf8']), 100);
+    }
+}
+
 function closeResultModal() {
-    const modal = $('result-modal');
-    const content = $('result-modal-content');
-    if (!modal) return;
+    const modal = document.getElementById('result-modal');
     modal.classList.add('opacity-0');
-    content?.classList.remove('modal-in');
     setTimeout(() => modal.classList.add('hidden'), 200);
 }
 
-// ============================================
-// CZĄSTECZKI
-// ============================================
-function spawnParticles(won) {
-    const container = $('result-modal-content');
-    if (!container) return;
-    const colors = won
-        ? ['#22c55e', '#8b5cf6', '#38bdf8', '#fde047']
-        : ['#ef4444', '#b91c1c', '#7f1d1d'];
-    for (let i = 0; i < 20; i++) {
-        const p = document.createElement('div');
-        p.className = 'particle';
-        p.style.left = '50%';
-        p.style.top = '50%';
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.setProperty('--tx', (Math.random() - 0.5) * 300 + 'px');
-        p.style.setProperty('--ty', (Math.random() - 0.5) * 300 + 'px');
-        container.appendChild(p);
-        setTimeout(() => p.remove(), 1500);
-    }
+function pushLiveFeed(item, isWin) {
+    const feed = document.getElementById('live-feed');
+    const node = document.createElement('div');
+    node.className = `bg-cardBg/80 border ${isWin ? 'border-emerald-500/40' : 'border-red-500/40'} rounded-lg px-2.5 py-1.5 flex items-center gap-2 flex-shrink-0 min-w-[130px] transition hover:border-accentViolet/40`;
+    node.innerHTML = `
+        <img src="${item.img}" class="w-8 h-6 object-contain">
+        <div class="flex flex-col text-[10px]">
+            <span class="font-bold text-gray-200 truncate max-w-[70px]">${item.name}</span>
+            <span class="${isWin ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold">$${item.price.toFixed(2)}</span>
+        </div>
+    `;
+    feed.insertBefore(node, feed.firstChild);
+    if (feed.children.length > 9) feed.removeChild(feed.lastChild);
 }
 
-// ============================================
-// SPRZEDAŻ
-// ============================================
-function sellSelectedItem() {
-    if (!state.selectedInventoryId) {
-        setStatus('Nie zaznaczono przedmiotu', 'text-yellow-500');
-        return;
+function populateLiveFeed() {
+    for (let i = 0; i < 8; i++) {
+        const item = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
+        pushLiveFeed(item, Math.random() > 0.5);
     }
-    const idx = inventory.findIndex(i => i.id === state.selectedInventoryId);
-    if (idx === -1) return;
-
-    const item = inventory[idx];
-    const sellPrice = item.price * 0.85;
-    state.balance += sellPrice;
-    inventory.splice(idx, 1);
-    state.selectedInventoryId = null;
-
-    if (state.sourceItem && state.sourceItem.id === item.id) {
-        clearSourceItem();
-    }
-
-    updateBalance();
-    renderInventory();
-    setStatus(`Sprzedano za ${fmt(sellPrice)}`, 'text-green-400');
-}
-
-// ============================================
-// MODALE: PŁATNOŚĆ / PROMO
-// ============================================
-function openPaymentModal() {
-    $('payment-modal')?.classList.remove('hidden');
-    $('payment-message').textContent = '';
-}
-function closePaymentModal() { $('payment-modal')?.classList.add('hidden'); }
-
-function confirmPayment() {
-    const input = $('payment-input');
-    const msg = $('payment-message');
-    const amount = parseFloat(input.value);
-
-    if (!amount || amount <= 0 || amount > 10000) {
-        msg.textContent = 'Podaj kwotę między 0.01 a 10000';
-        msg.className = 'text-xs mb-3 h-4 text-red-400';
-        return;
-    }
-
-    state.balance += amount;
-
-    const affordable = storeCatalog.filter(i => i.price <= amount);
-    if (affordable.length > 0) {
-        const pick = affordable[Math.floor(Math.random() * affordable.length)];
-        inventory.push({
-            id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-            name: pick.name,
-            wear: pick.wear,
-            price: pick.price,
-            rarity: pick.rarity,
-            img: pick.img,
-        });
-        state.balance -= pick.price;
-        msg.textContent = `Dodano: ${pick.name} + ${fmt(amount - pick.price)} salda`;
-    } else {
-        msg.textContent = `Dodano ${fmt(amount)} do salda`;
-    }
-    msg.className = 'text-xs mb-3 h-4 text-green-400';
-
-    updateBalance();
-    renderInventory();
-    updateCashSliderMax();
-
-    setTimeout(closePaymentModal, 1200);
-}
-
-function openPromoModal() {
-    $('promo-modal')?.classList.remove('hidden');
-    $('promo-input').value = '';
-    $('promo-message').textContent = '';
-}
-function closePromoModal() { $('promo-modal')?.classList.add('hidden'); }
-
-function redeemPromoCode() {
-    const code = $('promo-input').value.trim().toUpperCase();
-    const msg = $('promo-message');
-
-    if (!code) {
-        msg.textContent = 'Wpisz kod';
-        msg.className = 'text-xs mb-3 h-4 text-red-400';
-        return;
-    }
-
-    const codes = { 'WELCOME': 5, 'CS2PRO': 10, 'FREE': 1 };
-
-    if (codes[code]) {
-        state.balance += codes[code];
-        updateBalance();
-        msg.textContent = `+${fmt(codes[code])} dodane!`;
-        msg.className = 'text-xs mb-3 h-4 text-green-400';
-        setTimeout(closePromoModal, 1200);
-    } else {
-        msg.textContent = 'Nieprawidłowy kod';
-        msg.className = 'text-xs mb-3 h-4 text-red-400';
-    }
-}
-
-// ============================================
-// LOGIN / AUDIO
-// ============================================
-function toggleLogin() {
-    state.loggedIn = !state.loggedIn;
-    const txt = $('steam-btn-text');
-    if (txt) txt.textContent = state.loggedIn ? 'Wyloguj' : 'Steam User';
-    setStatus(state.loggedIn ? 'Zalogowano' : 'Wylogowano', 'text-green-400');
 }
 
 function toggleAudio() {
-    state.audioEnabled = !state.audioEnabled;
-    const icon = $('sound-icon');
-    if (icon) {
-        icon.className = state.audioEnabled
-            ? 'fa-solid fa-volume-high'
-            : 'fa-solid fa-volume-xmark';
+    audioMuted = !audioMuted;
+    document.getElementById('sound-icon').className = audioMuted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high text-gray-400";
+}
+
+function toggleLogin() {
+    const btn = document.getElementById('steam-btn-text');
+    btn.innerText = btn.innerText === "Steam User" ? "Niezalogowany" : "Steam User";
+}
+
+// ============================================
+// KOD POLECAJĄCY (jednorazowy na konto)
+// ============================================
+const PROMO_CODE = '98CASE';
+const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
+
+function openPromoModal() {
+    document.getElementById('promo-modal').classList.remove('hidden');
+    document.getElementById('promo-message').innerHTML = '';
+    document.getElementById('promo-input').value = '';
+}
+
+function closePromoModal() {
+    document.getElementById('promo-modal').classList.add('hidden');
+}
+
+function redeemPromoCode() {
+    const input = document.getElementById('promo-input').value.trim().toUpperCase();
+    const msg = document.getElementById('promo-message');
+
+    if (localStorage.getItem(PROMO_STORAGE_KEY) === 'true') {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Ten kod został już wykorzystany na tym koncie.</span>`;
+        return;
     }
+
+    if (input !== PROMO_CODE) {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Nieprawidłowy kod.</span>`;
+        return;
+    }
+
+    const promoItems = [
+        {
+            id: 'promo1_' + Date.now(),
+            name: 'AK-47 | Safari Mesh',
+            wear: 'FT',
+            price: 0.46,
+            rarity: 'rarity-milspec',
+            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47+Safari+Mesh'
+        },
+        {
+            id: 'promo2_' + Date.now(),
+            name: 'M4A4 | Urban DDPAT',
+            wear: 'FT',
+            price: 0.75,
+            rarity: 'rarity-milspec',
+            img: 'https://placehold.co/180x130/1a1830/4b69ff?text=M4A4+Urban+DDPAT'
+        },
+        {
+            id: 'promo3_' + Date.now(),
+            name: 'P2000 | Imperial',
+            wear: 'MW',
+            price: 1.25,
+            rarity: 'rarity-restricted',
+            img: 'https://placehold.co/180x130/1a1830/8847ff?text=P2000+Imperial'
+        }
+    ];
+
+    promoItems.forEach(it => inventory.push(it));
+    localStorage.setItem(PROMO_STORAGE_KEY, 'true');
+
+    renderPlayerInventory();
+    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano 3 skiny do ekwipunku.</span>`;
+
+    setTimeout(() => closePromoModal(), 1500);
 }
-
-// ============================================
-// LIVE FEED
-// ============================================
-function startLiveFeed() {
-    const feed = $('live-feed');
-    if (!feed) return;
-
-    const names = storeCatalog.map(i => i.name);
-    const addFeed = () => {
-        const name = names[Math.floor(Math.random() * names.length)];
-        const win = Math.random() > 0.5;
-        const el = document.createElement('div');
-        el.className = 'flex items-center gap-1.5 text-[10px] whitespace-nowrap px-2 py-1 rounded bg-cardBg/60 border border-borderBorder/40';
-        el.innerHTML = `
-            <span class="font-mono text-gray-500">User${Math.floor(Math.random()*9999)}</span>
-            <span class="${win ? 'text-green-400' : 'text-red-400'}">${win ? 'wygrał' : 'przegrał'}</span>
-            <span class="text-white font-semibold truncate max-w-[140px]">${esc(name)}</span>
-        `;
-        feed.insertBefore(el, feed.firstChild);
-        while (feed.children.length > 15) feed.removeChild(feed.lastChild);
-    };
-
-    for (let i = 0; i < 8; i++) addFeed();
-    setInterval(addFeed, 4000);
-}
-
-// ============================================
-// LICZNIKI
-// ============================================
-function startCounters() {
-    const setCounters = (val) => {
-        ['online-counter', 'online-counter-mobile'].forEach(id => {
-            const el = $(id);
-            if (el) el.textContent = val.toLocaleString('pl-PL');
-        });
-    };
-    const setUpgrades = (val) => {
-        ['total-upgrades-counter', 'total-upgrades-counter-mobile'].forEach(id => {
-            const el = $(id);
-            if (el) el.textContent = val.toLocaleString('pl-PL');
-        });
-    };
-
-    let online = 1842;
-    let upgrades = 14290120;
-
-    setCounters(online);
-    setUpgrades(upgrades);
-
-    setInterval(() => {
-        online += Math.floor(Math.random() * 7) - 3;
-        if (online < 1500) online = 1500;
-        setCounters(online);
-    }, 5000);
-
-    setInterval(() => {
-        upgrades += Math.floor(Math.random() * 5) + 1;
-        setUpgrades(upgrades);
-    }, 3000);
-}
-
-// ============================================
-// INIT
-// ============================================
-document.addEventListener('DOMContentLoaded', () => {
-    state.balance = 0;
-
-    renderInventory();
-    renderStoreCatalog();
-    updateBalance();
-    updateUpgradeChance();
-    startLiveFeed();
-    startCounters();
-
-    console.log('[CSCASEPRO] Zainicjalizowano. Sklep:', storeCatalog.length, 'pozycji.');
-});
