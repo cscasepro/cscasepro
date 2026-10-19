@@ -1,48 +1,62 @@
 // ============================================
-// MOCKI DANYCH (jeśli brak w głównym pliku)
+// KONFIGURACJA KASYNA (House Edge / RTP)
 // ============================================
-let inventory = window.inventory || [
-    { id: 'i1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
-    { id: 'i2', name: 'AWP | Asiimov', wear: 'WW', price: 45.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=AWP' }
-];
-
-let storeCatalog = window.storeCatalog || [
-    { id: 's1', name: 'Knife | Doppler', wear: 'FN', price: 150.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Knife' },
-    { id: 's2', name: 'Gloves | Emerald', wear: 'MW', price: 220.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Gloves' }
-];
+const CASINO_CONFIG = {
+    RTP_FACTOR: 0.95, // Return To Player = 95% (Przewaga kasyna / House Edge = 5%)
+    MIN_CHANCE: 1.0,  // Minimalna szansa na wygraną (%)
+    MAX_CHANCE: 80.0  // Maksymalna szansa na wygraną (%)
+};
 
 // ============================================
-// GAME ENGINE
+// GAME ENGINE (Bezpieczne losowanie probabilistyczne)
 // ============================================
 const GameEngine = (() => {
     let _lastSpinTime = 0;
     let _spinCount = 0;
     const MIN_SPIN_INTERVAL = 2500;
-    
+
     function secureRandom() {
         const arr = new Uint32Array(1);
         crypto.getRandomValues(arr);
         return arr[0] / 4294967296;
     }
-    
+
     function canSpin() {
         const now = Date.now();
-        if (now - _lastSpinTime < MIN_SPIN_INTERVAL) return { allowed: false, reason: 'Zwolnij! Odczekaj chwilę.' };
+        if (now - _lastSpinTime < MIN_SPIN_INTERVAL) {
+            return { allowed: false, reason: 'Zwolnij! Odczekaj chwilę.' };
+        }
         return { allowed: true };
     }
-    
-    function rollOutcome(chance) {
-        if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) throw new Error('Invalid chance');
-        const roll = secureRandom() * 100;
-        return { roll, chance, outcome: roll <= chance, timestamp: Date.now(), spinId: 'spin_' + (++_spinCount) };
+
+    function calculateRealChance(sourceValue, targetValue) {
+        if (sourceValue <= 0 || targetValue <= 0) return 0;
+        const rawChance = (sourceValue / targetValue) * 100;
+        const adjustedChance = rawChance * CASINO_CONFIG.RTP_FACTOR;
+        return Math.min(Math.max(adjustedChance, CASINO_CONFIG.MIN_CHANCE), CASINO_CONFIG.MAX_CHANCE);
     }
-    
-    return { 
-        canSpin, 
-        rollOutcome, 
+
+    function rollOutcome(chance) {
+        if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) {
+            throw new Error('Invalid chance');
+        }
+        const roll = secureRandom() * 100;
+        return {
+            roll,
+            chance,
+            outcome: roll <= chance,
+            timestamp: Date.now(),
+            spinId: 'spin_' + (++_spinCount)
+        };
+    }
+
+    return {
+        canSpin,
+        calculateRealChance,
+        rollOutcome,
         getSpinCount: () => _spinCount,
-        resetRateLimit: () => { _lastSpinTime = 0; }, 
-        recordSpin: () => { _lastSpinTime = Date.now(); } 
+        resetRateLimit: () => { _lastSpinTime = 0; },
+        recordSpin: () => { _lastSpinTime = Date.now(); }
     };
 })();
 
@@ -63,7 +77,10 @@ const GameEngine = (() => {
     try { Object.freeze(GameEngine); } catch (e) {}
 })();
 
-let balance = 100.00; // Ustawiono startowy budżet dla testów
+// ============================================
+// STAN APLIKACJI I DANE
+// ============================================
+let balance = 100.00;
 let addedCash = 0.00;
 let isSpinning = false;
 let audioMuted = false;
@@ -71,102 +88,15 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
-// ============================================
-// SYSTEM HOUSE EDGE
-// ============================================
-const HouseEngine = (() => {
-    const STORAGE_KEY = 'cscasepro_house_state';
-    const FREE_WINS = 3;
+let inventory = window.inventory || [
+    { id: 'i1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-restricted', img: 'https://placehold.co/180x130/1a1830/4b69ff?text=AK-47' },
+    { id: 'i2', name: 'AWP | Asiimov', wear: 'WW', price: 45.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=AWP' }
+];
 
-    let state = {
-        totalSpins: 0,
-        totalWins: 0,
-        totalLosses: 0,
-        currentStreak: 0,
-        forcedNextOutcome: null,
-        streakPattern: [],
-        freeWinsLeft: FREE_WINS
-    };
-
-    function load() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                state = { ...state, ...parsed };
-            }
-        } catch (e) {}
-    }
-
-    function save() {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        } catch (e) {}
-    }
-
-    function getAdjustedOutcome(playerChance) {
-        load();
-
-        if (state.freeWinsLeft > 0) {
-            state.freeWinsLeft--;
-            state.totalSpins++;
-            state.totalWins++;
-            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
-            save();
-            return { isWin: true, forced: true, reason: 'FREE_WIN', playerChance };
-        }
-
-        if (state.streakPattern.length > 0) {
-            const forced = state.streakPattern.shift();
-            state.totalSpins++;
-            if (forced === 'win') {
-                state.totalWins++;
-                state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
-            } else {
-                state.totalLosses++;
-                state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
-            }
-            save();
-            return { isWin: forced === 'win', forced: true, reason: 'PATTERN', playerChance };
-        }
-
-        const spinsFactor = Math.min(state.totalSpins / 100, 0.5);
-        const houseEdge = 0.15 + spinsFactor * 0.15;
-        const adjusted = Math.max(1, playerChance * (1 - houseEdge));
-        const roll = Math.random() * 100;
-        const isWin = roll <= adjusted;
-
-        state.totalSpins++;
-        if (isWin) {
-            state.totalWins++;
-            state.currentStreak = state.currentStreak >= 0 ? state.currentStreak + 1 : 1;
-        } else {
-            state.totalLosses++;
-            state.currentStreak = state.currentStreak <= 0 ? state.currentStreak - 1 : -1;
-        }
-
-        if (state.currentStreak <= -3) {
-            state.streakPattern = ['win', 'win'];
-        } else if (state.currentStreak >= 3) {
-            state.streakPattern = ['loss'];
-        }
-
-        save();
-        return { isWin, forced: false, reason: 'NORMAL', playerChance, adjustedChance: adjusted, houseEdge };
-    }
-
-    function getStats() { load(); return { ...state }; }
-    function reset() {
-        state = {
-            totalSpins: 0, totalWins: 0, totalLosses: 0,
-            currentStreak: 0, forcedNextOutcome: null,
-            streakPattern: [], freeWinsLeft: FREE_WINS
-        };
-        save();
-    }
-
-    return { getAdjustedOutcome, getStats, reset };
-})();
+let storeCatalog = window.storeCatalog || [
+    { id: 's1', name: 'Knife | Doppler', wear: 'FN', price: 150.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Knife' },
+    { id: 's2', name: 'Gloves | Emerald', wear: 'MW', price: 220.00, rarity: 'rarity-covert', img: 'https://placehold.co/180x130/1a1830/eb4b4b?text=Gloves' }
+];
 
 // ============================================
 // AUDIO SYNTH
@@ -246,6 +176,9 @@ function spawnParticles(container, count, colors) {
     }
 }
 
+// ============================================
+// INICJALIZACJA I RENDEROWANIE
+// ============================================
 window.addEventListener('DOMContentLoaded', () => {
     const balanceEl = document.getElementById('user-balance');
     if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
@@ -261,7 +194,7 @@ window.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         const el = document.getElementById('online-counter');
         if (el) {
-            let count = parseInt(el.innerText.replace(/,/g, '')) || 1000;
+            let count = parseInt(el.innerText.replace(/,/g, '')) || 1240;
             count += Math.floor(Math.random() * 5) - 2;
             el.innerText = count.toLocaleString('en-US');
         }
@@ -362,6 +295,24 @@ function clearSourceItem() {
     recalculateOdds();
 }
 
+function sellSelectedItem() {
+    if (!selectedSourceItem || isSpinning) return;
+    balance += selectedSourceItem.price;
+    
+    const balanceEl = document.getElementById('user-balance');
+    if (balanceEl) balanceEl.innerText = `$${balance.toFixed(2)}`;
+    
+    const idx = inventory.findIndex(i => i.id === selectedSourceItem.id);
+    if (idx > -1) inventory.splice(idx, 1);
+    
+    clearSourceItem();
+    
+    const slider = document.getElementById('cash-slider');
+    if (slider) slider.max = Math.max(0, balance).toFixed(2);
+    
+    recalculateOdds();
+}
+
 function selectTargetItem(item) {
     if (isSpinning) return;
     selectedTargetItem = item;
@@ -431,10 +382,11 @@ function recalculateOdds() {
     }
 
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
+    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
+
     const totalSourceValEl = document.getElementById('total-source-val');
     if (totalSourceValEl) totalSourceValEl.innerText = `$${sourceVal.toFixed(2)}`;
 
-    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
     const totalTargetValEl = document.getElementById('total-target-val');
     if (totalTargetValEl) totalTargetValEl.innerText = `$${targetVal.toFixed(2)}`;
 
@@ -453,8 +405,7 @@ function recalculateOdds() {
         return;
     }
 
-    let rawChance = (sourceVal / targetVal) * 100;
-    calculatedChance = Math.min(Math.max(rawChance, 1.0), 80.0);
+    calculatedChance = GameEngine.calculateRealChance(sourceVal, targetVal);
     const multiplier = (100 / calculatedChance).toFixed(2);
     
     const winChanceEl = document.getElementById('win-chance-text');
@@ -500,6 +451,9 @@ function updateWheelArc(percentage) {
     rightArc.setAttribute('stroke', gradient);
 }
 
+// ============================================
+// PROCES LOSOWANIA I ANIMACJA KOŁA
+// ============================================
 async function startUpgrade() {
     if (isSpinning || !selectedTargetItem) return;
     if (addedCash > balance) return;
@@ -513,10 +467,10 @@ async function startUpgrade() {
 
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
     const targetVal = selectedTargetItem.price;
-    const rawChance = Math.min(Math.max((sourceVal / targetVal) * 100, 1.0), 80.0);
+    const chance = GameEngine.calculateRealChance(sourceVal, targetVal);
 
-    const houseResult = HouseEngine.getAdjustedOutcome(rawChance);
-    const isWin = houseResult.isWin;
+    const rollRes = GameEngine.rollOutcome(chance);
+    const isWin = rollRes.outcome;
 
     if (addedCash > 0) {
         balance -= addedCash;
@@ -543,8 +497,8 @@ async function startUpgrade() {
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
     const targetOffsetDeg = isWin
-        ? (Math.random() * (rawChance / 2) + 1)
-        : (rawChance / 2 + 5 + Math.random() * (360 - rawChance - 10));
+        ? (Math.random() * (chance / 2) + 1)
+        : (chance / 2 + 5 + Math.random() * (360 - chance - 10));
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
@@ -660,6 +614,9 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
     setTimeout(() => GameEngine.resetRateLimit(), 2500);
 }
 
+// ============================================
+// MODALE I FEED NA ŻYWO
+// ============================================
 function openResultModal(isWin, item) {
     if (!item) return;
     const modal = document.getElementById('result-modal');
@@ -759,7 +716,7 @@ function toggleLogin() {
 }
 
 // ============================================
-// KOD PROMO
+// KODY PROMOCYJNE
 // ============================================
 const PROMO_CODE = '98CASE';
 const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
