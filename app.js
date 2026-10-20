@@ -235,12 +235,10 @@ function changePage(context, dir) {
     }
 }
 
-// NOWA FUNKCJA: Skakanie do konkretnej strony po wpisaniu numeru
 function jumpToPage(context, value) {
     let page = parseInt(value);
     if (isNaN(page) || page < 1) page = 1;
 
-    // Walidacja czy strona nie jest za duża
     let items;
     if (context === 'catalog') {
         const search = document.getElementById('catalog-search').value.toLowerCase();
@@ -253,7 +251,6 @@ function jumpToPage(context, value) {
     const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
     if (page > totalPages) page = totalPages;
 
-    // Aktualizacja odpowiedniego widoku
     if (context === 'catalog') {
         catalogPage = page;
         renderStoreCatalog(page);
@@ -326,7 +323,6 @@ function renderStoreCatalog(page = 1) {
     if (page > totalPages) page = totalPages;
     catalogPage = page;
 
-    // Aktualizacja inputów
     if (pageInput) pageInput.value = page;
     if (pageTotal) pageTotal.innerText = `/ ${totalPages}`;
 
@@ -385,7 +381,6 @@ function renderPopShop(page = 1) {
     if (page > totalPages) page = totalPages;
     shopPage = page;
 
-    // Aktualizacja inputów
     if (pageInput) pageInput.value = page;
     if (pageTotal) pageTotal.innerText = `/ ${totalPages}`;
 
@@ -634,9 +629,23 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    const targetOffsetDeg = isWin
-        ? (Math.random() * (chance / 2) + 1)
-        : (chance / 2 + 5 + Math.random() * (360 - chance - 10));
+    // --- NAPRAWA BŁĘDU WIZUALNEGO ---
+    // Zamiast losować pozycję na granicy zielonego/czerwonego, celujemy w sam ŚRODEK odpowiedniej strefy.
+    let targetOffsetDeg = 0;
+    
+    if (isWin) {
+        // Jeśli wygrana: losujemy punkt od 10% do 90% szerokości zielonego przedziału (z dala od krawędzi)
+        const winZoneStart = 0; // Strefa wygranej zaczyna się od 0 stopni
+        const winZoneEnd = chance; // i kończy na szansie (np. 45 stopni)
+        const safeMargin = (winZoneEnd - winZoneStart) * 0.1; // 10% marginesu od krawędzi
+        targetOffsetDeg = winZoneStart + safeMargin + Math.random() * (winZoneEnd - winZoneStart - safeMargin * 2);
+    } else {
+        // Jeśli przegrana: losujemy punkt od 10% do 90% szerokości czerwonego przedziału
+        const loseZoneStart = chance;
+        const loseZoneEnd = 360;
+        const safeMargin = (loseZoneEnd - loseZoneStart) * 0.1;
+        targetOffsetDeg = loseZoneStart + safeMargin + Math.random() * (loseZoneEnd - loseZoneStart - safeMargin * 2);
+    }
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
     const needle = document.getElementById('needle');
