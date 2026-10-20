@@ -63,7 +63,7 @@ let selectedTargetItem = null;
 let calculatedChance = 0;
 
 let inventory = []; 
-let storeCatalog = []; 
+let storeCatalog = [];
 
 const AudioSynth = {
     ctx: null,
@@ -156,21 +156,21 @@ function getRandomWear(minFloat, maxFloat) {
     return shortMap[randomWear.name] || 'FT';
 }
 
-// --- POBIERANIE DANYCH Z GITHUBA (ZOPTYMALIZOWANE) ---
+// --- POBIERANIE PEŁNEJ BAZY I GENEROWANIE CEN DO 300+ ZŁ ---
 async function loadSkinsData() {
     try {
-        // Oficjalny mały plik źródłowy
+        // Pobieramy pełną bazę z GitHuba
         const url = 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins_not_grouped.json';
         const response = await fetch(url);
         if (!response.ok) throw new Error("Błąd sieci");
-        const data = await response.json();
+        let data = await response.json();
 
-        // Filtrujemy duplikaty i mieszamy
+        // Usuwamy duplikaty i mieszamy, żeby wybrać losowe 300 sztuk do sklepu
         const uniqueSkins = Array.from(new Map(data.map(item => [item.name, item])).values());
         uniqueSkins.sort(() => Math.random() - 0.5);
-
-        // Bierzemy tylko 250 sztuk, żeby strona działała płynnie
-        const selectedSkins = uniqueSkins.slice(0, 250);
+        
+        // Bierzemy 300 skinów (żeby nie zamulić strony i mieć dobry wybór)
+        const selectedSkins = uniqueSkins.slice(0, 300);
 
         storeCatalog = selectedSkins.map(skin => {
             let basePrice = 1.00;
@@ -178,20 +178,23 @@ async function loadSkinsData() {
 
             if (skin.rarity && skin.rarity.name) {
                 const rName = skin.rarity.name;
-                if (rName === 'Covert' || rName === 'Extraordinary' || rName === 'Contraband') { 
-                    basePrice = 50.00; rarityClass = 'rarity-covert'; 
-                } else if (rName === 'Classified') { basePrice = 20.00; rarityClass = 'rarity-classified'; }
-                else if (rName === 'Restricted') { basePrice = 5.00; rarityClass = 'rarity-restricted'; }
-                else if (rName === 'Mil-Spec Grade') { basePrice = 1.50; }
+                // Ustalamy cenę bazową i kolor ramki na podstawie rzadkości
+                if (rName === 'Covert') { basePrice = 45.00; rarityClass = 'rarity-covert'; }
+                else if (rName === 'Classified') { basePrice = 20.00; rarityClass = 'rarity-classified'; }
+                else if (rName === 'Restricted') { basePrice = 8.00; rarityClass = 'rarity-restricted'; }
+                else if (rName === 'Mil-Spec Grade') { basePrice = 2.50; }
                 else if (rName === 'Industrial Grade' || rName === 'Consumer Grade') { basePrice = 0.50; }
                 
-                if (skin.name.includes('★') || (skin.category && skin.category.name === 'Gloves')) {
-                    basePrice = 150.00; 
+                // Noże i rękawice (Extraordinary / ★) są bardzo drogie
+                if (skin.name.includes('★') || (skin.category && skin.category.name === 'Gloves') || rName === 'Extraordinary' || rName === 'Contraband') {
+                    basePrice = 350.00; 
                     rarityClass = 'rarity-knife';
                 }
             }
 
-            const finalPrice = (basePrice * (0.8 + Math.random() * 0.4)).toFixed(2);
+            // Mnożnik losowy, żeby ceny nie były identyczne (od -30% do +30%)
+            const priceMultiplier = 0.7 + (Math.random() * 0.6);
+            const finalPrice = (basePrice * priceMultiplier).toFixed(2);
 
             return {
                 id: skin.id || 'skin_' + Math.random(),
@@ -203,7 +206,7 @@ async function loadSkinsData() {
             };
         });
 
-        // Dodaj 5 startowych skinów
+        // Dodaj 5 startowych skinów (zarówno tanich jak i drogich)
         for(let i=0; i<5; i++) {
             if(storeCatalog.length === 0) break;
             const randomItem = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
@@ -215,10 +218,13 @@ async function loadSkinsData() {
         populateLiveFeed();
         
     } catch (error) {
-        console.error("Błąd ładowania skinów:", error);
-        // Baza awaryjna (jeśli GitHub padnie)
+        console.error("Błąd ładowania z GitHuba, używam bazy zapasowej:", error);
+        
+        // Baza zapasowa na wypadek awarii internetu (z droższymi skinami)
         storeCatalog = [
-            { id: '1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-classified', img: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/default_generated/weapon_ak47_cu_ak47_cobra_light_png.png' }
+            { id: '1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-classified', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' },
+            { id: '2', name: '★ Karambit | Doppler', wear: 'FN', price: 450.00, rarity: 'rarity-knife', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' },
+            { id: '3', name: 'AWP | Dragon Lore', wear: 'MW', price: 1200.00, rarity: 'rarity-covert', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' }
         ];
         renderPlayerInventory();
         renderStoreCatalog();
@@ -279,8 +285,8 @@ function renderStoreCatalog() {
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
 
-    // Renderujemy tylko 60 elementów (optymalizacja)
-    const itemsToRender = items.slice(0, 60);
+    // Renderujemy max 80 przedmiotów na raz dla płynności
+    const itemsToRender = items.slice(0, 80);
 
     grid.innerHTML = '';
     itemsToRender.forEach(item => {
@@ -328,7 +334,7 @@ function renderPopShop() {
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
 
-    const itemsToRender = items.slice(0, 60);
+    const itemsToRender = items.slice(0, 80);
 
     grid.innerHTML = '';
     itemsToRender.forEach(item => {
