@@ -574,15 +574,17 @@ function pickGradient(percentage) {
     return 'url(#gradGreen)';
 }
 
+// CAŁKOWITA PRZEBUDOWA RYSOWANIA KOŁA (Zawsze idealnie spasowane z animacją)
 function updateWheelArc(percentage) {
     const leftArc = document.getElementById('win-arc-left');
     const rightArc = document.getElementById('win-arc-right');
     if (!leftArc || !rightArc) return;
 
-    const circumference = 452.38;
+    const circumference = 452.38; // 2 * PI * 72
     const halfPercent = percentage / 2;
     const strokeLength = (halfPercent / 100) * circumference;
 
+    // Ustawiamy paski tak, żeby dokładnie pokrywały się z zakresem procentowym
     leftArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
     rightArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
 
@@ -629,22 +631,19 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // --- NAPRAWA BŁĘDU WIZUALNEGO ---
-    // Zamiast losować pozycję na granicy zielonego/czerwonego, celujemy w sam ŚRODEK odpowiedniej strefy.
+    // --- GWARANCJA POPRAWNEJ ANIMACJI ---
+    // Zielona strefa to od 0 do `chance` (stopni). Czerwona to od `chance` do 360.
+    // Celujemy w sam środek strefy, żeby wskazówka nigdy nie musiała "walczyć" o milimetry przy krawędzi.
     let targetOffsetDeg = 0;
     
     if (isWin) {
-        // Jeśli wygrana: losujemy punkt od 10% do 90% szerokości zielonego przedziału (z dala od krawędzi)
-        const winZoneStart = 0; // Strefa wygranej zaczyna się od 0 stopni
-        const winZoneEnd = chance; // i kończy na szansie (np. 45 stopni)
-        const safeMargin = (winZoneEnd - winZoneStart) * 0.1; // 10% marginesu od krawędzi
-        targetOffsetDeg = winZoneStart + safeMargin + Math.random() * (winZoneEnd - winZoneStart - safeMargin * 2);
+        // Środek zielonej strefy
+        targetOffsetDeg = (chance / 2) + (Math.random() * (chance * 0.1) - (chance * 0.05));
     } else {
-        // Jeśli przegrana: losujemy punkt od 10% do 90% szerokości czerwonego przedziału
-        const loseZoneStart = chance;
-        const loseZoneEnd = 360;
-        const safeMargin = (loseZoneEnd - loseZoneStart) * 0.1;
-        targetOffsetDeg = loseZoneStart + safeMargin + Math.random() * (loseZoneEnd - loseZoneStart - safeMargin * 2);
+        // Środek czerwonej strefy
+        const startRed = chance;
+        const endRed = 360;
+        targetOffsetDeg = startRed + ((endRed - startRed) / 2) + (Math.random() * ((endRed - startRed) * 0.1) - ((endRed - startRed) * 0.05));
     }
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
