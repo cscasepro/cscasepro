@@ -156,22 +156,20 @@ function getRandomWear(minFloat, maxFloat) {
     return shortMap[randomWear.name] || 'FT';
 }
 
-// --- POBIERANIE DANYCH BEZPOŚREDNIO Z GITHUBA ---
+// --- POBIERANIE DANYCH Z GITHUBA (ZOPTYMALIZOWANE) ---
 async function loadSkinsData() {
     try {
-        // Używamy bezpośredniego linku z GitHuba (raw) do małego pliku z bazą skinów
+        // Oficjalny mały plik źródłowy
         const url = 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins_not_grouped.json';
         const response = await fetch(url);
         if (!response.ok) throw new Error("Błąd sieci");
         const data = await response.json();
 
-        console.log("Pobrano z GitHuba:", data.length, "skinów.");
-
-        // Usuwamy duplikaty (żeby nie było 5x ten sam skin) i mieszamy
+        // Filtrujemy duplikaty i mieszamy
         const uniqueSkins = Array.from(new Map(data.map(item => [item.name, item])).values());
         uniqueSkins.sort(() => Math.random() - 0.5);
 
-        // Bierzemy tylko 250 skinów, żeby strona działała płynnie
+        // Bierzemy tylko 250 sztuk, żeby strona działała płynnie
         const selectedSkins = uniqueSkins.slice(0, 250);
 
         storeCatalog = selectedSkins.map(skin => {
@@ -205,7 +203,7 @@ async function loadSkinsData() {
             };
         });
 
-        // Dodaj 5 startowych skinów do ekwipunku
+        // Dodaj 5 startowych skinów
         for(let i=0; i<5; i++) {
             if(storeCatalog.length === 0) break;
             const randomItem = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
@@ -217,8 +215,8 @@ async function loadSkinsData() {
         populateLiveFeed();
         
     } catch (error) {
-        console.error("Błąd:", error);
-        // Jeśli GitHub zawiedzie, użyjemy małej bazy awaryjnej, żeby strona nie była pusta
+        console.error("Błąd ładowania skinów:", error);
+        // Baza awaryjna (jeśli GitHub padnie)
         storeCatalog = [
             { id: '1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-classified', img: 'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/default_generated/weapon_ak47_cu_ak47_cobra_light_png.png' }
         ];
@@ -281,6 +279,7 @@ function renderStoreCatalog() {
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
 
+    // Renderujemy tylko 60 elementów (optymalizacja)
     const itemsToRender = items.slice(0, 60);
 
     grid.innerHTML = '';
