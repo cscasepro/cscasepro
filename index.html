@@ -157,7 +157,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                 </div>
                 <div id="source-filled" class="hidden w-full h-full flex flex-col items-center justify-between">
                     <button onclick="clearSourceItem()" class="absolute top-1 right-1 text-gray-500 hover:text-red-400 text-xs p-1 rounded hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark"></i></button>
-                    <img id="source-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1">
+                    <img id="source-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
                     <div class="text-center w-full">
                         <div id="source-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
                         <div id="source-price" class="font-rajdhani text-base sm:text-lg font-bold text-accentViolet">$0.00</div>
@@ -265,7 +265,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                 </div>
                 <div id="target-filled" class="hidden w-full h-full flex flex-col items-center justify-between">
                     <button onclick="clearTargetItem()" class="absolute top-1 right-1 text-gray-500 hover:text-red-400 text-xs p-1 rounded hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark"></i></button>
-                    <img id="target-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1">
+                    <img id="target-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
                     <div class="text-center w-full">
                         <div id="target-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
                         <div id="target-price" class="font-rajdhani text-base sm:text-lg font-bold text-accentBlue">$0.00</div>
@@ -312,7 +312,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </main>
 
-<!-- MODALE (Sklep, Wynik, Kod, Doładowanie) -->
+<!-- MODALE -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
 <div class="bg-panelBg border border-borderBorder rounded-2xl p-4 sm:p-5 max-w-xl w-full flex flex-col shadow-2xl max-h-[90vh]">
     <div class="flex justify-between items-center pb-2.5 border-b border-borderBorder/40 mb-2.5">
@@ -334,7 +334,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </button>
         </div>
     </div>
-
     <div class="flex justify-between items-center gap-2 mb-2">
         <input type="text" id="pop-shop-search" oninput="renderPopShop()" placeholder="Szukaj..." class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1 text-xs text-white placeholder-gray-500 focus:outline-none w-36 sm:w-48">
         <select id="pop-shop-sort" onchange="renderPopShop()" class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2 py-1 text-xs text-gray-300 focus:outline-none">
@@ -342,7 +341,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <option value="desc">$ max</option>
         </select>
     </div>
-
     <div id="shop-pop-msg" class="text-xs text-center font-bold h-4 mb-1"></div>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 overflow-y-auto pr-1 flex-1 min-h-[220px]" id="pop-shop-grid"></div>
 </div>
@@ -356,7 +354,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     <h3 id="modal-title" class="font-rajdhani text-xl font-bold uppercase text-white">WYGRANA!</h3>
     <p id="modal-desc" class="text-[11px] text-gray-400 mb-3">Skin powędrował do ekwipunku.</p>
     <div id="modal-item-box" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-xl p-2.5 mb-4 flex flex-col items-center">
-        <img id="modal-item-img" src="" class="w-24 h-16 object-contain my-1">
+        <img id="modal-item-img" src="" class="w-24 h-16 object-contain my-1" alt="Skin">
         <div id="modal-item-name" class="text-xs font-bold text-white leading-tight"></div>
         <div id="modal-item-price" class="font-rajdhani text-sm font-bold text-accentViolet mt-0.5"></div>
     </div>
@@ -390,14 +388,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     <h3 class="font-rajdhani text-lg font-bold uppercase text-white mb-1">Doładuj Konto</h3>
     <p class="text-[11px] text-gray-400 mb-2">Wpisz kwotę doładowania:</p>
     <input type="number" id="payment-input" value="5.00" min="0.01" step="0.01" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1.5 text-center text-white text-base font-mono font-bold mb-2 focus:outline-none">
-    
     <div class="flex items-center gap-2 mb-2 text-left w-full bg-cardBg/50 p-2 rounded-lg border border-borderBorder/40">
         <input type="checkbox" id="direct-balance-checkbox" class="w-3.5 h-3.5 accent-accentViolet cursor-pointer">
         <label for="direct-balance-checkbox" class="text-[10px] text-gray-300 cursor-pointer leading-tight">
             Dodaj bezpośrednio do salda (bez zakupu skinów)
         </label>
     </div>
-
     <div id="payment-message" class="text-[11px] mb-2 h-4"></div>
     <div class="flex gap-2 w-full">
         <button onclick="closePaymentModal()" class="flex-1 py-1.5 bg-cardBg/80 hover:bg-borderBorder text-gray-300 font-semibold text-xs rounded-lg border border-borderBorder/60">Anuluj</button>
@@ -406,7 +402,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
-<!-- TUTAJ ŁADUJEMY TYLKO APP.JS -->
 <script src="app.js"></script>
 </body>
 </html>
