@@ -574,17 +574,15 @@ function pickGradient(percentage) {
     return 'url(#gradGreen)';
 }
 
-// CAŁKOWITA PRZEBUDOWA RYSOWANIA KOŁA (Zawsze idealnie spasowane z animacją)
 function updateWheelArc(percentage) {
     const leftArc = document.getElementById('win-arc-left');
     const rightArc = document.getElementById('win-arc-right');
     if (!leftArc || !rightArc) return;
 
-    const circumference = 452.38; // 2 * PI * 72
+    const circumference = 452.38;
     const halfPercent = percentage / 2;
     const strokeLength = (halfPercent / 100) * circumference;
 
-    // Ustawiamy paski tak, żeby dokładnie pokrywały się z zakresem procentowym
     leftArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
     rightArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
 
@@ -609,7 +607,7 @@ async function startUpgrade() {
     const chance = GameEngine.calculateRealChance(sourceVal, targetVal);
 
     const rollRes = GameEngine.rollOutcome(chance);
-    const isWin = rollRes.outcome;
+    let isWin = rollRes.outcome;
 
     if (addedCash > 0) {
         balance -= addedCash;
@@ -631,19 +629,17 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // --- GWARANCJA POPRAWNEJ ANIMACJI ---
-    // Zielona strefa to od 0 do `chance` (stopni). Czerwona to od `chance` do 360.
-    // Celujemy w sam środek strefy, żeby wskazówka nigdy nie musiała "walczyć" o milimetry przy krawędzi.
+    // --- LOSOWANIE POŁOŻENIA (tu decydujemy GDZIE wizualnie wyląduje) ---
     let targetOffsetDeg = 0;
     
     if (isWin) {
-        // Środek zielonej strefy
-        targetOffsetDeg = (chance / 2) + (Math.random() * (chance * 0.1) - (chance * 0.05));
+        // Celujemy w środek strefy wygranej
+        targetOffsetDeg = (chance / 2) + (Math.random() * (chance * 0.8) - (chance * 0.4));
     } else {
-        // Środek czerwonej strefy
+        // Celujemy w środek strefy przegranej
         const startRed = chance;
         const endRed = 360;
-        targetOffsetDeg = startRed + ((endRed - startRed) / 2) + (Math.random() * ((endRed - startRed) * 0.1) - ((endRed - startRed) * 0.05));
+        targetOffsetDeg = startRed + ((endRed - startRed) / 2) + (Math.random() * ((endRed - startRed) * 0.8) - ((endRed - startRed) * 0.4));
     }
 
     const totalRotations = (5 * 360) + targetOffsetDeg;
@@ -691,8 +687,49 @@ async function startUpgrade() {
     }
     rafId = requestAnimationFrame(tickLoop);
 
+    // --- ODCZYTANIE WIZUALNEGO WYNIKU (Weryfikacja czy naprawdę trafiło) ---
     setTimeout(() => {
         if (rafId) cancelAnimationFrame(rafId);
+        
+        // Pobieramy rzeczywisty kąt z animacji CSS
+        const computedStyle = window.getComputedStyle(needle);
+        const transformValue = computedStyle.transform;
+        
+        let visualAngle = 0;
+        if (transformValue && transformValue !== 'none') {
+            // Wyciągamy kąt z macierzy (matrix) CSS
+            const values = transformValue.match(/matrix\(([^)]+)\)/);
+            if (values && values[1]) {
+                const parts = values[1].split(', ');
+                if (parts.length >= 2) {
+                    const a = parseFloat(parts[0]);
+                    const b = parseFloat(parts[1]);
+                    // Konwersja z macierzy na stopnie
+                    let angleRad = Math.atan2(b, a);
+                    let angleDeg = angleRad * (180 / Math.PI);
+                    if (angleDeg < 0) angleDeg += 360;
+                    visualAngle = angleDeg;
+                }
+            } else {
+                // Fallback jeśli to nie matrix
+                const match = transformValue.match(/rotate\(([^d]+)deg\)/);
+                if (match && match[1]) {
+                    visualAngle = parseFloat(match[1]) % 360;
+                    if (visualAngle < 0) visualAngle += 360;
+                }
+            }
+        }
+
+        // Weryfikacja czy wizualny kąt mieści się w strefie wygranej
+        // Strefa wygranej mieści się od 0 do `chance` stopni.
+        let actualIsWin = false;
+        if (visualAngle <= chance) {
+            actualIsWin = true;
+        }
+
+        // Jeśli wizualnie koło zatrzymało się w innym miejscu niż wylosował system, dostosowujemy wynik
+        isWin = actualIsWin;
+
         finishUpgrade(isWin, totalRotations, wonItemSnapshot, sacrificedItemSnapshot);
     }, duration);
 }
