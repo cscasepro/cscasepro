@@ -62,8 +62,14 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
+// Gracz zaczyna z pustym ekwipunkiem!
 let inventory = []; 
 let storeCatalog = [];
+
+// Zmienne do paginacji
+let catalogPage = 1;
+let shopPage = 1;
+const ITEMS_PER_PAGE = 8; // 8 skinów na stronę (2 rzędy po 4)
 
 const AudioSynth = {
     ctx: null,
@@ -156,21 +162,18 @@ function getRandomWear(minFloat, maxFloat) {
     return shortMap[randomWear.name] || 'FT';
 }
 
-// --- POBIERANIE PEŁNEJ BAZY I GENEROWANIE CEN DO 300+ ZŁ ---
 async function loadSkinsData() {
     try {
-        // Pobieramy pełną bazę z GitHuba
         const url = 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins_not_grouped.json';
         const response = await fetch(url);
         if (!response.ok) throw new Error("Błąd sieci");
         let data = await response.json();
 
-        // Usuwamy duplikaty i mieszamy, żeby wybrać losowe 300 sztuk do sklepu
         const uniqueSkins = Array.from(new Map(data.map(item => [item.name, item])).values());
         uniqueSkins.sort(() => Math.random() - 0.5);
         
-        // Bierzemy 300 skinów (żeby nie zamulić strony i mieć dobry wybór)
-        const selectedSkins = uniqueSkins.slice(0, 300);
+        // Bierzemy 1000 skinów (będą strony)
+        const selectedSkins = uniqueSkins.slice(0, 1000);
 
         storeCatalog = selectedSkins.map(skin => {
             let basePrice = 1.00;
@@ -178,21 +181,18 @@ async function loadSkinsData() {
 
             if (skin.rarity && skin.rarity.name) {
                 const rName = skin.rarity.name;
-                // Ustalamy cenę bazową i kolor ramki na podstawie rzadkości
                 if (rName === 'Covert') { basePrice = 45.00; rarityClass = 'rarity-covert'; }
                 else if (rName === 'Classified') { basePrice = 20.00; rarityClass = 'rarity-classified'; }
                 else if (rName === 'Restricted') { basePrice = 8.00; rarityClass = 'rarity-restricted'; }
                 else if (rName === 'Mil-Spec Grade') { basePrice = 2.50; }
                 else if (rName === 'Industrial Grade' || rName === 'Consumer Grade') { basePrice = 0.50; }
                 
-                // Noże i rękawice (Extraordinary / ★) są bardzo drogie
                 if (skin.name.includes('★') || (skin.category && skin.category.name === 'Gloves') || rName === 'Extraordinary' || rName === 'Contraband') {
                     basePrice = 350.00; 
                     rarityClass = 'rarity-knife';
                 }
             }
 
-            // Mnożnik losowy, żeby ceny nie były identyczne (od -30% do +30%)
             const priceMultiplier = 0.7 + (Math.random() * 0.6);
             const finalPrice = (basePrice * priceMultiplier).toFixed(2);
 
@@ -206,28 +206,16 @@ async function loadSkinsData() {
             };
         });
 
-        // Dodaj 5 startowych skinów (zarówno tanich jak i drogich)
-        for(let i=0; i<5; i++) {
-            if(storeCatalog.length === 0) break;
-            const randomItem = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
-            inventory.push({ ...randomItem, id: 'start_' + Date.now() + '_' + i });
-        }
+        // Nie dodajemy nic do ekwipunku na start! Jest pusty.
 
         renderPlayerInventory();
-        renderStoreCatalog();
+        renderStoreCatalog(1);
+        renderPopShop(1);
         populateLiveFeed();
         
     } catch (error) {
-        console.error("Błąd ładowania z GitHuba, używam bazy zapasowej:", error);
-        
-        // Baza zapasowa na wypadek awarii internetu (z droższymi skinami)
-        storeCatalog = [
-            { id: '1', name: 'AK-47 | Redline', wear: 'FT', price: 15.50, rarity: 'rarity-classified', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' },
-            { id: '2', name: '★ Karambit | Doppler', wear: 'FN', price: 450.00, rarity: 'rarity-knife', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' },
-            { id: '3', name: 'AWP | Dragon Lore', wear: 'MW', price: 1200.00, rarity: 'rarity-covert', img: 'https://community.akamai.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu4vx603vRA_Olpfu-TVJ7uK9V6xsLvSEHGaA_u13ve5WSDu2jCIrujqNjsH_InuUaQQmDJd2Fu4NshO7kIGyYeu24Affg98UxCX_iXhJ5i465bwHT-N7rXbV3WG0' }
-        ];
-        renderPlayerInventory();
-        renderStoreCatalog();
+        console.error("Błąd:", error);
+        alert("Nie udało się pobrać skinów z GitHuba.");
     }
 }
 
@@ -239,6 +227,28 @@ window.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 });
+
+function changePage(context, dir) {
+    if (context === 'catalog') {
+        catalogPage += dir;
+        if (catalogPage < 1) catalogPage = 1;
+        renderStoreCatalog(catalogPage);
+    } else if (context === 'shop') {
+        shopPage += dir;
+        if (shopPage < 1) shopPage = 1;
+        renderPopShop(shopPage);
+    }
+}
+
+function onCatalogSearch() {
+    catalogPage = 1; // Reset do 1 strony przy szukaniu
+    renderStoreCatalog(1);
+}
+
+function onShopSearch() {
+    shopPage = 1;
+    renderPopShop(1);
+}
 
 function updateBalanceDisplay() {
     const balanceEl = document.getElementById('user-balance');
@@ -255,7 +265,10 @@ function renderPlayerInventory() {
     grid.innerHTML = '';
     if (badge) badge.innerText = `${inventory.length} szt.`;
     
-    inventory.forEach(item => {
+    // Pokazujemy max 8 przedmiotów w ekwipunku na głównym ekranie (można zmienić)
+    const itemsToShow = inventory.slice(0, 8);
+
+    itemsToShow.forEach(item => {
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
         const node = document.createElement('div');
         node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentViolet bg-accentViolet/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28`;
@@ -272,10 +285,11 @@ function renderPlayerInventory() {
     });
 }
 
-function renderStoreCatalog() {
+function renderStoreCatalog(page = 1) {
     const searchInput = document.getElementById('catalog-search');
     const sortInput = document.getElementById('catalog-sort');
     const grid = document.getElementById('catalog-grid');
+    const pageInfo = document.getElementById('catalog-page-info');
     if (!grid) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
@@ -285,11 +299,17 @@ function renderStoreCatalog() {
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
 
-    // Renderujemy max 80 przedmiotów na raz dla płynności
-    const itemsToRender = items.slice(0, 80);
+    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
+    if (page > totalPages) page = totalPages;
+    catalogPage = page;
+
+    if (pageInfo) pageInfo.innerText = `Strona ${page} / ${totalPages}`;
+
+    const startIdx = (page - 1) * ITEMS_PER_PAGE;
+    const pageItems = items.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
     grid.innerHTML = '';
-    itemsToRender.forEach(item => {
+    pageItems.forEach(item => {
         const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
         const node = document.createElement('div');
         node.className = `item-card bg-cardBg/80 border ${isSelected ? 'border-accentBlue bg-accentBlue/10' : 'border-borderBorder/60'} ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28`;
@@ -310,7 +330,7 @@ function openShopModal() {
     const modal = document.getElementById('shop-modal');
     if (modal) {
         modal.classList.remove('hidden');
-        renderPopShop();
+        renderPopShop(1); // Zawsze otwiera na 1 stronie
         const msg = document.getElementById('shop-pop-msg');
         if (msg) msg.innerHTML = '';
     }
@@ -321,10 +341,11 @@ function closeShopModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-function renderPopShop() {
+function renderPopShop(page = 1) {
     const searchInput = document.getElementById('pop-shop-search');
     const sortInput = document.getElementById('pop-shop-sort');
     const grid = document.getElementById('pop-shop-grid');
+    const pageInfo = document.getElementById('shop-page-info');
     if (!grid) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
@@ -334,10 +355,17 @@ function renderPopShop() {
     if (sort === 'asc') items.sort((a, b) => a.price - b.price);
     if (sort === 'desc') items.sort((a, b) => b.price - a.price);
 
-    const itemsToRender = items.slice(0, 80);
+    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
+    if (page > totalPages) page = totalPages;
+    shopPage = page;
+
+    if (pageInfo) pageInfo.innerText = `Strona ${page} / ${totalPages}`;
+
+    const startIdx = (page - 1) * ITEMS_PER_PAGE;
+    const pageItems = items.slice(startIdx, startIdx + ITEMS_PER_PAGE);
 
     grid.innerHTML = '';
-    itemsToRender.forEach(item => {
+    pageItems.forEach(item => {
         const canAfford = balance >= item.price;
         const node = document.createElement('div');
         node.className = `item-card bg-cardBg/80 border border-borderBorder/60 ${item.rarity} rounded-lg p-2 flex flex-col justify-between cursor-pointer transition select-none h-24 sm:h-28 ${canAfford ? 'hover:border-emerald-500/60' : 'opacity-60 cursor-not-allowed'}`;
@@ -371,7 +399,7 @@ function buyItemDirectly(item) {
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
     renderPlayerInventory();
-    renderPopShop();
+    renderPopShop(shopPage);
     recalculateOdds();
     AudioSynth.playWin();
 
@@ -433,7 +461,7 @@ function selectTargetItem(item) {
     document.getElementById('target-price').innerText = `$${item.price.toFixed(2)}`;
     document.getElementById('target-item-wear').innerText = item.wear;
 
-    renderStoreCatalog();
+    renderStoreCatalog(catalogPage);
     recalculateOdds();
 }
 
@@ -445,7 +473,7 @@ function clearTargetItem() {
     document.getElementById('target-filled').classList.add('hidden');
     document.getElementById('target-item-wear').innerText = 'Brak';
 
-    renderStoreCatalog();
+    renderStoreCatalog(catalogPage);
     recalculateOdds();
 }
 
