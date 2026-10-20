@@ -62,14 +62,12 @@ let selectedSourceItem = null;
 let selectedTargetItem = null;
 let calculatedChance = 0;
 
-// Gracz zaczyna z pustym ekwipunkiem!
 let inventory = []; 
 let storeCatalog = [];
 
-// Zmienne do paginacji
 let catalogPage = 1;
 let shopPage = 1;
-const ITEMS_PER_PAGE = 8; // 8 skinów na stronę (2 rzędy po 4)
+const ITEMS_PER_PAGE = 8; 
 
 const AudioSynth = {
     ctx: null,
@@ -172,7 +170,6 @@ async function loadSkinsData() {
         const uniqueSkins = Array.from(new Map(data.map(item => [item.name, item])).values());
         uniqueSkins.sort(() => Math.random() - 0.5);
         
-        // Bierzemy 1000 skinów (będą strony)
         const selectedSkins = uniqueSkins.slice(0, 1000);
 
         storeCatalog = selectedSkins.map(skin => {
@@ -206,8 +203,6 @@ async function loadSkinsData() {
             };
         });
 
-        // Nie dodajemy nic do ekwipunku na start! Jest pusty.
-
         renderPlayerInventory();
         renderStoreCatalog(1);
         renderPopShop(1);
@@ -240,8 +235,36 @@ function changePage(context, dir) {
     }
 }
 
+// NOWA FUNKCJA: Skakanie do konkretnej strony po wpisaniu numeru
+function jumpToPage(context, value) {
+    let page = parseInt(value);
+    if (isNaN(page) || page < 1) page = 1;
+
+    // Walidacja czy strona nie jest za duża
+    let items;
+    if (context === 'catalog') {
+        const search = document.getElementById('catalog-search').value.toLowerCase();
+        items = storeCatalog.filter(i => i.name.toLowerCase().includes(search));
+    } else {
+        const search = document.getElementById('pop-shop-search').value.toLowerCase();
+        items = storeCatalog.filter(i => i.name.toLowerCase().includes(search));
+    }
+    
+    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE) || 1;
+    if (page > totalPages) page = totalPages;
+
+    // Aktualizacja odpowiedniego widoku
+    if (context === 'catalog') {
+        catalogPage = page;
+        renderStoreCatalog(page);
+    } else {
+        shopPage = page;
+        renderPopShop(page);
+    }
+}
+
 function onCatalogSearch() {
-    catalogPage = 1; // Reset do 1 strony przy szukaniu
+    catalogPage = 1;
     renderStoreCatalog(1);
 }
 
@@ -265,7 +288,6 @@ function renderPlayerInventory() {
     grid.innerHTML = '';
     if (badge) badge.innerText = `${inventory.length} szt.`;
     
-    // Pokazujemy max 8 przedmiotów w ekwipunku na głównym ekranie (można zmienić)
     const itemsToShow = inventory.slice(0, 8);
 
     itemsToShow.forEach(item => {
@@ -289,7 +311,8 @@ function renderStoreCatalog(page = 1) {
     const searchInput = document.getElementById('catalog-search');
     const sortInput = document.getElementById('catalog-sort');
     const grid = document.getElementById('catalog-grid');
-    const pageInfo = document.getElementById('catalog-page-info');
+    const pageInput = document.getElementById('catalog-page-input');
+    const pageTotal = document.getElementById('catalog-page-total');
     if (!grid) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
@@ -303,7 +326,9 @@ function renderStoreCatalog(page = 1) {
     if (page > totalPages) page = totalPages;
     catalogPage = page;
 
-    if (pageInfo) pageInfo.innerText = `Strona ${page} / ${totalPages}`;
+    // Aktualizacja inputów
+    if (pageInput) pageInput.value = page;
+    if (pageTotal) pageTotal.innerText = `/ ${totalPages}`;
 
     const startIdx = (page - 1) * ITEMS_PER_PAGE;
     const pageItems = items.slice(startIdx, startIdx + ITEMS_PER_PAGE);
@@ -330,7 +355,7 @@ function openShopModal() {
     const modal = document.getElementById('shop-modal');
     if (modal) {
         modal.classList.remove('hidden');
-        renderPopShop(1); // Zawsze otwiera na 1 stronie
+        renderPopShop(1);
         const msg = document.getElementById('shop-pop-msg');
         if (msg) msg.innerHTML = '';
     }
@@ -345,7 +370,8 @@ function renderPopShop(page = 1) {
     const searchInput = document.getElementById('pop-shop-search');
     const sortInput = document.getElementById('pop-shop-sort');
     const grid = document.getElementById('pop-shop-grid');
-    const pageInfo = document.getElementById('shop-page-info');
+    const pageInput = document.getElementById('shop-page-input');
+    const pageTotal = document.getElementById('shop-page-total');
     if (!grid) return;
 
     const search = searchInput ? searchInput.value.toLowerCase() : '';
@@ -359,7 +385,9 @@ function renderPopShop(page = 1) {
     if (page > totalPages) page = totalPages;
     shopPage = page;
 
-    if (pageInfo) pageInfo.innerText = `Strona ${page} / ${totalPages}`;
+    // Aktualizacja inputów
+    if (pageInput) pageInput.value = page;
+    if (pageTotal) pageTotal.innerText = `/ ${totalPages}`;
 
     const startIdx = (page - 1) * ITEMS_PER_PAGE;
     const pageItems = items.slice(startIdx, startIdx + ITEMS_PER_PAGE);
@@ -710,237 +738,4 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
 
     const sliderEl = document.getElementById('cash-slider');
     if (sliderEl) {
-        sliderEl.max = Math.max(0, balance).toFixed(2);
-        sliderEl.value = 0;
-    }
-    onCashSliderChange(0);
-    clearSourceItem();
-    clearTargetItem();
-    
-    const btn = document.getElementById('upgrade-btn');
-    if (btn) btn.innerText = "ULEPSZ";
-
-    setTimeout(() => GameEngine.resetRateLimit(), 2500);
-}
-
-function openResultModal(isWin, item) {
-    if (!item) return;
-    const modal = document.getElementById('result-modal');
-    const content = document.getElementById('result-modal-content');
-    const icon = document.getElementById('modal-status-icon');
-    const title = document.getElementById('modal-title');
-    const desc = document.getElementById('modal-desc');
-
-    if (!modal) return;
-
-    if (isWin) {
-        if (icon) {
-            icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 relative z-10";
-            icon.innerHTML = `<i class="fa-solid fa-trophy"></i>`;
-        }
-        if (title) {
-            title.className = "font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-emerald-400 relative z-10";
-            title.innerText = "WYGRANA!";
-        }
-        if (desc) desc.innerText = "Twój nowy skin powędrował do ekwipunku.";
-    } else {
-        if (icon) {
-            icon.className = "w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 bg-red-500/20 text-red-400 border border-red-500/50 relative z-10";
-            icon.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
-        }
-        if (title) {
-            title.className = "font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-red-400 relative z-10";
-            title.innerText = "PORAŻKA!";
-        }
-        if (desc) desc.innerText = "Przedmiot spłonął podczas próby ulepszenia.";
-    }
-    
-    const imgEl = document.getElementById('modal-item-img');
-    const nameEl = document.getElementById('modal-item-name');
-    const priceEl = document.getElementById('modal-item-price');
-
-    if (imgEl) imgEl.src = item.img;
-    if (nameEl) nameEl.innerText = item.name;
-    if (priceEl) priceEl.innerText = `$${item.price.toFixed(2)}`;
-
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.remove('opacity-0');
-        if (content) {
-            content.classList.remove('modal-in');
-            void content.offsetWidth;
-            content.classList.add('modal-in');
-        }
-    }, 10);
-
-    if (isWin && content) {
-        setTimeout(() => spawnParticles(content, 25, ['#10b981', '#34d399', '#6ee7b7', '#8b5cf6', '#38bdf8']), 100);
-    }
-}
-
-function closeResultModal() {
-    const modal = document.getElementById('result-modal');
-    if (!modal) return;
-    modal.classList.add('opacity-0');
-    setTimeout(() => modal.classList.add('hidden'), 200);
-}
-
-function pushLiveFeed(item, isWin) {
-    const feed = document.getElementById('live-feed');
-    if (!feed) return;
-    const node = document.createElement('div');
-    node.className = `bg-cardBg/80 border ${isWin ? 'border-emerald-500/40' : 'border-red-500/40'} rounded-lg px-2 py-1 flex items-center gap-1.5 flex-shrink-0 min-w-[110px] transition`;
-    node.innerHTML = `
-        <img src="${item.img}" class="w-7 h-5 object-contain" alt="item">
-        <div class="flex flex-col text-[9px]">
-            <span class="font-bold text-gray-200 truncate max-w-[60px]">${item.name}</span>
-            <span class="${isWin ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold">$${item.price.toFixed(2)}</span>
-        </div>
-    `;
-    feed.insertBefore(node, feed.firstChild);
-    if (feed.children.length > 9) feed.removeChild(feed.lastChild);
-}
-
-function populateLiveFeed() {
-    if (!storeCatalog || storeCatalog.length === 0) return;
-    for (let i = 0; i < 8; i++) {
-        const item = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
-        pushLiveFeed(item, Math.random() > 0.5);
-    }
-}
-
-function toggleAudio() {
-    audioMuted = !audioMuted;
-    const icon = document.getElementById('sound-icon');
-    if (icon) {
-        icon.className = audioMuted ? "fa-solid fa-volume-xmark text-red-400" : "fa-solid fa-volume-high text-gray-400";
-    }
-}
-
-function toggleLogin() {
-    const btn = document.getElementById('steam-btn-text');
-    if (btn) btn.innerText = btn.innerText === "Steam" ? "Niezalogowany" : "Steam";
-}
-
-const PROMO_CODE = '98CASE';
-const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
-
-function openPromoModal() {
-    const modal = document.getElementById('promo-modal');
-    const msg = document.getElementById('promo-message');
-    const input = document.getElementById('promo-input');
-    if (modal) modal.classList.remove('hidden');
-    if (msg) msg.innerHTML = '';
-    if (input) input.value = '';
-}
-
-function closePromoModal() {
-    const modal = document.getElementById('promo-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
-function redeemPromoCode() {
-    const inputEl = document.getElementById('promo-input');
-    const msg = document.getElementById('promo-message');
-    if (!inputEl || !msg) return;
-
-    const input = inputEl.value.trim().toUpperCase();
-
-    if (localStorage.getItem(PROMO_STORAGE_KEY) === 'true') {
-        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Ten kod został już wykorzystany na tym koncie.</span>`;
-        return;
-    }
-
-    if (input !== PROMO_CODE) {
-        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Nieprawidłowy kod.</span>`;
-        return;
-    }
-
-    const promoItems = [
-        { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
-        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAopC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' },
-        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' }
-    ];
-
-    promoItems.forEach(it => inventory.push(it));
-    localStorage.setItem(PROMO_STORAGE_KEY, 'true');
-
-    renderPlayerInventory();
-    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano skiny do ekwipunku.</span>`;
-
-    setTimeout(() => closePromoModal(), 1500);
-}
-
-function openPaymentModal() {
-    const modal = document.getElementById('payment-modal');
-    const msg = document.getElementById('payment-message');
-    if (modal) modal.classList.remove('hidden');
-    if (msg) msg.innerHTML = '';
-}
-
-function closePaymentModal() {
-    const modal = document.getElementById('payment-modal');
-    if (modal) modal.classList.add('hidden');
-}
-
-function confirmPayment() {
-    const inputEl = document.getElementById('payment-input');
-    const msg = document.getElementById('payment-message');
-    const directCheckbox = document.getElementById('direct-balance-checkbox');
-    if (!inputEl || !msg) return;
-
-    const amount = parseFloat(inputEl.value);
-    if (isNaN(amount) || amount <= 0) {
-        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Wpisz poprawną kwotę.</span>`;
-        return;
-    }
-
-    const directToBalance = directCheckbox ? directCheckbox.checked : false;
-
-    if (directToBalance) {
-        balance += amount;
-        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Doładowano $${amount.toFixed(2)} do salda!</span>`;
-    } else {
-        if (!storeCatalog || storeCatalog.length === 0) {
-            msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
-            return;
-        }
-
-        let remainingAmount = amount;
-        let addedItemsCount = 0;
-
-        const sortedCatalog = [...storeCatalog].sort((a, b) => a.price - b.price);
-        const minPrice = sortedCatalog[0].price;
-
-        while (remainingAmount >= minPrice) {
-            const affordableItems = sortedCatalog.filter(item => item.price <= remainingAmount);
-            if (affordableItems.length === 0) break;
-
-            const randomItem = affordableItems[Math.floor(Math.random() * affordableItems.length)];
-            
-            inventory.push({ 
-                ...randomItem, 
-                id: 'dep_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) 
-            });
-
-            remainingAmount -= randomItem.price;
-            addedItemsCount++;
-        }
-
-        balance += remainingAmount;
-        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Otrzymano ${addedItemsCount} skin(ów)! Reszta ($${remainingAmount.toFixed(2)}) w saldzie.</span>`;
-    }
-
-    renderPlayerInventory();
-    updateBalanceDisplay();
-
-    const slider = document.getElementById('cash-slider');
-    if (slider) slider.max = Math.max(0, balance).toFixed(2);
-
-    recalculateOdds();
-
-    setTimeout(() => {
-        closePaymentModal();
-        msg.innerHTML = '';
-    }, 2000);
-}
+        sliderEl.max =
