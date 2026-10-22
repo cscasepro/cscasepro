@@ -180,12 +180,55 @@ select option {
     padding: 10px;
     font-family: 'Inter', sans-serif;
 }
+
+/* POSTACIE W TLE (WebM) */
+.hero-video {
+    position: fixed;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    /* Ustawienie proporcji - możesz dostosować */
+    height: 65vh;
+    width: auto;
+    object-fit: cover;
+    object-position: bottom;
+    /* Maska, która sprawia, że krawędzie znikają */
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+    mask-image: linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    /* Delikatna przezroczystość */
+    opacity: 0.8;
+}
+.hero-video-left {
+    left: 0;
+    transform: translateX(-10%) scale(1.1); /* Lekko powiększone i wysunięte za ekran */
+}
+.hero-video-right {
+    right: 0;
+    transform: translateX(10%) scale(1.1) scaleX(-1); /* Odbicie lustrzane dla prawej strony */
+}
+
+/* Ukrywanie na małych ekranach, żeby nie przeszkadzało w czytaniu */
+@media (max-width: 1024px) {
+    .hero-video {
+        display: none;
+    }
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
 
+<!-- POSTACIE W TLE (WEBM) -->
+<video class="hero-video hero-video-left" autoplay loop muted playsinline>
+    <source src="1-place-hero-new.webm" type="video/webm">
+</video>
+<video class="hero-video hero-video-right" autoplay loop muted playsinline>
+    <source src="3-place-hero-new.webm" type="video/webm">
+</video>
+
 <!-- NAGŁÓWEK -->
-<header class="w-full border-b border-white/5 px-3 lg:px-8 py-3 sticky top-0 z-50 bg-[#0d0b1f]/80 backdrop-blur-lg">
+<header class="w-full border-b border-white/5 px-3 lg:px-8 py-3 sticky top-0 z-50 bg-[#0d0b1f]/80 backdrop-blur-lg relative">
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center">
         <a href="#" class="flex items-center gap-2 group">
@@ -228,7 +271,7 @@ select option {
 </header>
 
 <!-- LIVE FEED -->
-<div class="w-full border-b border-white/5 py-2 px-3 overflow-hidden bg-[#0d0b1f]/50">
+<div class="w-full border-b border-white/5 py-2 px-3 overflow-hidden bg-[#0d0b1f]/50 relative z-10">
 <div class="max-w-7xl mx-auto flex items-center gap-2">
     <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-3 border-r border-white/10">
         <span class="live-dot"></span>
@@ -435,11 +478,10 @@ select option {
 </div>
 </main>
 
-<!-- MODAL SKLEPU (Nowy, czysty styl) -->
+<!-- MODAL SKLEPU -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
     <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-5xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
-        <!-- Pasek górny -->
         <div class="bg-[#181b2b] px-6 py-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center gap-4">
                 <div class="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 flex items-center justify-center">
@@ -462,10 +504,8 @@ select option {
             </div>
         </div>
 
-        <!-- Zawartość sklepu -->
         <div class="p-6 flex flex-col gap-5 overflow-hidden">
             
-            <!-- Wyszukiwarka i filtry -->
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="relative w-full sm:w-80">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
@@ -481,10 +521,8 @@ select option {
 
             <div id="shop-pop-msg" class="text-xs text-center font-bold h-4"></div>
 
-            <!-- Siatka produktów -->
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 overflow-y-auto pr-2 pb-2 flex-1 min-h-[350px]" id="pop-shop-grid"></div>
 
-            <!-- Paginacja -->
             <div class="flex justify-center items-center gap-3 pt-4 border-t border-white/5">
                 <button onclick="changePage('shop', -1)" class="w-10 h-10 rounded-xl bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-left"></i>
