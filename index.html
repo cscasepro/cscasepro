@@ -42,11 +42,25 @@ body {
 .rarity-milspec { border-top: 3px solid #4b69ff; }
 .rarity-knife { border-top: 3px solid #ffd700; }
 
+/* SUWAK Z TWOIM OBRAZKIEM */
 input[type=range] { -webkit-appearance: none; background: transparent; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-    background: #8b5cf6; cursor: pointer; margin-top: -5px; box-shadow: 0 0 10px #8b5cf6; }
-input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
-    background: #1c1a36; border-radius: 3px; border: 1px solid #2a2748; }
+input[type=range]::-webkit-slider-thumb { 
+    -webkit-appearance: none; 
+    height: 24px; 
+    width: 24px; 
+    border-radius: 50%;
+    background: url('slider-thumb.webp') center/cover no-repeat;
+    cursor: pointer; 
+    margin-top: -9px; 
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.6); 
+}
+input[type=range]::-webkit-slider-runnable-track { 
+    width: 100%; 
+    height: 6px;
+    background: #1c1a36; 
+    border-radius: 3px; 
+    border: 1px solid #2a2748; 
+}
 
 @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .modal-in { animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
@@ -65,7 +79,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* ULEPSZONE KARTY SKINÓW */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
@@ -99,7 +112,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
 }
 
-/* STYLIZACJA KOŁA */
 .wheel-container {
     background: radial-gradient(circle, #1a1c2e 0%, #11121d 100%);
     border-radius: 50%;
@@ -117,7 +129,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
 .payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(163, 230, 53, 0.1); }
 
-/* BANER PROMOCYJNY */
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
     background-size: contain;
@@ -158,7 +169,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     z-index: 0;
 }
 
-/* Ładny wygląd rozwijanych list (select) i opcji */
 select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -181,35 +191,47 @@ select option {
     font-family: 'Inter', sans-serif;
 }
 
-/* POSTACIE W TLE (WebM) */
+/* POSTACIE W TLE (WebM) - WYSUNIĘTE NA BOKI */
 .hero-video {
     position: fixed;
     bottom: 0;
     z-index: 0;
     pointer-events: none;
-    /* Ustawienie proporcji - możesz dostosować */
     height: 65vh;
     width: auto;
     object-fit: cover;
     object-position: bottom;
-    /* Maska, która sprawia, że krawędzie znikają */
     -webkit-mask-image: linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
     mask-image: linear-gradient(to top, transparent 0%, black 30%), linear-gradient(to right, transparent 0%, black 20%, black 80%, transparent 100%);
     -webkit-mask-composite: source-in;
     mask-composite: intersect;
-    /* Delikatna przezroczystość */
     opacity: 0.8;
 }
 .hero-video-left {
     left: 0;
-    transform: translateX(-10%) scale(1.1); /* Lekko powiększone i wysunięte za ekran */
+    transform: translateX(-25%) scale(1.1);
 }
 .hero-video-right {
     right: 0;
-    transform: translateX(10%) scale(1.1) scaleX(-1); /* Odbicie lustrzane dla prawej strony */
+    transform: translateX(25%) scale(1.1) scaleX(-1);
 }
 
-/* Ukrywanie na małych ekranach, żeby nie przeszkadzało w czytaniu */
+/* Animowane tło z pliku WebM */
+.bg-video-container {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    opacity: 0.15; /* Delikatne, żeby nie przeszkadzało */
+    pointer-events: none;
+}
+.bg-video-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(4px) brightness(0.5); /* Rozmycie i przyciemnienie */
+}
+
 @media (max-width: 1024px) {
     .hero-video {
         display: none;
@@ -218,6 +240,13 @@ select option {
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
+
+<!-- ANIMOWANE TŁO (WebM) -->
+<div class="bg-video-container">
+    <video autoplay loop muted playsinline>
+        <source src="background-slide-mid-qual.webm" type="video/webm">
+    </video>
+</div>
 
 <!-- POSTACIE W TLE (WEBM) -->
 <video class="hero-video hero-video-left" autoplay loop muted playsinline>
@@ -232,9 +261,8 @@ select option {
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center">
         <a href="#" class="flex items-center gap-2 group">
-            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#6d28d9] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#8b5cf6]/30">
-                <i class="fa-solid fa-bolt"></i>
-            </div>
+            <!-- TWOJE NOWE LOGO -->
+            <img src="logo-new-optimized.webp" alt="CSCASEPRO Logo" class="h-9 w-auto object-contain drop-shadow-md">
             <span class="font-rajdhani text-xl lg:text-2xl font-bold tracking-wider text-white uppercase drop-shadow-md">
                 CSCASE<span class="text-[#a78bfa]">PRO</span>
             </span>
