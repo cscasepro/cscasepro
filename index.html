@@ -239,14 +239,8 @@ select option {
     mask-composite: intersect;
     opacity: 0.8;
 }
-.hero-video-left {
-    left: 0;
-    transform: translateX(-25%) scale(1.1);
-}
-.hero-video-right {
-    right: 0;
-    transform: translateX(25%) scale(1.1) scaleX(-1);
-}
+.hero-video-left { left: 0; transform: translateX(-25%) scale(1.1); }
+.hero-video-right { right: 0; transform: translateX(25%) scale(1.1) scaleX(-1); }
 .hero-video-bottom-right {
     right: 0;
     bottom: 0;
@@ -270,11 +264,7 @@ select option {
     object-fit: cover;
     filter: blur(4px) brightness(0.5);
 }
-@media (max-width: 1024px) {
-    .hero-video {
-        display: none;
-    }
-}
+@media (max-width: 1024px) { .hero-video { display: none; } }
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
@@ -507,29 +497,26 @@ select option {
     </div>
 
     <div class="panel-premium p-4 flex flex-col gap-3">
+        <!-- NOWY PASEK GÓRNY Z PAGINACJĄ -->
         <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-white/5">
             <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
-            <div class="flex items-center gap-2">
-                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#8b5cf6]/50 w-28 sm:w-36 transition">
+            <div class="flex flex-wrap items-center gap-2">
+                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#8b5cf6]/50 w-24 sm:w-32 transition">
                 <select id="catalog-sort" onchange="onCatalogSearch()" class="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-[#8b5cf6]/50 transition cursor-pointer">
                     <option value="asc">$ min</option>
                     <option value="desc">$ max</option>
                 </select>
+                <!-- PAGINACJA PRZENIESIONA TUTAJ -->
+                <div class="flex items-center gap-1.5 bg-black/20 px-2 py-1.5 rounded-lg border border-white/10">
+                    <button onclick="changePage('catalog', -1)" class="w-5 h-5 rounded bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
+                    <span class="text-[10px] font-mono text-gray-400">Strona</span>
+                    <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-7 bg-transparent text-center text-white text-[10px] focus:outline-none font-bold" value="1">
+                    <span class="text-[10px] font-mono text-gray-400" id="catalog-page-total">/ 1</span>
+                    <button onclick="changePage('catalog', 1)" class="w-5 h-5 rounded bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+                </div>
             </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-44 sm:h-56" id="catalog-grid"></div>
-        
-        <div class="flex justify-center items-center gap-3 mt-auto pt-2">
-            <button onclick="changePage('catalog', -1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-left text-xs"></i></button>
-            
-            <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
-                <span>Strona</span>
-                <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-8 bg-black/30 border border-white/10 rounded text-center text-white focus:outline-none focus:border-[#8b5cf6]/50 py-0.5" value="1">
-                <span id="catalog-page-total">/ 1</span>
-            </div>
-
-            <button onclick="changePage('catalog', 1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-right text-xs"></i></button>
-        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-56 sm:h-72" id="catalog-grid"></div>
     </div>
 </div>
 </main>
