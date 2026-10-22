@@ -58,17 +58,17 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 .panel-premium {
-    background: linear-gradient(180deg, rgba(26,24,48,0.85) 0%, rgba(21,19,41,0.95) 100%);
-    border: 1px solid rgba(42,39,72,0.7);
-    backdrop-filter: blur(12px);
+    background: #171929; /* Ciemniejszy, jednolity kolor paneli */
+    border: 1px solid #2a2748;
+    border-radius: 16px;
 }
-.item-card { transition: all 0.2s ease; position: relative; overflow: hidden; }
+.item-card { transition: all 0.2s ease; position: relative; overflow: hidden; background: #1c1f2e; border-radius: 8px; border: 1px solid #2a2748;}
 .stat-badge {
-    background: linear-gradient(180deg, rgba(26,24,48,0.9) 0%, rgba(21,19,41,0.95) 100%);
-    border: 1px solid rgba(42,39,72,0.6);
+    background: #1c1f2e;
+    border: 1px solid #2a2748;
 }
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
-.upgrade-btn-active { background: linear-gradient(135deg, #6d4fd4 0%, #5b46b8 50%, #4a4b9e 100%); }
+.upgrade-btn-active { background: #6d4fd4; }
 
 .wheel-label { position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 10px;
     color: rgba(226, 232, 240, 0.4); letter-spacing: 0.05em; pointer-events: none; }
@@ -112,15 +112,15 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 <body class="min-h-screen flex flex-col justify-between relative">
 
 <!-- NAGŁÓWEK -->
-<header class="w-full backdrop-blur-xl border-b border-borderBorder/50 px-3 lg:px-8 py-2.5 sticky top-0 z-50 bg-siteBg/90">
+<header class="w-full border-b border-[#2a2748] px-3 lg:px-8 py-2.5 sticky top-0 z-50 bg-[#0d0b1f]">
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center">
         <a href="#" class="flex items-center gap-2 group">
-            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-accentViolet to-accentBlue flex items-center justify-center text-white font-black text-base">
+            <div class="w-8 h-8 rounded-lg bg-[#8b5cf6] flex items-center justify-center text-white font-black text-base">
                 <i class="fa-solid fa-bolt"></i>
             </div>
             <span class="font-rajdhani text-xl lg:text-2xl font-bold tracking-wider text-white uppercase">
-                CSCASE<span class="text-accentViolet">PRO</span>
+                CSCASE<span class="text-[#8b5cf6]">PRO</span>
             </span>
         </a>
     </div>
@@ -132,22 +132,22 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
         </button>
 
         <div class="stat-badge flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs">
-            <i class="fa-solid fa-wallet text-accentViolet text-[10px] sm:text-xs"></i>
+            <i class="fa-solid fa-wallet text-[#8b5cf6] text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
         </div>
 
-        <button onclick="openPaymentModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-credit-card text-accentViolet"></i>
+        <button onclick="openPaymentModal()" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-credit-card text-[#8b5cf6]"></i>
             <span class="text-[11px] sm:text-xs">Doładuj</span>
         </button>
 
-        <button onclick="openPromoModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-gift text-accentViolet"></i>
+        <button onclick="openPromoModal()" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-gift text-[#8b5cf6]"></i>
             <span class="hidden sm:inline">Kod</span>
         </button>
 
-        <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
-            <i class="fa-brands fa-steam text-accentViolet text-sm"></i>
+        <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
+            <i class="fa-brands fa-steam text-[#8b5cf6] text-sm"></i>
             <span id="steam-btn-text" class="hidden md:inline">Steam</span>
         </button>
     </div>
@@ -155,9 +155,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </header>
 
 <!-- LIVE FEED -->
-<div class="w-full border-b border-borderBorder/40 py-1.5 px-3 overflow-hidden bg-siteBg/60 mt-0">
+<div class="w-full border-b border-[#2a2748] py-1.5 px-3 overflow-hidden bg-[#0d0b1f] mt-0">
 <div class="max-w-7xl mx-auto flex items-center gap-2">
-    <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-2 border-r border-borderBorder/60">
+    <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-2 border-r border-[#2a2748]">
         <span class="live-dot"></span>
         <span>LIVE:</span>
     </div>
@@ -170,19 +170,19 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
 
     <!-- LEWY PANEL -->
-    <div class="lg:col-span-4 panel-premium rounded-2xl p-4 flex flex-col justify-between">
+    <div class="lg:col-span-4 panel-premium p-4 flex flex-col justify-between">
         <div>
-            <div class="flex justify-between items-center pb-2.5 border-b border-borderBorder/40 mb-3">
+            <div class="flex justify-between items-center pb-2.5 border-b border-[#2a2748] mb-3">
                 <span class="font-rajdhani font-bold text-xs sm:text-sm text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-box-open text-accentViolet text-xs"></i>
+                    <i class="fa-solid fa-box-open text-[#8b5cf6] text-xs"></i>
                     Twój Przedmiot
                 </span>
-                <span id="offered-item-wear" class="text-[9px] font-mono bg-cardBg border border-borderBorder/60 px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
+                <span id="offered-item-wear" class="text-[9px] font-mono bg-[#1c1f2e] border border-[#2a2748] px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
             </div>
-            <div id="source-slot" class="bg-cardBg/40 border-2 border-dashed border-borderBorder/60 rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
+            <div id="source-slot" class="bg-[#1c1f2e]/40 border-2 border-dashed border-[#2a2748] rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
                 <div id="source-empty" class="flex flex-col items-center text-gray-500 gap-2">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-cardBg/80 border border-borderBorder/60 flex items-center justify-center">
-                        <i class="fa-solid fa-plus text-base text-borderBorder"></i>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#1c1f2e] border border-[#2a2748] flex items-center justify-center">
+                        <i class="fa-solid fa-plus text-base text-gray-600"></i>
                     </div>
                     <span class="text-[11px] sm:text-xs uppercase font-semibold text-center">Wybierz skin z ekwipunku</span>
                 </div>
@@ -191,28 +191,28 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                     <img id="source-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
                     <div class="text-center w-full">
                         <div id="source-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
-                        <div id="source-price" class="font-rajdhani text-base sm:text-lg font-bold text-accentViolet">$0.00</div>
+                        <div id="source-price" class="font-rajdhani text-base sm:text-lg font-bold text-[#8b5cf6]">$0.00</div>
                     </div>
                 </div>
             </div>
-            <div class="mt-3 bg-cardBg/60 border border-borderBorder/50 rounded-xl p-3">
+            <div class="mt-3 bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-3">
                 <div class="flex justify-between items-center text-xs font-semibold mb-2">
                     <span class="text-gray-400">Dodaj z salda:</span>
-                    <span id="cash-add-label" class="font-mono text-accentViolet font-bold">$0.00</span>
+                    <span id="cash-add-label" class="font-mono text-[#8b5cf6] font-bold">$0.00</span>
                 </div>
                 <input type="range" id="cash-slider" min="0" max="0" step="0.01" value="0" oninput="onCashSliderChange(this.value)" class="w-full">
             </div>
         </div>
-        <div class="mt-3 pt-2.5 border-t border-borderBorder/40 flex justify-between items-center text-xs text-gray-400">
+        <div class="mt-3 pt-2.5 border-t border-[#2a2748] flex justify-between items-center text-xs text-gray-400">
             <span class="uppercase font-semibold text-[11px]">Suma wpłaty:</span>
             <span id="total-source-val" class="font-rajdhani text-base font-bold text-white">$0.00</span>
         </div>
     </div>
 
     <!-- ŚRODKOWY PANEL -->
-    <div class="lg:col-span-4 panel-premium rounded-2xl p-4 sm:p-6 flex flex-col items-center justify-between relative overflow-hidden">
+    <div class="lg:col-span-4 panel-premium p-4 sm:p-6 flex flex-col items-center justify-between relative overflow-hidden">
         <div class="w-full flex justify-between items-center z-10 text-xs">
-            <button id="sound-btn" onclick="toggleAudio()" class="w-7 h-7 rounded-lg bg-cardBg/80 border border-borderBorder/60 text-gray-400 hover:text-white flex items-center justify-center transition">
+            <button id="sound-btn" onclick="toggleAudio()" class="w-7 h-7 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition">
                 <i id="sound-icon" class="fa-solid fa-volume-high text-xs"></i>
             </button>
             <div class="font-rajdhani font-bold text-gray-500 tracking-[0.2em] text-[11px]">UPGRADER</div>
@@ -258,13 +258,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </svg>
 
             <div id="needle" class="absolute inset-0 pointer-events-none" style="transform: rotate(0deg); transform-origin: 50% 50%;">
-                <div class="absolute left-1/2 -translate-x-1/2 bottom-2 w-0 h-0 border-l-[7px] sm:border-l-[9px] border-l-transparent border-r-[7px] sm:border-r-[9px] border-r-transparent border-b-[16px] sm:border-b-[20px] border-b-accentViolet"></div>
+                <div class="absolute left-1/2 -translate-x-1/2 bottom-2 w-0 h-0 border-l-[7px] sm:border-l-[9px] border-l-transparent border-r-[7px] sm:border-r-[9px] border-r-transparent border-b-[16px] sm:border-b-[20px] border-b-[#8b5cf6]"></div>
             </div>
 
-            <div class="absolute inset-0 m-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-borderBorder/80 flex flex-col items-center justify-center text-center shadow-xl pointer-events-none bg-siteBg">
+            <div class="absolute inset-0 m-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-[#2a2748] flex flex-col items-center justify-center text-center shadow-xl pointer-events-none bg-[#171929]">
                 <span class="text-[9px] font-semibold text-gray-500 uppercase tracking-widest">SZANSA</span>
                 <span id="win-chance-text" class="font-rajdhani text-2xl sm:text-3xl font-extrabold text-white leading-none">0.00%</span>
-                <span id="multiplier-text" class="text-[11px] sm:text-xs font-bold text-accentViolet mt-0.5">0.00x</span>
+                <span id="multiplier-text" class="text-[11px] sm:text-xs font-bold text-[#8b5cf6] mt-0.5">0.00x</span>
             </div>
         </div>
 
@@ -272,25 +272,25 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             Wybierz przedmioty
         </div>
 
-        <button id="upgrade-btn" onclick="startUpgrade()" disabled class="w-full py-3 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-cardBg text-gray-600 border border-borderBorder cursor-not-allowed z-10">
+        <button id="upgrade-btn" onclick="startUpgrade()" disabled class="w-full py-3 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-[#1c1f2e] text-gray-600 border border-[#2a2748] cursor-not-allowed z-10">
             ULEPSZ
         </button>
     </div>
 
     <!-- PRAWY PANEL -->
-    <div class="lg:col-span-4 panel-premium rounded-2xl p-4 flex flex-col justify-between">
+    <div class="lg:col-span-4 panel-premium p-4 flex flex-col justify-between">
         <div>
-            <div class="flex justify-between items-center pb-2.5 border-b border-borderBorder/40 mb-3">
+            <div class="flex justify-between items-center pb-2.5 border-b border-[#2a2748] mb-3">
                 <span class="font-rajdhani font-bold text-xs sm:text-sm text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-crosshair text-accentBlue text-xs"></i>
+                    <i class="fa-solid fa-crosshair text-[#38bdf8] text-xs"></i>
                     Cel Ulepszenia
                 </span>
-                <span id="target-item-wear" class="text-[9px] font-mono bg-cardBg border border-borderBorder/60 px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
+                <span id="target-item-wear" class="text-[9px] font-mono bg-[#1c1f2e] border border-[#2a2748] px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
             </div>
-            <div id="target-slot" class="bg-cardBg/40 border-2 border-dashed border-borderBorder/60 rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
+            <div id="target-slot" class="bg-[#1c1f2e]/40 border-2 border-dashed border-[#2a2748] rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
                 <div id="target-empty" class="flex flex-col items-center text-gray-500 gap-2">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-cardBg/80 border border-borderBorder/60 flex items-center justify-center">
-                        <i class="fa-solid fa-bullseye text-base text-borderBorder"></i>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#1c1f2e] border border-[#2a2748] flex items-center justify-center">
+                        <i class="fa-solid fa-bullseye text-base text-gray-600"></i>
                     </div>
                     <span class="text-[11px] sm:text-xs uppercase font-semibold text-center">Wybierz skin ze sklepu</span>
                 </div>
@@ -299,12 +299,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                     <img id="target-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
                     <div class="text-center w-full">
                         <div id="target-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
-                        <div id="target-price" class="font-rajdhani text-base sm:text-lg font-bold text-accentBlue">$0.00</div>
+                        <div id="target-price" class="font-rajdhani text-base sm:text-lg font-bold text-[#38bdf8]">$0.00</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mt-3 pt-2.5 border-t border-borderBorder/40 flex justify-between items-center text-xs text-gray-400">
+        <div class="mt-3 pt-2.5 border-t border-[#2a2748] flex justify-between items-center text-xs text-gray-400">
             <span class="uppercase font-semibold text-[11px]">Wartość celu:</span>
             <span id="total-target-val" class="font-rajdhani text-base font-bold text-white">$0.00</span>
         </div>
@@ -315,11 +315,11 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 <!-- DOLNA SEKCJA -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
     <!-- EKWIPUNEK -->
-    <div class="panel-premium rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5">
-        <div class="flex justify-between items-center pb-2 border-b border-borderBorder/40">
+    <div class="panel-premium p-3 sm:p-4 flex flex-col gap-2.5">
+        <div class="flex justify-between items-center pb-2 border-b border-[#2a2748]">
             <div class="flex items-center gap-1.5">
                 <span class="font-rajdhani font-bold text-xs sm:text-sm text-white uppercase tracking-wide">Ekwipunek</span>
-                <span id="inventory-count-badge" class="text-[9px] bg-cardBg border border-borderBorder/60 text-gray-400 px-1.5 py-0.5 rounded-full">0 szt.</span>
+                <span id="inventory-count-badge" class="text-[9px] bg-[#1c1f2e] border border-[#2a2748] text-gray-400 px-1.5 py-0.5 rounded-full">0 szt.</span>
             </div>
             <button onclick="sellSelectedItem()" class="text-[11px] font-semibold text-gray-400 hover:text-red-400 transition flex items-center gap-1">
                 <i class="fa-solid fa-dollar-sign text-[10px]"></i> Sprzedaj
@@ -329,12 +329,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     </div>
 
     <!-- KATALOG CELÓW -->
-    <div class="panel-premium rounded-2xl p-3 sm:p-4 flex flex-col gap-2.5">
-        <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-borderBorder/40">
+    <div class="panel-premium p-3 sm:p-4 flex flex-col gap-2.5">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-[#2a2748]">
             <span class="font-rajdhani font-bold text-xs sm:text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
             <div class="flex items-center gap-1.5">
-                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2 py-0.5 text-xs text-white placeholder-gray-500 focus:outline-none w-24 sm:w-32 transition">
-                <select id="catalog-sort" onchange="onCatalogSearch()" class="bg-cardBg/80 border border-borderBorder/60 rounded-lg px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none transition">
+                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-2 py-0.5 text-xs text-white placeholder-gray-500 focus:outline-none w-24 sm:w-32 transition">
+                <select id="catalog-sort" onchange="onCatalogSearch()" class="bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none transition">
                     <option value="asc">$ min</option>
                     <option value="desc">$ max</option>
                 </select>
@@ -344,15 +344,15 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
         
         <!-- PAGINACJA KATALOGU -->
         <div class="flex justify-center items-center gap-2 mt-2">
-            <button onclick="changePage('catalog', -1)" class="w-6 h-6 rounded bg-cardBg border border-borderBorder/60 text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-left"></i></button>
+            <button onclick="changePage('catalog', -1)" class="w-6 h-6 rounded bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-left"></i></button>
             
             <div class="flex items-center gap-1 text-[10px] font-mono text-gray-400">
                 <span>Strona</span>
-                <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-cardBg border border-borderBorder/60 rounded text-center text-white focus:outline-none" value="1">
+                <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#1c1f2e] border border-[#2a2748] rounded text-center text-white focus:outline-none" value="1">
                 <span id="catalog-page-total">/ 1</span>
             </div>
 
-            <button onclick="changePage('catalog', 1)" class="w-6 h-6 rounded bg-cardBg border border-borderBorder/60 text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-right"></i></button>
+            <button onclick="changePage('catalog', 1)" class="w-6 h-6 rounded bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </div>
 </div>
@@ -360,10 +360,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 <!-- MODAL SKLEPU (Styl BLIK) -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-[#11131f] border border-borderBorder/60 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
+    <div class="bg-[#11131f] border border-[#2a2748] rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
         <!-- Pasek górny (jak w BLIK) -->
-        <div class="bg-[#181b2b] px-4 py-3 flex items-center justify-between border-b border-borderBorder/40">
+        <div class="bg-[#181b2b] px-4 py-3 flex items-center justify-between border-b border-[#2a2748]">
             <div class="flex items-center gap-4">
                 <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-500/40 flex items-center justify-center">
                     <i class="fa-solid fa-cart-shopping text-emerald-400 text-xl"></i>
@@ -375,7 +375,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="bg-[#131525] px-4 py-2 rounded-lg border border-borderBorder/50 flex items-center gap-2">
+                <div class="bg-[#131525] px-4 py-2 rounded-lg border border-[#2a2748] flex items-center gap-2">
                     <span class="text-xs text-gray-400">Saldo:</span>
                     <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
                 </div>
@@ -388,12 +388,12 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
         <div class="p-6 flex flex-col gap-4 overflow-hidden">
             
             <!-- Pasek wyszukiwania i sortowania -->
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-[#1c1f2e] p-3 rounded-xl border border-borderBorder/50">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-[#1c1f2e] p-3 rounded-xl border border-[#2a2748]">
                 <div class="relative w-full sm:w-64">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Szukaj skina..." class="w-full bg-[#131525] border border-borderBorder/60 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition">
+                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Szukaj skina..." class="w-full bg-[#131525] border border-[#2a2748] rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition">
                 </div>
-                <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-auto bg-[#131525] border border-borderBorder/60 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer">
+                <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-auto bg-[#131525] border border-[#2a2748] rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer">
                     <option value="asc">Cena: Od najniższej</option>
                     <option value="desc">Cena: Od najwyższej</option>
                 </select>
@@ -405,18 +405,18 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 overflow-y-auto pr-1 flex-1 min-h-[300px]" id="pop-shop-grid"></div>
 
             <!-- Paginacja (jak w BLIK) -->
-            <div class="flex justify-center items-center gap-3 mt-2 pt-4 border-t border-borderBorder/40">
-                <button onclick="changePage('shop', -1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-borderBorder/60 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+            <div class="flex justify-center items-center gap-3 mt-2 pt-4 border-t border-[#2a2748]">
+                <button onclick="changePage('shop', -1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 
-                <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-[#1c1f2e] px-4 py-2 rounded-lg border border-borderBorder/60">
+                <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-[#1c1f2e] px-4 py-2 rounded-lg border border-[#2a2748]">
                     <span>Strona</span>
-                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#131525] border border-borderBorder/60 rounded text-center text-white focus:outline-none focus:border-emerald-500/50 py-0.5" value="1">
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#131525] border border-[#2a2748] rounded text-center text-white focus:outline-none focus:border-emerald-500/50 py-0.5" value="1">
                     <span id="shop-page-total">/ 1</span>
                 </div>
 
-                <button onclick="changePage('shop', 1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-borderBorder/60 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+                <button onclick="changePage('shop', 1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
@@ -426,18 +426,18 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 <!-- MODAL WYNIKU -->
 <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity p-3">
-<div id="result-modal-content" class="bg-panelBg border border-borderBorder rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl relative">
+<div id="result-modal-content" class="bg-[#11131f] border border-[#2a2748] rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl relative">
     <div id="modal-status-icon" class="w-12 h-12 rounded-full flex items-center justify-center text-xl mb-2 border">
         <i class="fa-solid fa-check"></i>
     </div>
     <h3 id="modal-title" class="font-rajdhani text-xl font-bold uppercase text-white">WYGRANA!</h3>
     <p id="modal-desc" class="text-[11px] text-gray-400 mb-3">Skin powędrował do ekwipunku.</p>
-    <div id="modal-item-box" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-xl p-2.5 mb-4 flex flex-col items-center">
+    <div id="modal-item-box" class="w-full bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-2.5 mb-4 flex flex-col items-center">
         <img id="modal-item-img" src="" class="w-24 h-16 object-contain my-1" alt="Skin">
         <div id="modal-item-name" class="text-xs font-bold text-white leading-tight"></div>
-        <div id="modal-item-price" class="font-rajdhani text-sm font-bold text-accentViolet mt-0.5"></div>
+        <div id="modal-item-price" class="font-rajdhani text-sm font-bold text-[#8b5cf6] mt-0.5"></div>
     </div>
-    <button onclick="closeResultModal()" class="w-full py-2 bg-gradient-to-r from-accentViolet to-accentBlue text-white font-rajdhani font-bold text-base uppercase rounded-xl">
+    <button onclick="closeResultModal()" class="w-full py-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-rajdhani font-bold text-base uppercase rounded-xl transition">
         ZAMKNIJ
     </button>
 </div>
@@ -445,27 +445,27 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 <!-- MODAL KODU -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-<div class="bg-panelBg border border-borderBorder rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
-    <div class="w-10 h-10 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
-        <i class="fa-solid fa-gift text-accentViolet text-sm"></i>
+<div class="bg-[#11131f] border border-[#2a2748] rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
+    <div class="w-10 h-10 rounded-full bg-[#8b5cf6]/15 border border-[#8b5cf6]/30 flex items-center justify-center mb-2">
+        <i class="fa-solid fa-gift text-[#8b5cf6] text-sm"></i>
     </div>
     <h3 class="font-rajdhani text-lg font-bold uppercase text-white mb-1">Kod Polecający</h3>
     <p class="text-[11px] text-gray-400 mb-2">Wpisz swój kod poniżej:</p>
-    <input type="text" id="promo-input" placeholder="WPISZ KOD..." class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1.5 text-center text-white text-base font-mono font-bold mb-2 uppercase focus:outline-none">
+    <input type="text" id="promo-input" placeholder="WPISZ KOD..." class="w-full bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-2.5 py-1.5 text-center text-white text-base font-mono font-bold mb-2 uppercase focus:outline-none focus:border-[#8b5cf6]/50 transition">
     <div id="promo-message" class="text-[11px] mb-2 h-4"></div>
     <div class="flex gap-2 w-full">
-        <button onclick="closePromoModal()" class="flex-1 py-1.5 bg-cardBg/80 hover:bg-borderBorder text-gray-300 font-semibold text-xs rounded-lg border border-borderBorder/60">Anuluj</button>
-        <button onclick="redeemPromoCode()" class="flex-1 py-1.5 bg-gradient-to-r from-accentViolet to-accentBlue text-white font-semibold text-xs rounded-lg">Odbierz</button>
+        <button onclick="closePromoModal()" class="flex-1 py-1.5 bg-[#1c1f2e] hover:bg-[#2a2748] text-gray-300 font-semibold text-xs rounded-lg border border-[#2a2748] transition">Anuluj</button>
+        <button onclick="redeemPromoCode()" class="flex-1 py-1.5 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold text-xs rounded-lg transition">Odbierz</button>
     </div>
 </div>
 </div>
 
-<!-- NOWY MODAL DOŁADOWANIA (BLIK) -->
+<!-- MODAL DOŁADOWANIA (BLIK) -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-[#11131f] border border-borderBorder/60 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
+    <div class="bg-[#11131f] border border-[#2a2748] rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
         
         <!-- Pasek górny z BLIK (Prawie na całą wysokość) -->
-        <div class="bg-[#181b2b] px-4 py-2 flex items-center justify-between border-b border-borderBorder/40 h-28 sm:h-32">
+        <div class="bg-[#181b2b] px-4 py-2 flex items-center justify-between border-b border-[#2a2748] h-28 sm:h-32">
             <div class="flex items-center gap-4 h-full">
                 <div class="h-[90%] aspect-square flex items-center justify-center">
                     <img src="v1_blik_img.webp" alt="BLIK" class="h-full w-auto object-contain">
@@ -524,42 +524,42 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
             <!-- Siatka kwot z POWIĘKSZONYMI OBRAZKAMI (3x większe) -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
                     <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
                     <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
                     <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
                     <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
                     <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
                     <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
@@ -569,8 +569,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <!-- Wprowadź kwotę -->
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Wprowadź kwotę</p>
-                <div class="flex items-center bg-[#1c1f2e] border border-borderBorder/60 rounded-xl overflow-hidden w-full sm:w-1/2">
-                    <div class="bg-[#25293e] px-4 py-3 text-gray-300 font-bold border-r border-borderBorder/60">PLN</div>
+                <div class="flex items-center bg-[#1c1f2e] border border-[#2a2748] rounded-xl overflow-hidden w-full sm:w-1/2">
+                    <div class="bg-[#25293e] px-4 py-3 text-gray-300 font-bold border-r border-[#2a2748]">PLN</div>
                     <input type="number" id="payment-input" value="50" min="4" class="w-full bg-transparent text-white font-bold px-4 py-3 focus:outline-none" oninput="calculateBonus()">
                 </div>
                 <p class="text-[10px] text-gray-500 mt-2">Minimalna kwota wpłaty: 4.00 PLN</p>
@@ -579,7 +579,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <!-- Otrzymasz -->
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Otrzymasz</p>
-                <div class="bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <div class="text-[#a3e635] font-black font-rajdhani text-2xl" id="payment-receive-amount">50.00 PLN</div>
                     <div class="flex items-center gap-2 transition-opacity duration-300" id="bonus-tag-container">
                         <div class="bg-[#2a2e45] border border-gray-600 rounded-lg px-3 py-1 flex items-center gap-2">
