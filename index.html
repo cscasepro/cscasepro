@@ -42,7 +42,6 @@ body {
 .rarity-milspec { border-top: 3px solid #4b69ff; }
 .rarity-knife { border-top: 3px solid #ffd700; }
 
-/* SUWAK Z TWOIM OBRAZKIEM */
 input[type=range] { -webkit-appearance: none; background: transparent; }
 input[type=range]::-webkit-slider-thumb { 
     -webkit-appearance: none; 
@@ -79,6 +78,7 @@ input[type=range]::-webkit-slider-runnable-track {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
+/* NOWY, ELEGANCKI STYL KART PRODUKTÓW */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
@@ -87,11 +87,14 @@ input[type=range]::-webkit-slider-runnable-track {
     border-radius: 12px; 
     border: 1px solid rgba(255, 255, 255, 0.03);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .item-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
     border-color: rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 15px rgba(0,0,0,0.4);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.5);
 }
 .item-card::after {
     content: '';
@@ -99,6 +102,20 @@ input[type=range]::-webkit-slider-runnable-track {
     inset: 0;
     background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
     pointer-events: none;
+}
+
+/* EFEKT SZKŁA I TŁO DLA LIVE DROPU */
+.live-drop-item {
+    background: rgba(28, 31, 46, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s ease;
+}
+.live-drop-item:hover {
+    background: rgba(40, 44, 65, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .stat-badge {
@@ -191,7 +208,6 @@ select option {
     font-family: 'Inter', sans-serif;
 }
 
-/* POSTACIE W TLE (WebM) - WYSUNIĘTE NA BOKI */
 .hero-video {
     position: fixed;
     bottom: 0;
@@ -215,23 +231,20 @@ select option {
     right: 0;
     transform: translateX(25%) scale(1.1) scaleX(-1);
 }
-
-/* Animowane tło z pliku WebM */
 .bg-video-container {
     position: fixed;
     inset: 0;
     z-index: -1;
     overflow: hidden;
-    opacity: 0.15; /* Delikatne, żeby nie przeszkadzało */
+    opacity: 0.15;
     pointer-events: none;
 }
 .bg-video-container video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: blur(4px) brightness(0.5); /* Rozmycie i przyciemnienie */
+    filter: blur(4px) brightness(0.5);
 }
-
 @media (max-width: 1024px) {
     .hero-video {
         display: none;
@@ -241,14 +254,12 @@ select option {
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
 
-<!-- ANIMOWANE TŁO (WebM) -->
 <div class="bg-video-container">
     <video autoplay loop muted playsinline>
         <source src="background-slide-mid-qual.webm" type="video/webm">
     </video>
 </div>
 
-<!-- POSTACIE W TLE (WEBM) -->
 <video class="hero-video hero-video-left" autoplay loop muted playsinline>
     <source src="1-place-hero-new.webm" type="video/webm">
 </video>
@@ -261,7 +272,6 @@ select option {
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center">
         <a href="#" class="flex items-center gap-2 group">
-            <!-- TWOJE NOWE LOGO -->
             <img src="logo-new-optimized.webp" alt="CSCASEPRO Logo" class="h-9 w-auto object-contain drop-shadow-md">
             <span class="font-rajdhani text-xl lg:text-2xl font-bold tracking-wider text-white uppercase drop-shadow-md">
                 CSCASE<span class="text-[#a78bfa]">PRO</span>
@@ -298,14 +308,14 @@ select option {
 </div>
 </header>
 
-<!-- LIVE FEED -->
-<div class="w-full border-b border-white/5 py-2 px-3 overflow-hidden bg-[#0d0b1f]/50 relative z-10">
-<div class="max-w-7xl mx-auto flex items-center gap-2">
-    <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-3 border-r border-white/10">
+<!-- LIVE FEED (Teraz ładniejszy) -->
+<div class="w-full border-b border-white/5 py-2.5 px-3 overflow-hidden bg-[#0d0b1f]/60 backdrop-blur-sm relative z-10">
+<div class="max-w-7xl mx-auto flex items-center gap-3">
+    <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap pr-3 border-r border-white/10">
         <span class="live-dot"></span>
         <span>LIVE:</span>
     </div>
-    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full" id="live-feed"></div>
+    <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar w-full" id="live-feed"></div>
 </div>
 </div>
 
@@ -313,7 +323,6 @@ select option {
 <main class="max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 flex-1 flex flex-col gap-4 sm:gap-5 relative z-10">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
 
-    <!-- LEWY PANEL -->
     <div class="lg:col-span-4 panel-premium p-5 flex flex-col justify-between">
         <div>
             <div class="flex justify-between items-center pb-3 border-b border-white/5 mb-4">
@@ -353,7 +362,6 @@ select option {
         </div>
     </div>
 
-    <!-- ŚRODKOWY PANEL -->
     <div class="lg:col-span-4 panel-premium p-5 flex flex-col items-center justify-between relative overflow-hidden">
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             <div class="glow-effect"></div>
@@ -425,7 +433,6 @@ select option {
         </button>
     </div>
 
-    <!-- PRAWY PANEL -->
     <div class="lg:col-span-4 panel-premium p-5 flex flex-col justify-between">
         <div>
             <div class="flex justify-between items-center pb-3 border-b border-white/5 mb-4">
@@ -460,9 +467,7 @@ select option {
 
 </div>
 
-<!-- DOLNA SEKCJA -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
-    <!-- EKWIPUNEK -->
     <div class="panel-premium p-4 flex flex-col gap-3">
         <div class="flex justify-between items-center pb-2 border-b border-white/5">
             <div class="flex items-center gap-2">
@@ -476,7 +481,6 @@ select option {
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-60 sm:h-72" id="inventory-grid"></div>
     </div>
 
-    <!-- KATALOG CELÓW -->
     <div class="panel-premium p-4 flex flex-col gap-3">
         <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-white/5">
             <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
@@ -490,7 +494,6 @@ select option {
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-44 sm:h-56" id="catalog-grid"></div>
         
-        <!-- PAGINACJA KATALOGU -->
         <div class="flex justify-center items-center gap-3 mt-auto pt-2">
             <button onclick="changePage('catalog', -1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-left text-xs"></i></button>
             
@@ -506,7 +509,7 @@ select option {
 </div>
 </main>
 
-<!-- MODAL SKLEPU -->
+<!-- MODAL SKLEPU (Ujednolicony) -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
     <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-5xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
