@@ -22,7 +22,6 @@ tailwind.config = {
 </script>
 <style>
 body {
-    /* Głębsze, bardziej nasycone tło */
     background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0d0b1f 50%, #05040a 100%);
     background-attachment: fixed;
     color: #e2e8f0;
@@ -58,7 +57,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-/* EFEKT SZKŁA DLA PANELI */
 .panel-premium {
     background: rgba(26, 24, 48, 0.6);
     backdrop-filter: blur(16px);
@@ -67,25 +65,26 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* ULEPSZONE KARTY SKINÓW */
+/* NOWY STYL KART W SKLEPIE I EKWIPUNKU */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
     overflow: hidden; 
-    background: linear-gradient(145deg, #1e2032, #141522);
+    background: #1c1f2e;
     border-radius: 12px; 
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 6px rgba(0,0,0,0.3);
 }
 .item-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 15px rgba(0,0,0,0.4);
 }
 .item-card::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
     pointer-events: none;
 }
 
@@ -149,7 +148,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     text-align: left;
 }
 
-/* Efekt świetlny pod kołem */
 .glow-effect {
     position: absolute;
     width: 80%;
@@ -263,7 +261,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
     <!-- ŚRODKOWY PANEL -->
     <div class="lg:col-span-4 panel-premium p-5 flex flex-col items-center justify-between relative overflow-hidden">
-        <!-- Subtelne tło za kołem -->
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
             <div class="glow-effect"></div>
         </div>
@@ -276,7 +273,6 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <div class="w-8 h-8"></div>
         </div>
 
-        <!-- Koło -->
         <div class="relative my-4 w-56 h-56 sm:w-72 sm:h-72 flex items-center justify-center z-10 wheel-container p-4">
             <div class="wheel-label wheel-label-100">100%</div>
             <div class="wheel-label wheel-label-0">0%</div>
@@ -416,61 +412,68 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </main>
 
-<!-- MODAL SKLEPU -->
+<!-- MODAL SKLEPU (Nowy, czysty styl) -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
+    <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-5xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
-        <div class="bg-[#181b2b] px-5 py-4 flex items-center justify-between border-b border-white/5">
+        <!-- Pasek górny -->
+        <div class="bg-[#181b2b] px-6 py-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center gap-4">
-                <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-center">
-                    <i class="fa-solid fa-cart-shopping text-emerald-400 text-xl"></i>
+                <div class="bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-store text-emerald-400 text-xl"></i>
                 </div>
-                <div class="text-gray-400 text-xs sm:text-sm">
-                    <p class="text-white font-bold text-lg leading-none">Sklep Skinów</p>
-                    <p class="mt-1">Kupuj bezpośrednio z salda</p>
+                <div>
+                    <h3 class="text-white font-bold text-xl font-rajdhani uppercase leading-none tracking-wide">Sklep Skinów</h3>
+                    <p class="text-gray-400 text-xs mt-1">Wybierz i kup bezpośrednio z salda</p>
                 </div>
             </div>
             
             <div class="flex items-center gap-4">
                 <div class="bg-[#131525] px-4 py-2 rounded-lg border border-white/5 flex items-center gap-2">
-                    <span class="text-xs text-gray-400">Saldo:</span>
+                    <span class="text-xs text-gray-400">Twoje saldo:</span>
                     <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
                 </div>
-                <button onclick="closeShopModal()" class="text-gray-400 hover:text-white p-2">
-                    <i class="fa-solid fa-xmark text-2xl"></i>
+                <button onclick="closeShopModal()" class="text-gray-400 hover:text-white p-2 transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
                 </button>
             </div>
         </div>
 
+        <!-- Zawartość sklepu -->
         <div class="p-6 flex flex-col gap-5 overflow-hidden">
             
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-[#1c1f2e] p-3 rounded-xl border border-white/5">
-                <div class="relative w-full sm:w-64">
-                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Szukaj skina..." class="w-full bg-[#131525] border border-white/5 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition">
+            <!-- Wyszukiwarka i filtry -->
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Wyszukaj przedmiot..." class="w-full bg-[#1c1f2e] border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition shadow-inner">
                 </div>
-                <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-auto bg-[#131525] border border-white/5 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer">
-                    <option value="asc">Cena: Od najniższej</option>
-                    <option value="desc">Cena: Od najwyższej</option>
-                </select>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-48 bg-[#1c1f2e] border border-white/5 rounded-xl px-4 py-3 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer shadow-inner">
+                        <option value="asc">Cena: Rosnąco</option>
+                        <option value="desc">Cena: Malejąco</option>
+                    </select>
+                </div>
             </div>
 
             <div id="shop-pop-msg" class="text-xs text-center font-bold h-4"></div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 overflow-y-auto pr-1 flex-1 min-h-[300px]" id="pop-shop-grid"></div>
+            <!-- Siatka produktów -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 overflow-y-auto pr-2 pb-2 flex-1 min-h-[350px]" id="pop-shop-grid"></div>
 
-            <div class="flex justify-center items-center gap-3 mt-2 pt-4 border-t border-white/5">
-                <button onclick="changePage('shop', -1)" class="w-9 h-9 rounded-lg bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+            <!-- Paginacja -->
+            <div class="flex justify-center items-center gap-3 pt-4 border-t border-white/5">
+                <button onclick="changePage('shop', -1)" class="w-10 h-10 rounded-xl bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 
-                <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-[#1c1f2e] px-4 py-2 rounded-lg border border-white/5">
+                <div class="flex items-center gap-3 text-sm font-mono text-gray-400 bg-[#1c1f2e] px-5 py-2.5 rounded-xl border border-white/5 shadow-inner">
                     <span>Strona</span>
-                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#131525] border border-white/5 rounded text-center text-white focus:outline-none focus:border-emerald-500/50 py-0.5" value="1">
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-[#131525] border border-white/5 rounded-lg text-center text-white focus:outline-none focus:border-emerald-500/50 py-1 font-bold" value="1">
                     <span id="shop-page-total">/ 1</span>
                 </div>
 
-                <button onclick="changePage('shop', 1)" class="w-9 h-9 rounded-lg bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+                <button onclick="changePage('shop', 1)" class="w-10 h-10 rounded-xl bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
