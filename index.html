@@ -446,19 +446,19 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
     <div class="bg-[#11131f] border border-borderBorder/60 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
         
-        <!-- Pasek górny z BLIK (Powiększony 4x) -->
-        <div class="bg-[#181b2b] p-4 flex items-center justify-between border-b border-borderBorder/40">
-            <div class="flex items-center gap-4">
-                <div class="bg-black/50 p-3 rounded-xl border border-gray-600 flex items-center justify-center">
-                    <img src="v1_blik_img.webp" alt="BLIK" class="h-32 object-contain">
+        <!-- Pasek górny z BLIK (Prawie na całą wysokość) -->
+        <div class="bg-[#181b2b] px-4 py-2 flex items-center justify-between border-b border-borderBorder/40 h-28 sm:h-32">
+            <div class="flex items-center gap-4 h-full">
+                <div class="h-[90%] aspect-square flex items-center justify-center">
+                    <img src="v1_blik_img.webp" alt="BLIK" class="h-full w-auto object-contain">
                 </div>
                 <div class="text-gray-400 text-xs sm:text-sm">
                     <p class="text-white font-bold text-lg">Płatność BLIK</p>
                     <p>Szybko i bezpiecznie</p>
                 </div>
             </div>
-            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-white p-2">
-                <i class="fa-solid fa-xmark text-xl"></i>
+            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-white p-2 mr-2">
+                <i class="fa-solid fa-xmark text-2xl"></i>
             </button>
         </div>
 
