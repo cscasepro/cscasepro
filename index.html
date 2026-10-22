@@ -78,7 +78,6 @@ input[type=range]::-webkit-slider-runnable-track {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* NOWY, ELEGANCKI STYL KART PRODUKTÓW */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
@@ -104,7 +103,6 @@ input[type=range]::-webkit-slider-runnable-track {
     pointer-events: none;
 }
 
-/* EFEKT SZKŁA I TŁO DLA LIVE DROPU */
 .live-drop-item {
     background: rgba(28, 31, 46, 0.6);
     backdrop-filter: blur(8px);
@@ -208,6 +206,7 @@ select option {
     font-family: 'Inter', sans-serif;
 }
 
+/* POSTACIE W TLE */
 .hero-video {
     position: fixed;
     bottom: 0;
@@ -231,6 +230,16 @@ select option {
     right: 0;
     transform: translateX(25%) scale(1.1) scaleX(-1);
 }
+/* NOWA POSTAĆ W PRAWYM DOLNYM ROGU */
+.hero-video-bottom-right {
+    right: 0;
+    bottom: 0;
+    height: 45vh;
+    transform: translateX(15%) scale(1.1) scaleX(-1); 
+    opacity: 0.5;
+    z-index: -1;
+}
+
 .bg-video-container {
     position: fixed;
     inset: 0;
@@ -254,17 +263,23 @@ select option {
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
 
+<!-- TŁO WIDEO -->
 <div class="bg-video-container">
     <video autoplay loop muted playsinline>
         <source src="background-slide-mid-qual.webm" type="video/webm">
     </video>
 </div>
 
+<!-- POSTACIE W TLE -->
 <video class="hero-video hero-video-left" autoplay loop muted playsinline>
     <source src="1-place-hero-new.webm" type="video/webm">
 </video>
 <video class="hero-video hero-video-right" autoplay loop muted playsinline>
     <source src="3-place-hero-new.webm" type="video/webm">
+</video>
+<!-- NOWA POSTAĆ W PRAWYM DOLNYM ROGU -->
+<video class="hero-video hero-video-bottom-right" autoplay loop muted playsinline>
+    <source src="2-place-hero-new.webm" type="video/webm">
 </video>
 
 <!-- NAGŁÓWEK -->
@@ -308,7 +323,7 @@ select option {
 </div>
 </header>
 
-<!-- LIVE FEED (Teraz ładniejszy) -->
+<!-- LIVE FEED -->
 <div class="w-full border-b border-white/5 py-2.5 px-3 overflow-hidden bg-[#0d0b1f]/60 backdrop-blur-sm relative z-10">
 <div class="max-w-7xl mx-auto flex items-center gap-3">
     <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-wider whitespace-nowrap pr-3 border-r border-white/10">
@@ -509,7 +524,6 @@ select option {
 </div>
 </main>
 
-<!-- MODAL SKLEPU (Ujednolicony) -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
     <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-5xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
@@ -573,7 +587,6 @@ select option {
     </div>
 </div>
 
-<!-- MODAL WYNIKU -->
 <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity p-3">
 <div id="result-modal-content" class="bg-[#11131f] border border-white/10 rounded-2xl p-6 max-w-xs w-full flex flex-col items-center text-center shadow-2xl relative">
     <div id="modal-status-icon" class="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner">
@@ -592,7 +605,6 @@ select option {
 </div>
 </div>
 
-<!-- MODAL KODU -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
 <div class="bg-[#11131f] border border-white/10 rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
     <div class="w-12 h-12 rounded-full bg-[#8b5cf6]/15 border border-[#8b5cf6]/30 flex items-center justify-center mb-3">
@@ -609,7 +621,6 @@ select option {
 </div>
 </div>
 
-<!-- MODAL DOŁADOWANIA (BLIK) -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
     <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
         
