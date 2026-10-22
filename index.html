@@ -80,20 +80,20 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
 .payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
 
-/* BANER PROMOCYJNY - DOKŁADNIE JAK NA ZDJĘCIU 1 */
+/* BANER PROMOCYJNY (Twój kod) */
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
-    background-size: cover;
-    background-position: center left; /* Obrazek wyrównany do lewej */
+    background-size: contain;
+    background-position: left center;
     background-repeat: no-repeat;
     position: relative;
-    overflow: hidden;
+    background-color: #171929;
 }
 .promo-banner::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(21, 19, 41, 0.4) 0%, rgba(21, 19, 41, 0.95) 40%, rgba(21, 19, 41, 0.95) 100%);
+    background: linear-gradient(90deg, rgba(23, 25, 41, 0.2) 0%, rgba(23, 25, 41, 0.85) 35%, rgba(23, 25, 41, 0.98) 100%);
     z-index: 1;
 }
 .promo-banner > * {
@@ -103,17 +103,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .promo-input-field {
     background: transparent;
     border: none;
-    color: #a3e635;
-    font-weight: bold;
     outline: none;
-    width: 80px;
-    text-align: center;
-}
-.promo-input-field::placeholder {
-    color: #9ca3af;
-    font-weight: 600;
-    font-size: 11px;
-    letter-spacing: 0.5px;
+    width: 60px;
+    text-align: left;
 }
 </style>
 </head>
@@ -162,32 +154,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </header>
 
-<!-- GŁÓWNY BANER Z KODEM NA STRONIE GŁÓWNEJ (wygląda jak na zdjęciu 1) -->
-<div class="w-full max-w-7xl mx-auto px-3 sm:px-5 mt-3 relative z-10">
-    <div class="promo-banner rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-3 border border-borderBorder/50 shadow-md min-h-[90px]">
-        
-        <!-- Lewa strona: Tekst -->
-        <div class="flex flex-col pl-2 sm:pl-32 z-10 w-full sm:w-auto">
-            <h4 class="text-white font-bold text-sm sm:text-base leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span> <i class="fa-solid fa-circle-info text-gray-400 text-xs ml-1"></i></h4>
-            <p class="text-gray-300 text-xs sm:text-sm mt-1">Zgarnij 10% Bonusu do doładowania</p>
-        </div>
-        
-        <!-- Prawa strona: Pole na kod i przycisk -->
-        <div class="bg-[#181b2b]/90 px-4 py-2 rounded-lg border border-borderBorder/60 flex items-center gap-4 backdrop-blur-md self-end sm:self-auto">
-            <div class="flex items-center gap-2">
-                <span class="text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
-                <input type="text" id="main-promo-input" placeholder="WPISZ KOD" class="promo-input-field" maxlength="10">
-                <i class="fa-solid fa-circle-check text-[#a3e635]" id="main-promo-check-icon"></i>
-            </div>
-            <div class="w-px h-5 bg-borderBorder/60"></div>
-            <button class="text-xs text-[#a3e635] hover:text-white font-bold transition uppercase tracking-wider">Zmień</button>
-        </div>
-
-    </div>
-</div>
-
 <!-- LIVE FEED -->
-<div class="w-full border-b border-borderBorder/40 py-1.5 px-3 overflow-hidden bg-siteBg/60 mt-3">
+<div class="w-full border-b border-borderBorder/40 py-1.5 px-3 overflow-hidden bg-siteBg/60 mt-0">
 <div class="max-w-7xl mx-auto flex items-center gap-2">
     <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-2 border-r border-borderBorder/60">
         <span class="live-dot"></span>
@@ -496,11 +464,43 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
         <div class="p-6 flex flex-col gap-6 overflow-y-auto max-h-[75vh]">
             
-            <!-- Baner z informacją o bonusie (tło jest na górze, rozciągnięte) -->
-            <div class="promo-banner rounded-xl p-5 flex flex-col sm:flex-row justify-between items-center gap-4 border border-borderBorder/50 shadow-lg min-h-[90px]">
-                <div class="flex flex-col pl-2 sm:pl-32 z-10 w-full sm:w-auto">
-                    <h4 class="text-white font-bold text-sm leading-tight">Kod <span class="text-[#a3e635]">FREE</span> aktywny?</h4>
-                    <p class="text-gray-300 text-xs mt-1" id="promo-status-text">Wpisz kod na stronie głównej, aby otrzymać bonus.</p>
+            <!-- Baner promocyjny (TWÓJ KOD) -->
+            <div class="promo-banner rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 border border-white/10 shadow-lg min-h-[90px] relative overflow-hidden">
+                <!-- Lewa strona: Treść i ewentualne tło/grafika -->
+                <div class="flex items-center gap-3 z-10 w-full sm:w-auto">
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-1.5">
+                            <h4 class="text-white font-bold text-base sm:text-lg leading-tight">
+                                Użyj kodu <span class="text-[#a3e635]">FREE</span>
+                            </h4>
+                            <!-- Ikona info -->
+                            <button type="button" class="text-gray-400 hover:text-white transition-colors" title="Informacja">
+                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1zm0-3a1 1 0 110 2 1 1 0 010-2z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="text-gray-300 text-xs sm:text-sm font-medium mt-1">
+                            Zgarnij <span class="text-[#a3e635] font-bold">10% Bonusu do doładowania</span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Prawa strona: Widget z kodem -->
+                <div class="z-10 w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 bg-[#131525]/80 backdrop-blur border border-white/5 rounded-lg px-4 py-2.5">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400 text-xs sm:text-sm font-medium">Twój kod:</span>
+                        <input type="text" id="main-promo-input" value="" placeholder="WPISZ KOD" class="promo-input-field uppercase font-bold text-sm text-white" maxlength="10" />
+                        <!-- Zielony znacznik (check) -->
+                        <div id="main-promo-check-icon" class="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center text-[#151329]">
+                            <svg class="w-3.5 h-3.5 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <button type="button" class="text-[#a3e635] hover:underline text-xs font-bold tracking-wide uppercase ml-2">
+                        Zmień
+                    </button>
                 </div>
             </div>
 
