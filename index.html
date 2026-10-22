@@ -98,31 +98,26 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     </div>
 
     <div class="flex items-center gap-1.5 sm:gap-2.5">
-        <!-- SKLEP -->
         <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/60 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
             <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
             <span class="text-[11px] sm:text-xs">Sklep</span>
         </button>
 
-        <!-- SALDO -->
         <div class="stat-badge flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs">
             <i class="fa-solid fa-wallet text-accentViolet text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
         </div>
 
-        <!-- DOŁADUJ (PRZYWRÓCONY) -->
         <button onclick="openPaymentModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
             <i class="fa-solid fa-credit-card text-accentViolet"></i>
             <span class="text-[11px] sm:text-xs">Doładuj</span>
         </button>
 
-        <!-- KOD -->
         <button onclick="openPromoModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
             <i class="fa-solid fa-gift text-accentViolet"></i>
             <span class="hidden sm:inline">Kod</span>
         </button>
 
-        <!-- STEAM -->
         <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
             <i class="fa-brands fa-steam text-accentViolet text-sm"></i>
             <span id="steam-btn-text" class="hidden md:inline">Steam</span>
@@ -426,8 +421,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
         <!-- Pasek górny z BLIK -->
         <div class="bg-[#181b2b] p-4 flex items-center justify-between border-b border-borderBorder/40">
             <div class="flex items-center gap-4">
-                <div class="bg-black/50 p-2 rounded-xl border border-gray-600">
-                    <span class="text-white font-black text-2xl tracking-tighter">blik</span>
+                <div class="bg-black/50 p-2 rounded-xl border border-gray-600 flex items-center justify-center">
+                    <!-- TWOJE LOGO BLIK Z REPOZYTORIUM -->
+                    <img src="v1_blik_img.webp" alt="BLIK" class="h-8 object-contain">
                 </div>
                 <div class="text-gray-400 text-xs">
                     <p class="text-white font-bold">Płatność BLIK</p>
@@ -459,45 +455,45 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                 </div>
             </div>
 
-            <!-- Siatka kwot -->
+            <!-- Siatka kwot z TWOIMI obrazkami -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_10.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_25.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_50.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_100.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_200.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_500.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_1000.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
-                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <img src="money_1000.webp" alt="Coins" class="h-14 mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
                 </div>
