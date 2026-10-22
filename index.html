@@ -80,7 +80,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
 .payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
 
-/* POPRAWIONY BANER PROMOCYJNY */
+/* POPRAWIONY BANER PROMOCYJNY (na górze) */
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
     background-size: cover;
@@ -160,8 +160,29 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </header>
 
+<!-- NOWY BANER Z KODEM NA STRONIE GŁÓWNEJ -->
+<div class="w-full max-w-7xl mx-auto px-3 sm:px-5 mt-3 relative z-10">
+    <div class="promo-banner rounded-xl p-3 flex flex-col sm:flex-row justify-between items-center gap-3 border border-borderBorder/50 shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-[#1c1f2e] rounded-full flex items-center justify-center border-2 border-[#a3e635] shrink-0">
+                <i class="fa-solid fa-gift text-[#a3e635] text-lg"></i>
+            </div>
+            <div class="flex flex-col">
+                <h4 class="text-white font-bold text-xs sm:text-sm leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
+                <p class="text-gray-300 text-[10px] sm:text-xs mt-0.5">Zgarnij 10% Bonusu do doładowania</p>
+            </div>
+        </div>
+        
+        <div class="bg-[#11131f]/90 px-3 py-1.5 rounded-lg border border-borderBorder/50 flex items-center gap-2 backdrop-blur-sm">
+            <span class="text-[10px] sm:text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
+            <input type="text" id="main-promo-input" placeholder="WPISZ KOD" class="promo-input-field" maxlength="10">
+            <i class="fa-solid fa-circle-check text-gray-600" id="main-promo-check-icon"></i>
+        </div>
+    </div>
+</div>
+
 <!-- LIVE FEED -->
-<div class="w-full border-b border-borderBorder/40 py-1.5 px-3 overflow-hidden bg-siteBg/60">
+<div class="w-full border-b border-borderBorder/40 py-1.5 px-3 overflow-hidden bg-siteBg/60 mt-3">
 <div class="max-w-7xl mx-auto flex items-center gap-2">
     <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-2 border-r border-borderBorder/60">
         <span class="live-dot"></span>
@@ -470,65 +491,58 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
         <div class="p-6 flex flex-col gap-6 overflow-y-auto max-h-[75vh]">
             
-            <!-- Baner z kodem (TŁO NA GÓRZE, PRZESUNIĘTY TEKST) -->
-            <div class="promo-banner rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-borderBorder/50 shadow-lg">
+            <!-- Baner z informacją o bonusie (tło jest na górze, rozciągnięte) -->
+            <div class="promo-banner rounded-xl p-5 flex flex-col sm:flex-row justify-between items-center gap-4 border border-borderBorder/50 shadow-lg">
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-[#1c1f2e] rounded-full flex items-center justify-center border-2 border-[#a3e635] shrink-0">
-                        <i class="fa-solid fa-gift text-[#a3e635] text-xl"></i>
+                    <div class="w-16 h-16 bg-[#1c1f2e] rounded-full flex items-center justify-center border-4 border-[#a3e635] shrink-0">
+                        <i class="fa-solid fa-gift text-[#a3e635] text-3xl"></i>
                     </div>
                     <div class="flex flex-col pt-1">
-                        <h4 class="text-white font-bold text-sm leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
-                        <p class="text-gray-300 text-xs mt-1">Zgarnij 10% Bonusu do doładowania</p>
+                        <h4 class="text-white font-bold text-sm leading-tight">Kod <span class="text-[#a3e635]">FREE</span> aktywny?</h4>
+                        <p class="text-gray-300 text-xs mt-1" id="promo-status-text">Wpisz kod na stronie głównej, aby otrzymać bonus.</p>
                     </div>
-                </div>
-                
-                <!-- Puste pole do wpisania kodu -->
-                <div class="bg-[#11131f]/90 px-4 py-2.5 rounded-lg border border-borderBorder/50 flex items-center gap-3 backdrop-blur-sm self-end sm:self-auto mt-2 sm:mt-0">
-                    <span class="text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
-                    <input type="text" id="payment-promo-input" placeholder="WPISZ KOD" class="promo-input-field" maxlength="10">
-                    <i class="fa-solid fa-circle-check text-gray-600" id="promo-check-icon"></i>
                 </div>
             </div>
 
-            <!-- Siatka kwot z TWOIMI obrazkami -->
+            <!-- Siatka kwot z POWIĘKSZONYMI OBRAZKAMI (3x większe) -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
-                    <img src="money_10.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
-                    <img src="money_25.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
-                    <img src="money_50.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
-                    <img src="money_100.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
-                    <img src="money_200.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
-                    <img src="money_500.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
-                    <img src="money_1000.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
-                    <img src="money_1000.webp" alt="Coins" class="h-14 mb-2 object-contain">
+                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
                 </div>
