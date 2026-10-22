@@ -80,11 +80,11 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
 .payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
 
-/* Poprawiony baner promocyjny */
+/* POPRAWIONY BANER PROMOCYJNY */
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
     background-size: cover;
-    background-position: center;
+    background-position: center top;
     background-repeat: no-repeat;
     position: relative;
     overflow: hidden;
@@ -93,7 +93,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(21, 19, 41, 0.95) 0%, rgba(21, 19, 41, 0.7) 50%, rgba(21, 19, 41, 0.2) 100%);
+    background: linear-gradient(90deg, rgba(21, 19, 41, 0.95) 0%, rgba(21, 19, 41, 0.7) 60%, rgba(21, 19, 41, 0.2) 100%);
     z-index: 1;
 }
 .promo-banner > * {
@@ -470,22 +470,20 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
         <div class="p-6 flex flex-col gap-6 overflow-y-auto max-h-[75vh]">
             
-            <!-- Baner z kodem (Z TŁEM, IKONĄ NA GÓRZE I PUSTYM POLEM) -->
-            <div class="promo-banner rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-borderBorder/50 shadow-lg">
+            <!-- Baner z kodem (TŁO NA GÓRZE, PRZESUNIĘTY TEKST) -->
+            <div class="promo-banner rounded-xl p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border border-borderBorder/50 shadow-lg">
                 <div class="flex items-center gap-4">
-                    <!-- Ikona -->
                     <div class="w-12 h-12 bg-[#1c1f2e] rounded-full flex items-center justify-center border-2 border-[#a3e635] shrink-0">
                         <i class="fa-solid fa-gift text-[#a3e635] text-xl"></i>
                     </div>
-                    <!-- Tekst -->
-                    <div class="flex flex-col">
+                    <div class="flex flex-col pt-1">
                         <h4 class="text-white font-bold text-sm leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
                         <p class="text-gray-300 text-xs mt-1">Zgarnij 10% Bonusu do doładowania</p>
                     </div>
                 </div>
                 
                 <!-- Puste pole do wpisania kodu -->
-                <div class="bg-[#11131f]/90 px-4 py-2 rounded-lg border border-borderBorder/50 flex items-center gap-2 backdrop-blur-sm self-end sm:self-auto">
+                <div class="bg-[#11131f]/90 px-4 py-2.5 rounded-lg border border-borderBorder/50 flex items-center gap-3 backdrop-blur-sm self-end sm:self-auto mt-2 sm:mt-0">
                     <span class="text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
                     <input type="text" id="payment-promo-input" placeholder="WPISZ KOD" class="promo-input-field" maxlength="10">
                     <i class="fa-solid fa-circle-check text-gray-600" id="promo-check-icon"></i>
@@ -550,8 +548,8 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Otrzymasz</p>
                 <div class="bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-[#a3e635] font-black font-rajdhani text-2xl" id="payment-receive-amount">55.00 PLN</div>
-                    <div class="flex items-center gap-2">
+                    <div class="text-[#a3e635] font-black font-rajdhani text-2xl" id="payment-receive-amount">50.00 PLN</div>
+                    <div class="flex items-center gap-2 transition-opacity duration-300" id="bonus-tag-container">
                         <div class="bg-[#2a2e45] border border-gray-600 rounded-lg px-3 py-1 flex items-center gap-2">
                             <span class="text-white text-xs font-bold">10% BONUS</span>
                             <span class="text-[#60a5fa] text-[10px] font-bold">WLICZONY</span>
