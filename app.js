@@ -307,6 +307,7 @@ function renderPlayerInventory() {
     itemsToShow.forEach(item => {
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
         const node = document.createElement('div');
+        // Usunięto sztywne tło, klasa item-card dba o wygląd
         node.className = `item-card p-3 flex flex-col justify-between cursor-pointer select-none h-36 relative group ${isSelected ? 'border-[#a78bfa] bg-[#1c1f2e]/80' : ''}`;
         node.onclick = () => selectSourceItem(item);
         node.innerHTML = `
@@ -420,6 +421,7 @@ function renderPopShop(page = 1) {
     pageItems.forEach(item => {
         const canAfford = balance >= item.price;
         const node = document.createElement('div');
+        // Usunięto sztywne tło, klasa item-card dba o wygląd
         node.className = `item-card p-3 flex flex-col justify-between cursor-pointer select-none h-36 relative group ${canAfford ? '' : 'opacity-60 cursor-not-allowed'}`;
         node.onclick = () => buyItemDirectly(item);
         node.innerHTML = `
