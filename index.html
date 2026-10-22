@@ -98,26 +98,31 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     </div>
 
     <div class="flex items-center gap-1.5 sm:gap-2.5">
+        <!-- SKLEP -->
         <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/60 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
             <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
             <span class="text-[11px] sm:text-xs">Sklep</span>
         </button>
 
+        <!-- SALDO -->
         <div class="stat-badge flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs">
             <i class="fa-solid fa-wallet text-accentViolet text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
         </div>
 
+        <!-- DOŁADUJ (PRZYWRÓCONY) -->
         <button onclick="openPaymentModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
             <i class="fa-solid fa-credit-card text-accentViolet"></i>
             <span class="text-[11px] sm:text-xs">Doładuj</span>
         </button>
 
+        <!-- KOD -->
         <button onclick="openPromoModal()" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
             <i class="fa-solid fa-gift text-accentViolet"></i>
             <span class="hidden sm:inline">Kod</span>
         </button>
 
+        <!-- STEAM -->
         <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-accentViolet/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
             <i class="fa-brands fa-steam text-accentViolet text-sm"></i>
             <span id="steam-btn-text" class="hidden md:inline">Steam</span>
