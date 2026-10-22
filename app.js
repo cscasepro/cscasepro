@@ -900,13 +900,13 @@ function redeemPromoCode() {
     setTimeout(() => closePromoModal(), 1500);
 }
 
-// --- NOWA OBSŁUGA PŁATNOŚCI ---
+// --- OBSŁUGA PŁATNOŚCI I NOWEGO INTERFEJSU ---
 function openPaymentModal() {
     const modal = document.getElementById('payment-modal');
     const msg = document.getElementById('payment-message');
     if (modal) modal.classList.remove('hidden');
     if (msg) msg.innerHTML = '';
-    calculateBonus(); // Przelicz przy otwarciu
+    calculateBonus();
 }
 
 function closePaymentModal() {
@@ -950,12 +950,10 @@ function executePayment() {
         return;
     }
 
-    // Symulacja płatności
     msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
     
     setTimeout(() => {
         const bonusAmount = amount * 1.1;
-        // Dodajemy do salda (możesz tu zmienić walutę na $ jeśli chcesz)
         balance += bonusAmount;
         
         msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${bonusAmount.toFixed(2)} PLN!</span>`;
@@ -973,3 +971,22 @@ function executePayment() {
 
     }, 1500);
 }
+
+// Obsługa zielonego ptaszka przy wpisywaniu kodu w banerze
+document.addEventListener('DOMContentLoaded', () => {
+    const promoInput = document.getElementById('payment-promo-input');
+    const checkIcon = document.getElementById('promo-check-icon');
+    
+    if (promoInput && checkIcon) {
+        promoInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim().toUpperCase();
+            if (val === 'FREE') {
+                checkIcon.classList.remove('text-gray-600');
+                checkIcon.classList.add('text-[#a3e635]');
+            } else {
+                checkIcon.classList.add('text-gray-600');
+                checkIcon.classList.remove('text-[#a3e635]');
+            }
+        });
+    }
+});
