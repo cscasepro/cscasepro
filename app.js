@@ -629,14 +629,11 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // --- LOSOWANIE POŁOŻENIA ---
     let targetOffsetDeg = 0;
     
     if (isWin) {
-        // Celujemy idealnie w środek zielonej strefy
         targetOffsetDeg = chance / 2; 
     } else {
-        // Celujemy idealnie w środek czerwonej strefy
         const startRed = chance;
         const endRed = 360;
         targetOffsetDeg = startRed + ((endRed - startRed) / 2);
@@ -687,7 +684,6 @@ async function startUpgrade() {
     }
     rafId = requestAnimationFrame(tickLoop);
 
-    // Koniec animacji - sprawdzamy wylosowany wynik
     setTimeout(() => {
         if (rafId) cancelAnimationFrame(rafId);
         finishUpgrade(isWin, totalRotations, wonItemSnapshot, sacrificedItemSnapshot);
@@ -904,11 +900,13 @@ function redeemPromoCode() {
     setTimeout(() => closePromoModal(), 1500);
 }
 
+// --- NOWA OBSŁUGA PŁATNOŚCI ---
 function openPaymentModal() {
     const modal = document.getElementById('payment-modal');
     const msg = document.getElementById('payment-message');
     if (modal) modal.classList.remove('hidden');
     if (msg) msg.innerHTML = '';
+    calculateBonus(); // Przelicz przy otwarciu
 }
 
 function closePaymentModal() {
@@ -916,64 +914,62 @@ function closePaymentModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-function confirmPayment() {
-    const inputEl = document.getElementById('payment-input');
-    const msg = document.getElementById('payment-message');
-    const directCheckbox = document.getElementById('direct-balance-checkbox');
-    if (!inputEl || !msg) return;
+function selectAmount(amount) {
+    const input = document.getElementById('payment-input');
+    if (input) {
+        input.value = amount;
+        calculateBonus();
+    }
+}
 
-    const amount = parseFloat(inputEl.value);
-    if (isNaN(amount) || amount <= 0) {
-        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Wpisz poprawną kwotę.</span>`;
+function calculateBonus() {
+    const input = document.getElementById('payment-input');
+    const receiveEl = document.getElementById('payment-receive-amount');
+    const btnAmountEl = document.getElementById('payment-button-amount');
+    
+    if (!input || !receiveEl || !btnAmountEl) return;
+
+    let amount = parseFloat(input.value) || 0;
+    if (amount < 0) amount = 0;
+
+    // 10% bonusu
+    const finalAmount = amount * 1.1;
+
+    receiveEl.innerText = `${finalAmount.toFixed(2)} PLN`;
+    btnAmountEl.innerText = `${amount.toFixed(2)} PLN`;
+}
+
+function executePayment() {
+    const input = document.getElementById('payment-input');
+    const msg = document.getElementById('payment-message');
+    if (!input || !msg) return;
+
+    let amount = parseFloat(input.value) || 0;
+    if (amount < 4) {
+        msg.innerHTML = `<span class="text-red-400">Minimalna kwota to 4 PLN.</span>`;
         return;
     }
 
-    const directToBalance = directCheckbox ? directCheckbox.checked : false;
-
-    if (directToBalance) {
-        balance += amount;
-        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Doładowano $${amount.toFixed(2)} do salda!</span>`;
-    } else {
-        if (!storeCatalog || storeCatalog.length === 0) {
-            msg.innerHTML = `<span class="text-red-400 font-bold">❌ Baza skinów jest pusta.</span>`;
-            return;
-        }
-
-        let remainingAmount = amount;
-        let addedItemsCount = 0;
-
-        const sortedCatalog = [...storeCatalog].sort((a, b) => a.price - b.price);
-        const minPrice = sortedCatalog[0].price;
-
-        while (remainingAmount >= minPrice) {
-            const affordableItems = sortedCatalog.filter(item => item.price <= remainingAmount);
-            if (affordableItems.length === 0) break;
-
-            const randomItem = affordableItems[Math.floor(Math.random() * affordableItems.length)];
-            
-            inventory.push({ 
-                ...randomItem, 
-                id: 'dep_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) 
-            });
-
-            remainingAmount -= randomItem.price;
-            addedItemsCount++;
-        }
-
-        balance += remainingAmount;
-        msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Otrzymano ${addedItemsCount} skin(ów)! Reszta ($${remainingAmount.toFixed(2)}) w saldzie.</span>`;
-    }
-
-    renderPlayerInventory();
-    updateBalanceDisplay();
-
-    const slider = document.getElementById('cash-slider');
-    if (slider) slider.max = Math.max(0, balance).toFixed(2);
-
-    recalculateOdds();
-
+    // Symulacja płatności
+    msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
+    
     setTimeout(() => {
-        closePaymentModal();
-        msg.innerHTML = '';
-    }, 2000);
+        const bonusAmount = amount * 1.1;
+        // Dodajemy do salda (możesz tu zmienić walutę na $ jeśli chcesz)
+        balance += bonusAmount;
+        
+        msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${bonusAmount.toFixed(2)} PLN!</span>`;
+        updateBalanceDisplay();
+        
+        const slider = document.getElementById('cash-slider');
+        if (slider) slider.max = Math.max(0, balance).toFixed(2);
+        
+        recalculateOdds();
+
+        setTimeout(() => {
+            closePaymentModal();
+            msg.innerHTML = '';
+        }, 2000);
+
+    }, 1500);
 }
