@@ -907,6 +907,7 @@ function openPaymentModal() {
     if (modal) modal.classList.remove('hidden');
     if (msg) msg.innerHTML = '';
     
+    // Sprawdzamy, czy kod jest aktywny, żeby zaktualizować baner w oknie doładowania
     const promoInput = document.getElementById('main-promo-input');
     const promoStatusText = document.getElementById('promo-status-text');
     const hasBonus = promoInput && promoInput.value.trim().toUpperCase() === 'FREE';
@@ -1021,6 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkIcon.classList.add('text-gray-600');
                 checkIcon.classList.remove('text-[#a3e635]');
             }
+            // Jeśli okno płatności jest otwarte, od razu przeliczamy kwotę
             calculateBonus();
         });
     }
