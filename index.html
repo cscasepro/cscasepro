@@ -78,14 +78,14 @@ input[type=range]::-webkit-slider-runnable-track {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* KARTY SKLEPU - DOSTOSOWANE DO PANELI GŁÓWNYCH */
+/* UJEDNOLICONY STYL KART */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
     overflow: hidden; 
-    background: rgba(26, 24, 48, 0.6); /* Ten sam kolor co panel-premium */
+    background: rgba(26, 24, 48, 0.6); 
     backdrop-filter: blur(16px);
-    border-radius: 12px; 
+    border-radius: 16px;
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 6px rgba(0,0,0,0.3);
     display: flex;
@@ -95,7 +95,7 @@ input[type=range]::-webkit-slider-runnable-track {
 .item-card:hover {
     transform: translateY(-3px);
     border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(30, 28, 55, 0.8); /* Lekko jaśniejsze po najechaniu */
+    background: rgba(30, 28, 55, 0.8);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.5);
 }
 .item-card::after {
@@ -104,6 +104,22 @@ input[type=range]::-webkit-slider-runnable-track {
     inset: 0;
     background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
     pointer-events: none;
+}
+
+/* UJEDNOLICONY STYL KART PŁATNOŚCI (Monety) */
+.payment-amount-card { 
+    background: rgba(26, 24, 48, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    transition: all 0.2s ease; 
+    cursor: pointer; 
+}
+.payment-amount-card:hover { 
+    border-color: rgba(255, 255, 255, 0.15); 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5); 
+    background: rgba(30, 28, 55, 0.8);
 }
 
 .live-drop-item {
@@ -143,9 +159,6 @@ input[type=range]::-webkit-slider-runnable-track {
 .wheel-label-50-left { left: -12px; top: 50%; transform: translateY(-50%); }
 .wheel-label-50-right { right: -12px; top: 50%; transform: translateY(-50%); }
 .wheel-label-100 { top: -8px; left: 50%; transform: translateX(-50%); }
-
-.payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
-.payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(163, 230, 53, 0.1); }
 
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
@@ -672,42 +685,42 @@ select option {
             </div>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
                     <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
                     <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
                     <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
                     <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
                     <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
                     <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
+                <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
