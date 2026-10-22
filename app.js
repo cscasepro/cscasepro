@@ -221,6 +221,24 @@ window.addEventListener('DOMContentLoaded', () => {
     
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
+
+    // Obsługa zielonego ptaszka przy wpisywaniu kodu w banerze płatności
+    const promoInput = document.getElementById('main-promo-input');
+    const checkIcon = document.getElementById('main-promo-check-icon');
+    
+    if (promoInput && checkIcon) {
+        promoInput.addEventListener('input', (e) => {
+            const val = e.target.value.trim().toUpperCase();
+            if (val === 'FREE') {
+                checkIcon.classList.remove('bg-gray-600');
+                checkIcon.classList.add('bg-[#a3e635]');
+            } else {
+                checkIcon.classList.add('bg-gray-600');
+                checkIcon.classList.remove('bg-[#a3e635]');
+            }
+            calculateBonus();
+        });
+    }
 });
 
 function changePage(context, dir) {
@@ -907,19 +925,6 @@ function openPaymentModal() {
     if (modal) modal.classList.remove('hidden');
     if (msg) msg.innerHTML = '';
     
-    // Sprawdzamy, czy kod jest aktywny, żeby zaktualizować baner w oknie doładowania
-    const promoInput = document.getElementById('main-promo-input');
-    const promoStatusText = document.getElementById('promo-status-text');
-    const hasBonus = promoInput && promoInput.value.trim().toUpperCase() === 'FREE';
-    
-    if (promoStatusText) {
-        if (hasBonus) {
-            promoStatusText.innerHTML = `<span class="text-[#a3e635] font-bold">Kod FREE jest aktywny! Otrzymujesz 10% bonusu.</span>`;
-        } else {
-            promoStatusText.innerHTML = `Wpisz kod na stronie głównej, aby otrzymać bonus.`;
-        }
-    }
-    
     calculateBonus();
 }
 
@@ -1006,24 +1011,3 @@ function executePayment() {
 
     }, 1500);
 }
-
-// Obsługa zielonego ptaszka i dynamiczne przeliczanie w GŁÓWNYM polu (na górze)
-document.addEventListener('DOMContentLoaded', () => {
-    const promoInput = document.getElementById('main-promo-input');
-    const checkIcon = document.getElementById('main-promo-check-icon');
-    
-    if (promoInput && checkIcon) {
-        promoInput.addEventListener('input', (e) => {
-            const val = e.target.value.trim().toUpperCase();
-            if (val === 'FREE') {
-                checkIcon.classList.remove('text-gray-600');
-                checkIcon.classList.add('text-[#a3e635]');
-            } else {
-                checkIcon.classList.add('text-gray-600');
-                checkIcon.classList.remove('text-[#a3e635]');
-            }
-            // Jeśli okno płatności jest otwarte, od razu przeliczamy kwotę
-            calculateBonus();
-        });
-    }
-});
