@@ -80,7 +80,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
 .payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
 
-/* POPRAWIONY BANER PROMOCYJNY (na górze) */
+/* BANER PROMOCYJNY */
 .promo-banner {
     background-image: url('payment-promocode-bg.webp');
     background-size: cover;
@@ -160,21 +160,21 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </header>
 
-<!-- NOWY BANER Z KODEM NA STRONIE GŁÓWNEJ -->
+<!-- GŁÓWNY BANER Z KODEM NA STRONIE GŁÓWNEJ -->
 <div class="w-full max-w-7xl mx-auto px-3 sm:px-5 mt-3 relative z-10">
-    <div class="promo-banner rounded-xl p-3 flex flex-col sm:flex-row justify-between items-center gap-3 border border-borderBorder/50 shadow-md">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#1c1f2e] rounded-full flex items-center justify-center border-2 border-[#a3e635] shrink-0">
-                <i class="fa-solid fa-gift text-[#a3e635] text-lg"></i>
+    <div class="promo-banner rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-3 border border-borderBorder/50 shadow-md">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-[#1c1f2e] rounded-full flex items-center justify-center border-2 border-[#a3e635] shrink-0">
+                <i class="fa-solid fa-gift text-[#a3e635] text-xl"></i>
             </div>
             <div class="flex flex-col">
-                <h4 class="text-white font-bold text-xs sm:text-sm leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
-                <p class="text-gray-300 text-[10px] sm:text-xs mt-0.5">Zgarnij 10% Bonusu do doładowania</p>
+                <h4 class="text-white font-bold text-sm leading-tight">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
+                <p class="text-gray-300 text-xs mt-1">Zgarnij 10% Bonusu do doładowania</p>
             </div>
         </div>
         
-        <div class="bg-[#11131f]/90 px-3 py-1.5 rounded-lg border border-borderBorder/50 flex items-center gap-2 backdrop-blur-sm">
-            <span class="text-[10px] sm:text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
+        <div class="bg-[#11131f]/90 px-4 py-2 rounded-lg border border-borderBorder/50 flex items-center gap-3 backdrop-blur-sm self-end sm:self-auto">
+            <span class="text-xs text-gray-400 whitespace-nowrap">Twój kod:</span>
             <input type="text" id="main-promo-input" placeholder="WPISZ KOD" class="promo-input-field" maxlength="10">
             <i class="fa-solid fa-circle-check text-gray-600" id="main-promo-check-icon"></i>
         </div>
