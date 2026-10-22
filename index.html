@@ -22,7 +22,8 @@ tailwind.config = {
 </script>
 <style>
 body {
-    background: linear-gradient(180deg, #0d0b1f 0%, #151329 45%, #1e2130 75%, #232738 100%);
+    /* Głębsze, bardziej nasycone tło */
+    background: radial-gradient(circle at 50% 0%, #1e1b4b 0%, #0d0b1f 50%, #05040a 100%);
     background-attachment: fixed;
     color: #e2e8f0;
     font-family: 'Inter', sans-serif;
@@ -44,7 +45,7 @@ body {
 
 input[type=range] { -webkit-appearance: none; background: transparent; }
 input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%;
-    background: #8b5cf6; cursor: pointer; margin-top: -5px; }
+    background: #8b5cf6; cursor: pointer; margin-top: -5px; box-shadow: 0 0 10px #8b5cf6; }
 input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     background: #1c1a36; border-radius: 3px; border: 1px solid #2a2748; }
 
@@ -57,28 +58,65 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* EFEKT SZKŁA DLA PANELI */
 .panel-premium {
-    background: #171929; /* Ciemniejszy, jednolity kolor paneli */
-    border: 1px solid #2a2748;
-    border-radius: 16px;
+    background: rgba(26, 24, 48, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
-.item-card { transition: all 0.2s ease; position: relative; overflow: hidden; background: #1c1f2e; border-radius: 8px; border: 1px solid #2a2748;}
-.stat-badge {
-    background: #1c1f2e;
-    border: 1px solid #2a2748;
-}
-.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; }
-.upgrade-btn-active { background: #6d4fd4; }
 
-.wheel-label { position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 10px;
-    color: rgba(226, 232, 240, 0.4); letter-spacing: 0.05em; pointer-events: none; }
-.wheel-label-0 { bottom: -4px; left: 50%; transform: translateX(-50%); }
-.wheel-label-50-left { left: -4px; top: 50%; transform: translateY(-50%); }
-.wheel-label-50-right { right: -4px; top: 50%; transform: translateY(-50%); }
-.wheel-label-100 { top: -4px; left: 50%; transform: translateX(-50%); }
+/* ULEPSZONE KARTY SKINÓW */
+.item-card { 
+    transition: all 0.2s ease; 
+    position: relative; 
+    overflow: hidden; 
+    background: linear-gradient(145deg, #1e2032, #141522);
+    border-radius: 12px; 
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+.item-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
+    pointer-events: none;
+}
+
+.stat-badge {
+    background: rgba(26, 24, 48, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+}
+.live-dot { width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;}
+.upgrade-btn-active { 
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+}
+
+/* STYLIZACJA KOŁA */
+.wheel-container {
+    background: radial-gradient(circle, #1a1c2e 0%, #11121d 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 40px rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.wheel-label { position: absolute; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 11px;
+    color: rgba(226, 232, 240, 0.5); letter-spacing: 0.05em; pointer-events: none; text-shadow: 0 2px 4px black; }
+.wheel-label-0 { bottom: -8px; left: 50%; transform: translateX(-50%); }
+.wheel-label-50-left { left: -12px; top: 50%; transform: translateY(-50%); }
+.wheel-label-50-right { right: -12px; top: 50%; transform: translateY(-50%); }
+.wheel-label-100 { top: -8px; left: 50%; transform: translateX(-50%); }
 
 .payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
-.payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
+.payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(163, 230, 53, 0.1); }
 
 /* BANER PROMOCYJNY */
 .promo-banner {
@@ -88,6 +126,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     background-repeat: no-repeat;
     position: relative;
     background-color: #171929;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 .promo-banner::before {
     content: '';
@@ -107,47 +148,58 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
     width: 60px;
     text-align: left;
 }
+
+/* Efekt świetlny pod kołem */
+.glow-effect {
+    position: absolute;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
 
 <!-- NAGŁÓWEK -->
-<header class="w-full border-b border-[#2a2748] px-3 lg:px-8 py-2.5 sticky top-0 z-50 bg-[#0d0b1f]">
+<header class="w-full border-b border-white/5 px-3 lg:px-8 py-3 sticky top-0 z-50 bg-[#0d0b1f]/80 backdrop-blur-lg">
 <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center">
         <a href="#" class="flex items-center gap-2 group">
-            <div class="w-8 h-8 rounded-lg bg-[#8b5cf6] flex items-center justify-center text-white font-black text-base">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#6d28d9] flex items-center justify-center text-white font-black text-lg shadow-lg shadow-[#8b5cf6]/30">
                 <i class="fa-solid fa-bolt"></i>
             </div>
-            <span class="font-rajdhani text-xl lg:text-2xl font-bold tracking-wider text-white uppercase">
-                CSCASE<span class="text-[#8b5cf6]">PRO</span>
+            <span class="font-rajdhani text-xl lg:text-2xl font-bold tracking-wider text-white uppercase drop-shadow-md">
+                CSCASE<span class="text-[#a78bfa]">PRO</span>
             </span>
         </a>
     </div>
 
-    <div class="flex items-center gap-1.5 sm:gap-2.5">
-        <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/60 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
+    <div class="flex items-center gap-2 sm:gap-3">
+        <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
             <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
             <span class="text-[11px] sm:text-xs">Sklep</span>
         </button>
 
-        <div class="stat-badge flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs">
-            <i class="fa-solid fa-wallet text-[#8b5cf6] text-[10px] sm:text-xs"></i>
+        <div class="stat-badge flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs">
+            <i class="fa-solid fa-wallet text-[#a78bfa] text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
         </div>
 
-        <button onclick="openPaymentModal()" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1.5 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-credit-card text-[#8b5cf6]"></i>
+        <button onclick="openPaymentModal()" class="stat-badge hover:border-[#8b5cf6]/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-credit-card text-[#a78bfa]"></i>
             <span class="text-[11px] sm:text-xs">Doładuj</span>
         </button>
 
-        <button onclick="openPromoModal()" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-gift text-[#8b5cf6]"></i>
+        <button onclick="openPromoModal()" class="stat-badge hover:border-[#8b5cf6]/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-gift text-[#a78bfa]"></i>
             <span class="hidden sm:inline">Kod</span>
         </button>
 
-        <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-[#8b5cf6]/50 text-white font-rajdhani font-bold px-2 py-1 sm:px-3.5 sm:py-1.5 rounded-lg flex items-center gap-1 transition text-xs sm:text-sm">
-            <i class="fa-brands fa-steam text-[#8b5cf6] text-sm"></i>
+        <button onclick="toggleLogin()" id="steam-btn" class="stat-badge hover:border-[#8b5cf6]/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition text-xs sm:text-sm">
+            <i class="fa-brands fa-steam text-[#a78bfa] text-sm"></i>
             <span id="steam-btn-text" class="hidden md:inline">Steam</span>
         </button>
     </div>
@@ -155,9 +207,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </header>
 
 <!-- LIVE FEED -->
-<div class="w-full border-b border-[#2a2748] py-1.5 px-3 overflow-hidden bg-[#0d0b1f] mt-0">
+<div class="w-full border-b border-white/5 py-2 px-3 overflow-hidden bg-[#0d0b1f]/50">
 <div class="max-w-7xl mx-auto flex items-center gap-2">
-    <div class="flex items-center gap-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-2 border-r border-[#2a2748]">
+    <div class="flex items-center gap-1.5 text-[10px] font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap pr-3 border-r border-white/10">
         <span class="live-dot"></span>
         <span>LIVE:</span>
     </div>
@@ -166,74 +218,80 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 
 <!-- GŁÓWNY PANEL -->
-<main class="max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 flex-1 flex flex-col gap-4 sm:gap-6 relative z-10">
+<main class="max-w-7xl w-full mx-auto p-3 sm:p-5 lg:p-6 flex-1 flex flex-col gap-4 sm:gap-5 relative z-10">
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-stretch">
 
     <!-- LEWY PANEL -->
-    <div class="lg:col-span-4 panel-premium p-4 flex flex-col justify-between">
+    <div class="lg:col-span-4 panel-premium p-5 flex flex-col justify-between">
         <div>
-            <div class="flex justify-between items-center pb-2.5 border-b border-[#2a2748] mb-3">
-                <span class="font-rajdhani font-bold text-xs sm:text-sm text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-box-open text-[#8b5cf6] text-xs"></i>
+            <div class="flex justify-between items-center pb-3 border-b border-white/5 mb-4">
+                <span class="font-rajdhani font-bold text-sm text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-box-open text-[#a78bfa]"></i>
                     Twój Przedmiot
                 </span>
-                <span id="offered-item-wear" class="text-[9px] font-mono bg-[#1c1f2e] border border-[#2a2748] px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
+                <span id="offered-item-wear" class="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-1 rounded-md text-gray-400 uppercase">Brak</span>
             </div>
-            <div id="source-slot" class="bg-[#1c1f2e]/40 border-2 border-dashed border-[#2a2748] rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
-                <div id="source-empty" class="flex flex-col items-center text-gray-500 gap-2">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#1c1f2e] border border-[#2a2748] flex items-center justify-center">
-                        <i class="fa-solid fa-plus text-base text-gray-600"></i>
+            <div id="source-slot" class="bg-black/20 border-2 border-dashed border-white/10 rounded-2xl h-44 sm:h-56 flex flex-col items-center justify-center p-3 relative transition-all">
+                <div id="source-empty" class="flex flex-col items-center text-gray-500 gap-3">
+                    <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-plus text-lg text-gray-500"></i>
                     </div>
-                    <span class="text-[11px] sm:text-xs uppercase font-semibold text-center">Wybierz skin z ekwipunku</span>
+                    <span class="text-xs uppercase font-semibold text-center tracking-wider">Wybierz skin z ekwipunku</span>
                 </div>
                 <div id="source-filled" class="hidden w-full h-full flex flex-col items-center justify-between">
-                    <button onclick="clearSourceItem()" class="absolute top-1 right-1 text-gray-500 hover:text-red-400 text-xs p-1 rounded hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark"></i></button>
-                    <img id="source-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
-                    <div class="text-center w-full">
-                        <div id="source-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
-                        <div id="source-price" class="font-rajdhani text-base sm:text-lg font-bold text-[#8b5cf6]">$0.00</div>
+                    <button onclick="clearSourceItem()" class="absolute top-2 right-2 text-gray-500 hover:text-red-400 text-xs p-1.5 rounded-lg hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark text-sm"></i></button>
+                    <img id="source-img" src="" class="w-28 sm:w-36 h-20 sm:h-28 object-contain my-1 drop-shadow-lg" alt="Skin">
+                    <div class="text-center w-full bg-black/40 p-2 rounded-lg border border-white/5">
+                        <div id="source-name" class="text-xs font-bold text-white truncate max-w-full"></div>
+                        <div id="source-price" class="font-rajdhani text-lg font-bold text-[#a78bfa]">$0.00</div>
                     </div>
                 </div>
             </div>
-            <div class="mt-3 bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-3">
+            <div class="mt-4 bg-black/20 border border-white/5 rounded-xl p-3">
                 <div class="flex justify-between items-center text-xs font-semibold mb-2">
                     <span class="text-gray-400">Dodaj z salda:</span>
-                    <span id="cash-add-label" class="font-mono text-[#8b5cf6] font-bold">$0.00</span>
+                    <span id="cash-add-label" class="font-mono text-[#a78bfa] font-bold">$0.00</span>
                 </div>
                 <input type="range" id="cash-slider" min="0" max="0" step="0.01" value="0" oninput="onCashSliderChange(this.value)" class="w-full">
             </div>
         </div>
-        <div class="mt-3 pt-2.5 border-t border-[#2a2748] flex justify-between items-center text-xs text-gray-400">
-            <span class="uppercase font-semibold text-[11px]">Suma wpłaty:</span>
-            <span id="total-source-val" class="font-rajdhani text-base font-bold text-white">$0.00</span>
+        <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-400">
+            <span class="uppercase font-semibold tracking-wider">Suma wpłaty:</span>
+            <span id="total-source-val" class="font-rajdhani text-lg font-bold text-white bg-white/5 px-3 py-1 rounded-lg">$0.00</span>
         </div>
     </div>
 
     <!-- ŚRODKOWY PANEL -->
-    <div class="lg:col-span-4 panel-premium p-4 sm:p-6 flex flex-col items-center justify-between relative overflow-hidden">
-        <div class="w-full flex justify-between items-center z-10 text-xs">
-            <button id="sound-btn" onclick="toggleAudio()" class="w-7 h-7 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition">
-                <i id="sound-icon" class="fa-solid fa-volume-high text-xs"></i>
-            </button>
-            <div class="font-rajdhani font-bold text-gray-500 tracking-[0.2em] text-[11px]">UPGRADER</div>
-            <div class="w-7 h-7"></div>
+    <div class="lg:col-span-4 panel-premium p-5 flex flex-col items-center justify-between relative overflow-hidden">
+        <!-- Subtelne tło za kołem -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+            <div class="glow-effect"></div>
         </div>
 
-        <div class="relative my-3 sm:my-4 w-48 h-48 sm:w-64 sm:h-64 flex items-center justify-center z-10">
+        <div class="w-full flex justify-between items-center z-10 text-xs">
+            <button id="sound-btn" onclick="toggleAudio()" class="w-8 h-8 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10">
+                <i id="sound-icon" class="fa-solid fa-volume-high text-sm"></i>
+            </button>
+            <div class="font-rajdhani font-bold text-gray-500 tracking-[0.2em] text-xs">UPGRADER</div>
+            <div class="w-8 h-8"></div>
+        </div>
+
+        <!-- Koło -->
+        <div class="relative my-4 w-56 h-56 sm:w-72 sm:h-72 flex items-center justify-center z-10 wheel-container p-4">
             <div class="wheel-label wheel-label-100">100%</div>
             <div class="wheel-label wheel-label-0">0%</div>
             <div class="wheel-label wheel-label-50-left">50%</div>
             <div class="wheel-label wheel-label-50-right">50%</div>
 
-            <svg class="w-full h-full" viewBox="0 0 200 200" id="wheel-svg">
-                <circle cx="100" cy="100" r="90" fill="none" stroke="#1a1830" stroke-width="4" />
-                <circle cx="100" cy="100" r="82" fill="none" stroke="#2a2748" stroke-width="1" stroke-dasharray="2 4" />
-                <circle cx="100" cy="100" r="72" fill="none" stroke="#0d0b1f" stroke-width="14" />
+            <svg class="w-full h-full drop-shadow-xl" viewBox="0 0 200 200" id="wheel-svg">
+                <circle cx="100" cy="100" r="90" fill="none" stroke="#1a1c2e" stroke-width="4" />
+                <circle cx="100" cy="100" r="82" fill="none" stroke="#2a2e45" stroke-width="1" stroke-dasharray="2 4" />
+                <circle cx="100" cy="100" r="72" fill="none" stroke="#0d0b1f" stroke-width="16" />
 
-                <circle id="win-arc-left" cx="100" cy="100" r="72" fill="none" stroke="url(#gradRed)" stroke-width="14"
+                <circle id="win-arc-left" cx="100" cy="100" r="72" fill="none" stroke="url(#gradRed)" stroke-width="16"
                         stroke-dasharray="0 452.38" stroke-dashoffset="0" stroke-linecap="butt" class="transition-all duration-300 ease-out"
                         transform="rotate(90 100 100) scale(1,-1) translate(0,-200)" />
-                <circle id="win-arc-right" cx="100" cy="100" r="72" fill="none" stroke="url(#gradRed)" stroke-width="14"
+                <circle id="win-arc-right" cx="100" cy="100" r="72" fill="none" stroke="url(#gradRed)" stroke-width="16"
                         stroke-dasharray="0 452.38" stroke-dashoffset="0" stroke-linecap="butt" class="transition-all duration-300 ease-out"
                         transform="rotate(90 100 100)" />
 
@@ -258,55 +316,55 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </svg>
 
             <div id="needle" class="absolute inset-0 pointer-events-none" style="transform: rotate(0deg); transform-origin: 50% 50%;">
-                <div class="absolute left-1/2 -translate-x-1/2 bottom-2 w-0 h-0 border-l-[7px] sm:border-l-[9px] border-l-transparent border-r-[7px] sm:border-r-[9px] border-r-transparent border-b-[16px] sm:border-b-[20px] border-b-[#8b5cf6]"></div>
+                <div class="absolute left-1/2 -translate-x-1/2 bottom-3 w-0 h-0 border-l-[8px] sm:border-l-[10px] border-l-transparent border-r-[8px] sm:border-r-[10px] border-r-transparent border-b-[20px] sm:border-b-[24px] border-b-[#a78bfa] drop-shadow-md"></div>
             </div>
 
-            <div class="absolute inset-0 m-auto w-28 h-28 sm:w-36 sm:h-36 rounded-full border-2 border-[#2a2748] flex flex-col items-center justify-center text-center shadow-xl pointer-events-none bg-[#171929]">
-                <span class="text-[9px] font-semibold text-gray-500 uppercase tracking-widest">SZANSA</span>
-                <span id="win-chance-text" class="font-rajdhani text-2xl sm:text-3xl font-extrabold text-white leading-none">0.00%</span>
-                <span id="multiplier-text" class="text-[11px] sm:text-xs font-bold text-[#8b5cf6] mt-0.5">0.00x</span>
+            <div class="absolute inset-0 m-auto w-32 h-32 sm:w-40 sm:h-40 rounded-full border border-white/10 flex flex-col items-center justify-center text-center shadow-[inset_0_0_20px_rgba(0,0,0,0.8)] pointer-events-none bg-[#11121d]">
+                <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-1">SZANSA</span>
+                <span id="win-chance-text" class="font-rajdhani text-3xl sm:text-4xl font-extrabold text-white leading-none drop-shadow-md">0.00%</span>
+                <span id="multiplier-text" class="text-xs sm:text-sm font-bold text-[#a78bfa] mt-1 bg-[#a78bfa]/10 px-2 py-0.5 rounded-full">0.00x</span>
             </div>
         </div>
 
-        <div id="status-msg" class="h-5 text-[11px] sm:text-xs font-semibold text-gray-400 text-center uppercase tracking-wider mb-2">
+        <div id="status-msg" class="h-6 text-xs font-semibold text-gray-400 text-center uppercase tracking-wider mb-2">
             Wybierz przedmioty
         </div>
 
-        <button id="upgrade-btn" onclick="startUpgrade()" disabled class="w-full py-3 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-[#1c1f2e] text-gray-600 border border-[#2a2748] cursor-not-allowed z-10">
+        <button id="upgrade-btn" onclick="startUpgrade()" disabled class="w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10">
             ULEPSZ
         </button>
     </div>
 
     <!-- PRAWY PANEL -->
-    <div class="lg:col-span-4 panel-premium p-4 flex flex-col justify-between">
+    <div class="lg:col-span-4 panel-premium p-5 flex flex-col justify-between">
         <div>
-            <div class="flex justify-between items-center pb-2.5 border-b border-[#2a2748] mb-3">
-                <span class="font-rajdhani font-bold text-xs sm:text-sm text-gray-200 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-crosshair text-[#38bdf8] text-xs"></i>
+            <div class="flex justify-between items-center pb-3 border-b border-white/5 mb-4">
+                <span class="font-rajdhani font-bold text-sm text-gray-200 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-crosshair text-[#38bdf8]"></i>
                     Cel Ulepszenia
                 </span>
-                <span id="target-item-wear" class="text-[9px] font-mono bg-[#1c1f2e] border border-[#2a2748] px-1.5 py-0.5 rounded text-gray-400 uppercase">Brak</span>
+                <span id="target-item-wear" class="text-[10px] font-mono bg-white/5 border border-white/10 px-2 py-1 rounded-md text-gray-400 uppercase">Brak</span>
             </div>
-            <div id="target-slot" class="bg-[#1c1f2e]/40 border-2 border-dashed border-[#2a2748] rounded-xl h-40 sm:h-52 flex flex-col items-center justify-center p-3 relative transition-all">
-                <div id="target-empty" class="flex flex-col items-center text-gray-500 gap-2">
-                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#1c1f2e] border border-[#2a2748] flex items-center justify-center">
-                        <i class="fa-solid fa-bullseye text-base text-gray-600"></i>
+            <div id="target-slot" class="bg-black/20 border-2 border-dashed border-white/10 rounded-2xl h-44 sm:h-56 flex flex-col items-center justify-center p-3 relative transition-all">
+                <div id="target-empty" class="flex flex-col items-center text-gray-500 gap-3">
+                    <div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-bullseye text-lg text-gray-500"></i>
                     </div>
-                    <span class="text-[11px] sm:text-xs uppercase font-semibold text-center">Wybierz skin ze sklepu</span>
+                    <span class="text-xs uppercase font-semibold text-center tracking-wider">Wybierz skin ze sklepu</span>
                 </div>
                 <div id="target-filled" class="hidden w-full h-full flex flex-col items-center justify-between">
-                    <button onclick="clearTargetItem()" class="absolute top-1 right-1 text-gray-500 hover:text-red-400 text-xs p-1 rounded hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark"></i></button>
-                    <img id="target-img" src="" class="w-24 sm:w-32 h-16 sm:h-24 object-contain my-1" alt="Skin">
-                    <div class="text-center w-full">
-                        <div id="target-name" class="text-[11px] sm:text-xs font-bold text-white truncate max-w-full"></div>
-                        <div id="target-price" class="font-rajdhani text-base sm:text-lg font-bold text-[#38bdf8]">$0.00</div>
+                    <button onclick="clearTargetItem()" class="absolute top-2 right-2 text-gray-500 hover:text-red-400 text-xs p-1.5 rounded-lg hover:bg-red-500/10 transition"><i class="fa-solid fa-xmark text-sm"></i></button>
+                    <img id="target-img" src="" class="w-28 sm:w-36 h-20 sm:h-28 object-contain my-1 drop-shadow-lg" alt="Skin">
+                    <div class="text-center w-full bg-black/40 p-2 rounded-lg border border-white/5">
+                        <div id="target-name" class="text-xs font-bold text-white truncate max-w-full"></div>
+                        <div id="target-price" class="font-rajdhani text-lg font-bold text-[#38bdf8]">$0.00</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mt-3 pt-2.5 border-t border-[#2a2748] flex justify-between items-center text-xs text-gray-400">
-            <span class="uppercase font-semibold text-[11px]">Wartość celu:</span>
-            <span id="total-target-val" class="font-rajdhani text-base font-bold text-white">$0.00</span>
+        <div class="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-xs text-gray-400">
+            <span class="uppercase font-semibold tracking-wider">Wartość celu:</span>
+            <span id="total-target-val" class="font-rajdhani text-lg font-bold text-white bg-white/5 px-3 py-1 rounded-lg">$0.00</span>
         </div>
     </div>
 
@@ -315,57 +373,56 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 <!-- DOLNA SEKCJA -->
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
     <!-- EKWIPUNEK -->
-    <div class="panel-premium p-3 sm:p-4 flex flex-col gap-2.5">
-        <div class="flex justify-between items-center pb-2 border-b border-[#2a2748]">
-            <div class="flex items-center gap-1.5">
-                <span class="font-rajdhani font-bold text-xs sm:text-sm text-white uppercase tracking-wide">Ekwipunek</span>
-                <span id="inventory-count-badge" class="text-[9px] bg-[#1c1f2e] border border-[#2a2748] text-gray-400 px-1.5 py-0.5 rounded-full">0 szt.</span>
+    <div class="panel-premium p-4 flex flex-col gap-3">
+        <div class="flex justify-between items-center pb-2 border-b border-white/5">
+            <div class="flex items-center gap-2">
+                <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide">Ekwipunek</span>
+                <span id="inventory-count-badge" class="text-[10px] bg-white/5 border border-white/10 text-gray-400 px-2 py-0.5 rounded-md">0 szt.</span>
             </div>
-            <button onclick="sellSelectedItem()" class="text-[11px] font-semibold text-gray-400 hover:text-red-400 transition flex items-center gap-1">
-                <i class="fa-solid fa-dollar-sign text-[10px]"></i> Sprzedaj
+            <button onclick="sellSelectedItem()" class="text-xs font-semibold text-gray-400 hover:text-red-400 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-dollar-sign"></i> Sprzedaj
             </button>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 h-56 sm:h-72" id="inventory-grid"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-60 sm:h-72" id="inventory-grid"></div>
     </div>
 
     <!-- KATALOG CELÓW -->
-    <div class="panel-premium p-3 sm:p-4 flex flex-col gap-2.5">
-        <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-[#2a2748]">
-            <span class="font-rajdhani font-bold text-xs sm:text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
-            <div class="flex items-center gap-1.5">
-                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-2 py-0.5 text-xs text-white placeholder-gray-500 focus:outline-none w-24 sm:w-32 transition">
-                <select id="catalog-sort" onchange="onCatalogSearch()" class="bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-1.5 py-0.5 text-xs text-gray-300 focus:outline-none transition">
+    <div class="panel-premium p-4 flex flex-col gap-3">
+        <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-white/5">
+            <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
+            <div class="flex items-center gap-2">
+                <input type="text" id="catalog-search" oninput="onCatalogSearch()" placeholder="Szukaj..." class="bg-black/20 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#8b5cf6]/50 w-28 sm:w-36 transition">
+                <select id="catalog-sort" onchange="onCatalogSearch()" class="bg-black/20 border border-white/10 rounded-lg px-2 py-1.5 text-xs text-gray-300 focus:outline-none focus:border-[#8b5cf6]/50 transition cursor-pointer">
                     <option value="asc">$ min</option>
                     <option value="desc">$ max</option>
                 </select>
             </div>
         </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 h-44 sm:h-56" id="catalog-grid"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 h-44 sm:h-56" id="catalog-grid"></div>
         
         <!-- PAGINACJA KATALOGU -->
-        <div class="flex justify-center items-center gap-2 mt-2">
-            <button onclick="changePage('catalog', -1)" class="w-6 h-6 rounded bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="flex justify-center items-center gap-3 mt-auto pt-2">
+            <button onclick="changePage('catalog', -1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-left text-xs"></i></button>
             
-            <div class="flex items-center gap-1 text-[10px] font-mono text-gray-400">
+            <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
                 <span>Strona</span>
-                <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#1c1f2e] border border-[#2a2748] rounded text-center text-white focus:outline-none" value="1">
+                <input type="number" id="catalog-page-input" onchange="jumpToPage('catalog', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-8 bg-black/30 border border-white/10 rounded text-center text-white focus:outline-none focus:border-[#8b5cf6]/50 py-0.5" value="1">
                 <span id="catalog-page-total">/ 1</span>
             </div>
 
-            <button onclick="changePage('catalog', 1)" class="w-6 h-6 rounded bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center text-[10px]"><i class="fa-solid fa-chevron-right"></i></button>
+            <button onclick="changePage('catalog', 1)" class="w-7 h-7 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-right text-xs"></i></button>
         </div>
     </div>
 </div>
 </main>
 
-<!-- MODAL SKLEPU (Styl BLIK) -->
+<!-- MODAL SKLEPU -->
 <div id="shop-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-[#11131f] border border-[#2a2748] rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
+    <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden max-h-[90vh]">
         
-        <!-- Pasek górny (jak w BLIK) -->
-        <div class="bg-[#181b2b] px-4 py-3 flex items-center justify-between border-b border-[#2a2748]">
+        <div class="bg-[#181b2b] px-5 py-4 flex items-center justify-between border-b border-white/5">
             <div class="flex items-center gap-4">
-                <div class="bg-emerald-500/20 p-2 rounded-xl border border-emerald-500/40 flex items-center justify-center">
+                <div class="bg-emerald-500/20 p-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-center">
                     <i class="fa-solid fa-cart-shopping text-emerald-400 text-xl"></i>
                 </div>
                 <div class="text-gray-400 text-xs sm:text-sm">
@@ -375,7 +432,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="bg-[#131525] px-4 py-2 rounded-lg border border-[#2a2748] flex items-center gap-2">
+                <div class="bg-[#131525] px-4 py-2 rounded-lg border border-white/5 flex items-center gap-2">
                     <span class="text-xs text-gray-400">Saldo:</span>
                     <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
                 </div>
@@ -385,15 +442,14 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
             </div>
         </div>
 
-        <div class="p-6 flex flex-col gap-4 overflow-hidden">
+        <div class="p-6 flex flex-col gap-5 overflow-hidden">
             
-            <!-- Pasek wyszukiwania i sortowania -->
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-[#1c1f2e] p-3 rounded-xl border border-[#2a2748]">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-[#1c1f2e] p-3 rounded-xl border border-white/5">
                 <div class="relative w-full sm:w-64">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Szukaj skina..." class="w-full bg-[#131525] border border-[#2a2748] rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition">
+                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Szukaj skina..." class="w-full bg-[#131525] border border-white/5 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition">
                 </div>
-                <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-auto bg-[#131525] border border-[#2a2748] rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer">
+                <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-auto bg-[#131525] border border-white/5 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer">
                     <option value="asc">Cena: Od najniższej</option>
                     <option value="desc">Cena: Od najwyższej</option>
                 </select>
@@ -401,22 +457,20 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
             <div id="shop-pop-msg" class="text-xs text-center font-bold h-4"></div>
 
-            <!-- Siatka produktów -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 overflow-y-auto pr-1 flex-1 min-h-[300px]" id="pop-shop-grid"></div>
 
-            <!-- Paginacja (jak w BLIK) -->
-            <div class="flex justify-center items-center gap-3 mt-2 pt-4 border-t border-[#2a2748]">
-                <button onclick="changePage('shop', -1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+            <div class="flex justify-center items-center gap-3 mt-2 pt-4 border-t border-white/5">
+                <button onclick="changePage('shop', -1)" class="w-9 h-9 rounded-lg bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 
-                <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-[#1c1f2e] px-4 py-2 rounded-lg border border-[#2a2748]">
+                <div class="flex items-center gap-2 text-xs font-mono text-gray-400 bg-[#1c1f2e] px-4 py-2 rounded-lg border border-white/5">
                     <span>Strona</span>
-                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#131525] border border-[#2a2748] rounded text-center text-white focus:outline-none focus:border-emerald-500/50 py-0.5" value="1">
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-10 bg-[#131525] border border-white/5 rounded text-center text-white focus:outline-none focus:border-emerald-500/50 py-0.5" value="1">
                     <span id="shop-page-total">/ 1</span>
                 </div>
 
-                <button onclick="changePage('shop', 1)" class="w-8 h-8 rounded-lg bg-[#1c1f2e] border border-[#2a2748] text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+                <button onclick="changePage('shop', 1)" class="w-9 h-9 rounded-lg bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
@@ -426,18 +480,18 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 <!-- MODAL WYNIKU -->
 <div id="result-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden opacity-0 transition-opacity p-3">
-<div id="result-modal-content" class="bg-[#11131f] border border-[#2a2748] rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl relative">
-    <div id="modal-status-icon" class="w-12 h-12 rounded-full flex items-center justify-center text-xl mb-2 border">
+<div id="result-modal-content" class="bg-[#11131f] border border-white/10 rounded-2xl p-6 max-w-xs w-full flex flex-col items-center text-center shadow-2xl relative">
+    <div id="modal-status-icon" class="w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner">
         <i class="fa-solid fa-check"></i>
     </div>
-    <h3 id="modal-title" class="font-rajdhani text-xl font-bold uppercase text-white">WYGRANA!</h3>
-    <p id="modal-desc" class="text-[11px] text-gray-400 mb-3">Skin powędrował do ekwipunku.</p>
-    <div id="modal-item-box" class="w-full bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-2.5 mb-4 flex flex-col items-center">
-        <img id="modal-item-img" src="" class="w-24 h-16 object-contain my-1" alt="Skin">
-        <div id="modal-item-name" class="text-xs font-bold text-white leading-tight"></div>
-        <div id="modal-item-price" class="font-rajdhani text-sm font-bold text-[#8b5cf6] mt-0.5"></div>
+    <h3 id="modal-title" class="font-rajdhani text-2xl font-bold uppercase text-white drop-shadow-md">WYGRANA!</h3>
+    <p id="modal-desc" class="text-xs text-gray-400 mb-4">Skin powędrował do ekwipunku.</p>
+    <div id="modal-item-box" class="w-full bg-black/30 border border-white/5 rounded-xl p-3 mb-5 flex flex-col items-center">
+        <img id="modal-item-img" src="" class="w-28 h-20 object-contain my-1 drop-shadow-lg" alt="Skin">
+        <div id="modal-item-name" class="text-sm font-bold text-white leading-tight"></div>
+        <div id="modal-item-price" class="font-rajdhani text-base font-bold text-[#a78bfa] mt-1"></div>
     </div>
-    <button onclick="closeResultModal()" class="w-full py-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-rajdhani font-bold text-base uppercase rounded-xl transition">
+    <button onclick="closeResultModal()" class="w-full py-2.5 bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] hover:from-[#7c3aed] hover:to-[#5b21b6] text-white font-rajdhani font-bold text-base uppercase rounded-xl transition shadow-lg shadow-[#8b5cf6]/30">
         ZAMKNIJ
     </button>
 </div>
@@ -445,30 +499,29 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
 <!-- MODAL KODU -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-<div class="bg-[#11131f] border border-[#2a2748] rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
-    <div class="w-10 h-10 rounded-full bg-[#8b5cf6]/15 border border-[#8b5cf6]/30 flex items-center justify-center mb-2">
-        <i class="fa-solid fa-gift text-[#8b5cf6] text-sm"></i>
+<div class="bg-[#11131f] border border-white/10 rounded-2xl p-5 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
+    <div class="w-12 h-12 rounded-full bg-[#8b5cf6]/15 border border-[#8b5cf6]/30 flex items-center justify-center mb-3">
+        <i class="fa-solid fa-gift text-[#a78bfa] text-lg"></i>
     </div>
-    <h3 class="font-rajdhani text-lg font-bold uppercase text-white mb-1">Kod Polecający</h3>
-    <p class="text-[11px] text-gray-400 mb-2">Wpisz swój kod poniżej:</p>
-    <input type="text" id="promo-input" placeholder="WPISZ KOD..." class="w-full bg-[#1c1f2e] border border-[#2a2748] rounded-lg px-2.5 py-1.5 text-center text-white text-base font-mono font-bold mb-2 uppercase focus:outline-none focus:border-[#8b5cf6]/50 transition">
+    <h3 class="font-rajdhani text-xl font-bold uppercase text-white mb-1">Kod Polecający</h3>
+    <p class="text-xs text-gray-400 mb-4">Wpisz swój kod poniżej:</p>
+    <input type="text" id="promo-input" placeholder="WPISZ KOD..." class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-center text-white text-base font-mono font-bold mb-3 uppercase focus:outline-none focus:border-[#8b5cf6]/50 transition">
     <div id="promo-message" class="text-[11px] mb-2 h-4"></div>
     <div class="flex gap-2 w-full">
-        <button onclick="closePromoModal()" class="flex-1 py-1.5 bg-[#1c1f2e] hover:bg-[#2a2748] text-gray-300 font-semibold text-xs rounded-lg border border-[#2a2748] transition">Anuluj</button>
-        <button onclick="redeemPromoCode()" class="flex-1 py-1.5 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold text-xs rounded-lg transition">Odbierz</button>
+        <button onclick="closePromoModal()" class="flex-1 py-2 bg-white/5 hover:bg-white/10 text-gray-300 font-semibold text-xs rounded-lg border border-white/10 transition">Anuluj</button>
+        <button onclick="redeemPromoCode()" class="flex-1 py-2 bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-semibold text-xs rounded-lg transition shadow-lg shadow-[#8b5cf6]/20">Odbierz</button>
     </div>
 </div>
 </div>
 
 <!-- MODAL DOŁADOWANIA (BLIK) -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-    <div class="bg-[#11131f] border border-[#2a2748] rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
+    <div class="bg-[#11131f] border border-white/10 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
         
-        <!-- Pasek górny z BLIK (Prawie na całą wysokość) -->
-        <div class="bg-[#181b2b] px-4 py-2 flex items-center justify-between border-b border-[#2a2748] h-28 sm:h-32">
+        <div class="bg-[#181b2b] px-4 py-2 flex items-center justify-between border-b border-white/5 h-28 sm:h-32">
             <div class="flex items-center gap-4 h-full">
                 <div class="h-[90%] aspect-square flex items-center justify-center">
-                    <img src="v1_blik_img.webp" alt="BLIK" class="h-full w-auto object-contain">
+                    <img src="v1_blik_img.webp" alt="BLIK" class="h-full w-auto object-contain drop-shadow-md">
                 </div>
                 <div class="text-gray-400 text-xs sm:text-sm">
                     <p class="text-white font-bold text-lg">Płatność BLIK</p>
@@ -482,16 +535,13 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 
         <div class="p-6 flex flex-col gap-6 overflow-y-auto max-h-[75vh]">
             
-            <!-- Baner promocyjny (PRZESUNIĘTY W PRAWO) -->
             <div class="promo-banner rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 border border-white/10 shadow-lg min-h-[90px] relative overflow-hidden pl-4 sm:pl-32 lg:pl-48">
-                <!-- Lewa strona: Treść -->
                 <div class="flex items-center gap-3 z-10 w-full sm:w-auto">
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5">
-                            <h4 class="text-white font-bold text-base sm:text-lg leading-tight">
-                                Użyj kodu <span class="text-[#a3e635]">FREE</span>
+                            <h4 class="text-white font-bold text-base sm:text-lg leading-tight drop-shadow-sm">
+                                Użyj kodu <span class="text-[#a3e635] drop-shadow-md">FREE</span>
                             </h4>
-                            <!-- Ikona info -->
                             <button type="button" class="text-gray-400 hover:text-white transition-colors" title="Informacja">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
                                     <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 110-12 6 6 0 010 12zm0-9a1 1 0 011 1v4a1 1 0 11-2 0V8a1 1 0 011-1zm0-3a1 1 0 110 2 1 1 0 010-2z"/>
@@ -504,12 +554,10 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                     </div>
                 </div>
 
-                <!-- Prawa strona: Widget z kodem -->
                 <div class="z-10 w-full sm:w-auto flex items-center justify-between sm:justify-end gap-3 bg-[#131525]/80 backdrop-blur border border-white/5 rounded-lg px-4 py-2.5">
                     <div class="flex items-center gap-2">
                         <span class="text-gray-400 text-xs sm:text-sm font-medium">Twój kod:</span>
                         <input type="text" id="main-promo-input" value="" placeholder="WPISZ KOD" class="promo-input-field uppercase font-bold text-sm text-white" maxlength="10" />
-                        <!-- Zielony znacznik (check) -->
                         <div id="main-promo-check-icon" class="w-5 h-5 rounded-full bg-gray-600 flex items-center justify-center text-[#151329]">
                             <svg class="w-3.5 h-3.5 stroke-current stroke-[3]" fill="none" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
@@ -522,71 +570,68 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                 </div>
             </div>
 
-            <!-- Siatka kwot z POWIĘKSZONYMI OBRAZKAMI (3x większe) -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
-                    <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
+                    <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
-                    <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
+                    <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
-                    <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
+                    <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
-                    <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
+                    <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
-                    <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
+                    <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
-                    <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
+                    <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
-                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
+                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
-                <div class="payment-amount-card bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
-                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
+                    <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
                     <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
                 </div>
             </div>
 
-            <!-- Wprowadź kwotę -->
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Wprowadź kwotę</p>
-                <div class="flex items-center bg-[#1c1f2e] border border-[#2a2748] rounded-xl overflow-hidden w-full sm:w-1/2">
-                    <div class="bg-[#25293e] px-4 py-3 text-gray-300 font-bold border-r border-[#2a2748]">PLN</div>
+                <div class="flex items-center bg-[#1c1f2e] border border-white/5 rounded-xl overflow-hidden w-full sm:w-1/2 focus-within:border-[#8b5cf6]/50 transition">
+                    <div class="bg-[#25293e] px-4 py-3 text-gray-300 font-bold border-r border-white/5">PLN</div>
                     <input type="number" id="payment-input" value="50" min="4" class="w-full bg-transparent text-white font-bold px-4 py-3 focus:outline-none" oninput="calculateBonus()">
                 </div>
                 <p class="text-[10px] text-gray-500 mt-2">Minimalna kwota wpłaty: 4.00 PLN</p>
             </div>
 
-            <!-- Otrzymasz -->
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Otrzymasz</p>
-                <div class="bg-[#1c1f2e] border border-[#2a2748] rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-[#a3e635] font-black font-rajdhani text-2xl" id="payment-receive-amount">50.00 PLN</div>
+                <div class="bg-[#1c1f2e] border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-[#a3e635] font-black font-rajdhani text-3xl drop-shadow-md" id="payment-receive-amount">50.00 PLN</div>
                     <div class="flex items-center gap-2 transition-opacity duration-300" id="bonus-tag-container">
-                        <div class="bg-[#2a2e45] border border-gray-600 rounded-lg px-3 py-1 flex items-center gap-2">
+                        <div class="bg-[#2a2e45] border border-gray-600 rounded-lg px-3 py-1 flex items-center gap-2 shadow-inner">
                             <span class="text-white text-xs font-bold">10% BONUS</span>
                             <span class="text-[#60a5fa] text-[10px] font-bold">WLICZONY</span>
                         </div>
-                        <div class="bg-[#1e3a5f] border border-[#3b82f6]/30 rounded-lg px-3 py-1 flex items-center gap-1">
+                        <div class="bg-[#1e3a5f] border border-[#3b82f6]/30 rounded-lg px-3 py-1 flex items-center gap-1 shadow-inner">
                             <i class="fa-solid fa-gem text-[#3b82f6]"></i>
                             <span class="text-white text-xs font-bold">1250 EVENT POINTS</span>
                         </div>
@@ -594,8 +639,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
                 </div>
             </div>
 
-            <!-- Przycisk zapłać -->
-            <button onclick="executePayment()" class="w-full bg-[#a3e635] hover:bg-[#84cc16] text-black font-black font-rajdhani text-xl py-4 rounded-xl transition-colors duration-200 shadow-[0_0_15px_rgba(163,230,53,0.3)]">
+            <button onclick="executePayment()" class="w-full bg-[#a3e635] hover:bg-[#84cc16] text-black font-black font-rajdhani text-xl py-4 rounded-xl transition-colors duration-200 shadow-[0_4px_20px_rgba(163,230,53,0.3)] transform hover:-translate-y-0.5">
                 ZAPŁAĆ <span id="payment-button-amount">50.00 PLN</span>
             </button>
             
