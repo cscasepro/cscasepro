@@ -76,6 +76,9 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 .wheel-label-50-left { left: -4px; top: 50%; transform: translateY(-50%); }
 .wheel-label-50-right { right: -4px; top: 50%; transform: translateY(-50%); }
 .wheel-label-100 { top: -4px; left: 50%; transform: translateX(-50%); }
+
+.payment-amount-card { transition: all 0.2s ease; cursor: pointer; }
+.payment-amount-card:hover { border-color: #a3e635; transform: translateY(-2px); }
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
@@ -394,7 +397,7 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
-<!-- MODAL KODU I DOŁADOWANIA -->
+<!-- MODAL KODU -->
 <div id="promo-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
 <div class="bg-panelBg border border-borderBorder rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
     <div class="w-10 h-10 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
@@ -411,28 +414,126 @@ input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px;
 </div>
 </div>
 
+<!-- NOWY MODAL DOŁADOWANIA (BLIK) -->
 <div id="payment-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 hidden p-3">
-<div class="bg-panelBg border border-borderBorder rounded-2xl p-4 max-w-xs w-full flex flex-col items-center text-center shadow-2xl">
-    <div class="w-10 h-10 rounded-full bg-accentViolet/15 border border-accentViolet/30 flex items-center justify-center mb-2">
-        <i class="fa-solid fa-credit-card text-accentViolet text-sm"></i>
-    </div>
-    <h3 class="font-rajdhani text-lg font-bold uppercase text-white mb-1">Doładuj Konto</h3>
-    <p class="text-[11px] text-gray-400 mb-2">Wpisz kwotę doładowania:</p>
-    <input type="number" id="payment-input" value="5.00" min="0.01" step="0.01" class="w-full bg-cardBg/80 border border-borderBorder/60 rounded-lg px-2.5 py-1.5 text-center text-white text-base font-mono font-bold mb-2 focus:outline-none">
-    
-    <div class="flex items-center gap-2 mb-2 text-left w-full bg-cardBg/50 p-2 rounded-lg border border-borderBorder/40">
-        <input type="checkbox" id="direct-balance-checkbox" class="w-3.5 h-3.5 accent-accentViolet cursor-pointer">
-        <label for="direct-balance-checkbox" class="text-[10px] text-gray-300 cursor-pointer leading-tight">
-            Dodaj bezpośrednio do salda (bez zakupu skinów)
-        </label>
-    </div>
+    <div class="bg-[#11131f] border border-borderBorder/60 rounded-3xl max-w-4xl w-full flex flex-col shadow-2xl overflow-hidden">
+        
+        <!-- Pasek górny z BLIK -->
+        <div class="bg-[#181b2b] p-4 flex items-center justify-between border-b border-borderBorder/40">
+            <div class="flex items-center gap-4">
+                <div class="bg-black/50 p-2 rounded-xl border border-gray-600">
+                    <span class="text-white font-black text-2xl tracking-tighter">blik</span>
+                </div>
+                <div class="text-gray-400 text-xs">
+                    <p class="text-white font-bold">Płatność BLIK</p>
+                    <p>Szybko i bezpiecznie</p>
+                </div>
+            </div>
+            <button onclick="closePaymentModal()" class="text-gray-400 hover:text-white p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
 
-    <div id="payment-message" class="text-[11px] mb-2 h-4"></div>
-    <div class="flex gap-2 w-full">
-        <button onclick="closePaymentModal()" class="flex-1 py-1.5 bg-cardBg/80 hover:bg-borderBorder text-gray-300 font-semibold text-xs rounded-lg border border-borderBorder/60">Anuluj</button>
-        <button onclick="confirmPayment()" class="flex-1 py-1.5 bg-gradient-to-r from-accentViolet to-accentBlue text-white font-semibold text-xs rounded-lg">Doładuj</button>
+        <div class="p-6 flex flex-col gap-6 overflow-y-auto max-h-[75vh]">
+            <!-- Baner z kodem -->
+            <div class="bg-gradient-to-r from-[#2a2e45] to-[#1e2130] rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4 border border-borderBorder/50">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center overflow-hidden">
+                        <img src="https://files.catbox.moe/63p4d9.png" alt="Chicken" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h4 class="text-white font-bold text-sm">Użyj kodu <span class="text-[#a3e635]">FREE</span></h4>
+                        <p class="text-gray-400 text-xs">Zgarnij 10% Bonusu do doładowania</p>
+                    </div>
+                </div>
+                <div class="bg-[#11131f] px-4 py-2 rounded-lg border border-borderBorder/50 flex items-center gap-2">
+                    <span class="text-xs text-gray-400">Twój kod:</span>
+                    <span class="text-[#a3e635] font-bold text-sm">GIFT</span>
+                    <i class="fa-solid fa-circle-check text-[#a3e635]"></i>
+                    <span class="text-xs text-gray-500 ml-2 cursor-pointer hover:text-white">ZMIEŃ</span>
+                </div>
+            </div>
+
+            <!-- Siatka kwot -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
+                </div>
+                <div class="payment-amount-card bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
+                    <img src="https://files.catbox.moe/s7z3x3.png" alt="Coins" class="h-12 mb-2 object-contain">
+                    <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
+                    <span class="text-[#60a5fa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
+                </div>
+            </div>
+
+            <!-- Wprowadź kwotę -->
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Wprowadź kwotę</p>
+                <div class="flex items-center bg-[#1c1f2e] border border-borderBorder/60 rounded-xl overflow-hidden w-full sm:w-1/2">
+                    <div class="bg-[#25293e] px-4 py-3 text-gray-300 font-bold border-r border-borderBorder/60">PLN</div>
+                    <input type="number" id="payment-input" value="50" min="4" class="w-full bg-transparent text-white font-bold px-4 py-3 focus:outline-none" oninput="calculateBonus()">
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2">Minimalna kwota wpłaty: 4.00 PLN</p>
+            </div>
+
+            <!-- Otrzymasz -->
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Otrzymasz</p>
+                <div class="bg-[#1c1f2e] border border-borderBorder/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="text-[#a3e635] font-black font-rajdhani text-2xl" id="payment-receive-amount">55.00 PLN</div>
+                    <div class="flex items-center gap-2">
+                        <div class="bg-[#2a2e45] border border-gray-600 rounded-lg px-3 py-1 flex items-center gap-2">
+                            <span class="text-white text-xs font-bold">10% BONUS</span>
+                            <span class="text-[#60a5fa] text-[10px] font-bold">WLICZONY</span>
+                        </div>
+                        <div class="bg-[#1e3a5f] border border-[#3b82f6]/30 rounded-lg px-3 py-1 flex items-center gap-1">
+                            <i class="fa-solid fa-gem text-[#3b82f6]"></i>
+                            <span class="text-white text-xs font-bold">1250 EVENT POINTS</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Przycisk zapłać -->
+            <button onclick="executePayment()" class="w-full bg-[#a3e635] hover:bg-[#84cc16] text-black font-black font-rajdhani text-xl py-4 rounded-xl transition-colors duration-200 shadow-[0_0_15px_rgba(163,230,53,0.3)]">
+                ZAPŁAĆ <span id="payment-button-amount">50.00 PLN</span>
+            </button>
+            
+            <div id="payment-message" class="text-center font-bold text-sm h-6"></div>
+        </div>
     </div>
-</div>
 </div>
 
 <script src="app.js"></script>
