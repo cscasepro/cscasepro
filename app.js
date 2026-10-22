@@ -924,23 +924,39 @@ function selectAmount(amount) {
 
 function calculateBonus() {
     const input = document.getElementById('payment-input');
+    const promoInput = document.getElementById('payment-promo-input');
     const receiveEl = document.getElementById('payment-receive-amount');
     const btnAmountEl = document.getElementById('payment-button-amount');
+    const bonusTagContainer = document.getElementById('bonus-tag-container');
     
     if (!input || !receiveEl || !btnAmountEl) return;
 
     let amount = parseFloat(input.value) || 0;
     if (amount < 0) amount = 0;
 
-    // 10% bonusu
-    const finalAmount = amount * 1.1;
+    // Sprawdzanie kodu promocyjnego
+    const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+    const hasBonus = promoCode === 'FREE';
+
+    // 10% bonusu tylko jeśli kod to FREE
+    const finalAmount = hasBonus ? amount * 1.1 : amount;
 
     receiveEl.innerText = `${finalAmount.toFixed(2)} PLN`;
     btnAmountEl.innerText = `${amount.toFixed(2)} PLN`;
+
+    // Pokazywanie/ukrywanie plakietki "10% BONUS WLICZONY"
+    if (bonusTagContainer) {
+        if (hasBonus) {
+            bonusTagContainer.style.opacity = '1';
+        } else {
+            bonusTagContainer.style.opacity = '0.3';
+        }
+    }
 }
 
 function executePayment() {
     const input = document.getElementById('payment-input');
+    const promoInput = document.getElementById('payment-promo-input');
     const msg = document.getElementById('payment-message');
     if (!input || !msg) return;
 
@@ -950,13 +966,22 @@ function executePayment() {
         return;
     }
 
+    // Sprawdzenie, czy wpisano kod
+    const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+    const hasBonus = promoCode === 'FREE';
+    const finalAmount = hasBonus ? amount * 1.1 : amount;
+
     msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
     
     setTimeout(() => {
-        const bonusAmount = amount * 1.1;
-        balance += bonusAmount;
+        balance += finalAmount;
         
-        msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${bonusAmount.toFixed(2)} PLN!</span>`;
+        if (hasBonus) {
+            msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
+        } else {
+            msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
+        }
+        
         updateBalanceDisplay();
         
         const slider = document.getElementById('cash-slider');
@@ -967,12 +992,12 @@ function executePayment() {
         setTimeout(() => {
             closePaymentModal();
             msg.innerHTML = '';
-        }, 2000);
+        }, 2500);
 
     }, 1500);
 }
 
-// Obsługa zielonego ptaszka przy wpisywaniu kodu w banerze
+// Obsługa zielonego ptaszka i dynamiczne przeliczanie przy wpisywaniu kodu
 document.addEventListener('DOMContentLoaded', () => {
     const promoInput = document.getElementById('payment-promo-input');
     const checkIcon = document.getElementById('promo-check-icon');
@@ -987,6 +1012,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 checkIcon.classList.add('text-gray-600');
                 checkIcon.classList.remove('text-[#a3e635]');
             }
+            // Automatyczne przeliczenie kwoty po wpisaniu/usunięciu kodu
+            calculateBonus();
         });
     }
 });
