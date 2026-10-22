@@ -79,7 +79,7 @@ input[type=range]::-webkit-slider-runnable-track {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* UJEDNOLICONE TŁO DLA KART PRODUKTÓW (Sklep, Ekwipunek, Katalog) */
+/* UJEDNOLICONE TŁO DLA KART PRODUKTÓW */
 .item-card { 
     transition: all 0.2s ease; 
     position: relative; 
@@ -107,7 +107,7 @@ input[type=range]::-webkit-slider-runnable-track {
     pointer-events: none;
 }
 
-/* UJEDNOLICONE TŁO DLA KART PŁATNOŚCI (Monety) */
+/* UJEDNOLICONE TŁO DLA KART PŁATNOŚCI */
 .payment-amount-card { 
     background: rgba(26, 24, 48, 0.6);
     backdrop-filter: blur(16px);
@@ -123,7 +123,6 @@ input[type=range]::-webkit-slider-runnable-track {
     background: rgba(30, 28, 55, 0.8);
 }
 
-/* UJEDNOLICONE TŁO DLA LIVE DROP */
 .live-drop-item {
     background: rgba(28, 31, 46, 0.6);
     backdrop-filter: blur(8px);
@@ -241,14 +240,6 @@ select option {
 }
 .hero-video-left { left: 0; transform: translateX(-25%) scale(1.1); }
 .hero-video-right { right: 0; transform: translateX(25%) scale(1.1) scaleX(-1); }
-.hero-video-bottom-right {
-    right: 0;
-    bottom: 0;
-    height: 45vh;
-    transform: translateX(15%) scale(1.1) scaleX(-1); 
-    opacity: 0.5;
-    z-index: -1;
-}
 
 .bg-video-container {
     position: fixed;
@@ -280,9 +271,6 @@ select option {
 </video>
 <video class="hero-video hero-video-right" autoplay loop muted playsinline>
     <source src="3-place-hero-new.webm" type="video/webm">
-</video>
-<video class="hero-video hero-video-bottom-right" autoplay loop muted playsinline>
-    <source src="2-place-hero-new.webm" type="video/webm">
 </video>
 
 <header class="w-full border-b border-white/5 px-3 lg:px-8 py-3 sticky top-0 z-50 bg-[#0d0b1f]/80 backdrop-blur-lg relative">
@@ -497,7 +485,6 @@ select option {
     </div>
 
     <div class="panel-premium p-4 flex flex-col gap-3">
-        <!-- NOWY PASEK GÓRNY Z PAGINACJĄ -->
         <div class="flex flex-wrap justify-between items-center gap-2 pb-2 border-b border-white/5">
             <span class="font-rajdhani font-bold text-sm text-white uppercase tracking-wide">Cel Ulepszenia</span>
             <div class="flex flex-wrap items-center gap-2">
@@ -506,7 +493,6 @@ select option {
                     <option value="asc">$ min</option>
                     <option value="desc">$ max</option>
                 </select>
-                <!-- PAGINACJA PRZENIESIONA TUTAJ -->
                 <div class="flex items-center gap-1.5 bg-black/20 px-2 py-1.5 rounded-lg border border-white/10">
                     <button onclick="changePage('catalog', -1)" class="w-5 h-5 rounded bg-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:bg-white/10"><i class="fa-solid fa-chevron-left text-[10px]"></i></button>
                     <span class="text-[10px] font-mono text-gray-400">Strona</span>
@@ -536,7 +522,7 @@ select option {
             </div>
             
             <div class="flex items-center gap-4">
-                <div class="bg-[#131525] px-4 py-2 rounded-lg border border-white/5 flex items-center gap-2">
+                <div class="bg-black/30 px-4 py-2 rounded-lg border border-white/10 flex items-center gap-2">
                     <span class="text-xs text-gray-400">Twoje saldo:</span>
                     <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
                 </div>
@@ -551,10 +537,10 @@ select option {
             <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="relative w-full sm:w-80">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
-                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Wyszukaj przedmiot..." class="w-full bg-[#1c1f2e] border border-white/5 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition shadow-inner">
+                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Wyszukaj przedmiot..." class="w-full bg-black/30 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 transition shadow-inner">
                 </div>
                 <div class="flex gap-2 w-full sm:w-auto">
-                    <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-48 bg-[#1c1f2e] border border-white/5 rounded-xl px-4 py-3 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer shadow-inner">
+                    <select id="pop-shop-sort" onchange="onShopSearch()" class="w-full sm:w-48 bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-gray-300 focus:outline-none focus:border-emerald-500/50 transition cursor-pointer shadow-inner">
                         <option value="asc">Cena: Rosnąco</option>
                         <option value="desc">Cena: Malejąco</option>
                     </select>
@@ -566,17 +552,17 @@ select option {
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 overflow-y-auto pr-2 pb-2 flex-1 min-h-[350px]" id="pop-shop-grid"></div>
 
             <div class="flex justify-center items-center gap-3 pt-4 border-t border-white/5">
-                <button onclick="changePage('shop', -1)" class="w-10 h-10 rounded-xl bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+                <button onclick="changePage('shop', -1)" class="w-10 h-10 rounded-xl bg-black/30 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-left"></i>
                 </button>
                 
-                <div class="flex items-center gap-3 text-sm font-mono text-gray-400 bg-[#1c1f2e] px-5 py-2.5 rounded-xl border border-white/5 shadow-inner">
+                <div class="flex items-center gap-3 text-sm font-mono text-gray-400 bg-black/30 px-5 py-2.5 rounded-xl border border-white/10 shadow-inner">
                     <span>Strona</span>
-                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-[#131525] border border-white/5 rounded-lg text-center text-white focus:outline-none focus:border-emerald-500/50 py-1 font-bold" value="1">
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-transparent border-b border-white/10 text-center text-white focus:outline-none focus:border-emerald-500/50 py-1 font-bold" value="1">
                     <span id="shop-page-total">/ 1</span>
                 </div>
 
-                <button onclick="changePage('shop', 1)" class="w-10 h-10 rounded-xl bg-[#1c1f2e] border border-white/5 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
+                <button onclick="changePage('shop', 1)" class="w-10 h-10 rounded-xl bg-black/30 border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition hover:border-emerald-500/50">
                     <i class="fa-solid fa-chevron-right"></i>
                 </button>
             </div>
