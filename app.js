@@ -60,8 +60,8 @@ window.addEventListener('DOMContentLoaded', () => {
     if (promoInput && checkIcon) {
         promoInput.addEventListener('input', (e) => {
             const val = e.target.value.trim().toUpperCase();
-            if (val === 'FREE') { checkIcon.classList.remove('bg-gray-600'); checkIcon.classList.add('bg-[#a3e635]'); }
-            else { checkIcon.classList.add('bg-gray-600'); checkIcon.classList.remove('bg-[#a3e635]'); }
+            if (val === 'FREE') { checkIcon.classList.remove('bg-gray-600'); checkIcon.classList.add('bg-[#a78bfa]'); }
+            else { checkIcon.classList.add('bg-gray-600'); checkIcon.classList.remove('bg-[#a78bfa]'); }
             calculateBonus();
         });
     }
@@ -153,7 +153,7 @@ function renderPopShop(page = 1) {
         node.innerHTML = `
             <div class="flex justify-between items-start z-10 relative">
                 <span class="text-[10px] font-bold text-gray-400">${item.wear}</span>
-                <span class="${canAfford ? 'text-emerald-400' : 'text-red-400'} font-bold text-[11px] drop-shadow-md">Kup $${item.price.toFixed(2)}</span>
+                <span class="${canAfford ? 'text-[#a78bfa]' : 'text-red-400'} font-bold text-[11px] drop-shadow-md">Kup $${item.price.toFixed(2)}</span>
             </div>
             <div class="flex-1 flex items-center justify-center z-10 relative my-1">
                 <img src="${item.img}" class="h-16 object-contain drop-shadow-xl transition-transform group-hover:scale-110" alt="${item.name}">
@@ -171,7 +171,7 @@ function buyItemDirectly(item) {
     balance -= item.price; inventory.push({ ...item, id: 'buy_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5) });
     updateBalanceDisplay(); const slider = document.getElementById('cash-slider'); if (slider) slider.max = Math.max(0, balance).toFixed(2);
     renderPlayerInventory(); renderPopShop(shopPage); recalculateOdds(); AudioSynth.playWin();
-    if (msg) msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Zakupiono ${item.name}!</span>`; setTimeout(() => { if (msg) msg.innerHTML = ''; }, 2500);
+    if (msg) msg.innerHTML = `<span class="text-[#a78bfa] font-bold">✅ Zakupiono ${item.name}!</span>`; setTimeout(() => { if (msg) msg.innerHTML = ''; }, 2500);
 }
 
 function selectSourceItem(item) { if (isSpinning) return; selectedSourceItem = item; document.getElementById('source-empty').classList.add('hidden'); document.getElementById('source-filled').classList.remove('hidden'); document.getElementById('source-img').src = item.img; document.getElementById('source-name').innerText = item.name; document.getElementById('source-price').innerText = `$${item.price.toFixed(2)}`; document.getElementById('offered-item-wear').innerText = item.wear; renderPlayerInventory(); recalculateOdds(); }
@@ -321,8 +321,8 @@ function executePayment() {
     msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
     setTimeout(() => {
         balance += finalAmount;
-        if (hasBonus) msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
-        else msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
+        if (hasBonus) msg.innerHTML = `<span class="text-[#a78bfa]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
+        else msg.innerHTML = `<span class="text-[#a78bfa]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
         updateBalanceDisplay(); const slider = document.getElementById('cash-slider'); if (slider) slider.max = Math.max(0, balance).toFixed(2); recalculateOdds();
         setTimeout(() => { closePaymentModal(); msg.innerHTML = ''; }, 2500);
     }, 1500);
