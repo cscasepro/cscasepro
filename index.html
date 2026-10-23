@@ -108,6 +108,37 @@ input[type=range]::-webkit-slider-runnable-track {
     pointer-events: none;
 }
 
+/* KARTA SKLEPU (UŻYWA TEGO SAMEGO EFEKTU GLASS CO GŁÓWNA STRONA) */
+.shop-item-card { 
+    background: rgba(26, 24, 48, 0.6); 
+    backdrop-filter: blur(16px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+.shop-item-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(30, 28, 55, 0.8);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(16, 185, 129, 0.2);
+}
+.shop-item-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+}
+.shop-item-card.not-affordable { opacity: 0.6; cursor: not-allowed; }
+.shop-item-card.not-affordable:hover { transform: none; border-color: rgba(255, 255, 255, 0.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 6px rgba(0,0,0,0.3); }
+
 .live-drop-item {
     background: rgba(28, 31, 46, 0.6);
     backdrop-filter: blur(8px);
@@ -218,6 +249,10 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     border-radius: 24px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.06);
 }
+.modal-header {
+    background: rgba(26, 24, 48, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
 .modal-icon-badge {
     background: rgba(16, 185, 129, 0.12);
     border: 1px solid rgba(16, 185, 129, 0.3);
@@ -254,6 +289,15 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
 }
+.modal-pagination-btn {
+    background: rgba(26, 24, 48, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+}
+.modal-pagination-btn:hover {
+    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(40, 36, 70, 0.8);
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
@@ -283,6 +327,12 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     </div>
 
     <div class="flex items-center gap-2 sm:gap-3">
+        <!-- PRZYCISK SKLEPU -->
+        <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
+            <span class="text-[11px] sm:text-xs">Sklep</span>
+        </button>
+
         <div class="stat-badge flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs">
             <i class="fa-solid fa-wallet text-emerald-400 text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
@@ -494,6 +544,72 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     </div>
 </div>
 </main>
+
+<!-- ============================================ -->
+<!-- MODAL: SKLEP (UJEDNOLICONY GLASS)            -->
+<!-- ============================================ -->
+<div id="shop-modal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-3">
+    <div class="modal-shell max-w-5xl w-full flex flex-col overflow-hidden max-h-[90vh]">
+
+        <div class="modal-header px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="modal-icon-badge p-2.5 flex items-center justify-center">
+                    <i class="fa-solid fa-store text-emerald-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold text-xl font-rajdhani uppercase leading-none tracking-wide">Sklep Skinów</h3>
+                    <p class="text-gray-400 text-xs mt-1">Wybierz i kup bezpośrednio z salda</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="stat-badge px-4 py-2 rounded-xl flex items-center gap-2">
+                    <span class="text-xs text-gray-400">Twoje saldo:</span>
+                    <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
+                </div>
+                <button onclick="closeShopModal()" class="text-gray-400 hover:text-white p-2 transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-6 flex flex-col gap-5 overflow-hidden">
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div class="relative w-full sm:w-80">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm"></i>
+                    <input type="text" id="pop-shop-search" oninput="onShopSearch()" placeholder="Wyszukaj przedmiot..." class="modal-input w-full pl-10 pr-4 py-3 text-sm placeholder-gray-500">
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <select id="pop-shop-sort" onchange="onShopSearch()" class="modal-input w-full sm:w-48 px-4 py-3 text-sm text-gray-300 cursor-pointer">
+                        <option value="asc">Cena: Rosnąco</option>
+                        <option value="desc">Cena: Malejąco</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="shop-pop-msg" class="text-xs text-center font-bold h-4"></div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-3 overflow-y-auto pr-2 pb-2 flex-1 min-h-[350px]" id="pop-shop-grid"></div>
+
+            <div class="flex justify-center items-center gap-3 pt-4 border-t border-white/5">
+                <button onclick="changePage('shop', -1)" class="modal-pagination-btn w-10 h-10 rounded-xl text-gray-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+
+                <div class="flex items-center gap-3 text-sm font-mono text-gray-400 bg-black/20 px-5 py-2.5 rounded-xl border border-white/10 shadow-inner">
+                    <span>Strona</span>
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-transparent border-b border-white/10 text-center text-white focus:outline-none focus:border-emerald-500/50 py-1 font-bold" value="1">
+                    <span id="shop-page-total">/ 1</span>
+                </div>
+
+                <button onclick="changePage('shop', 1)" class="modal-pagination-btn w-10 h-10 rounded-xl text-gray-400 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- ============================================ -->
 <!-- MODAL: WYNIK (UJEDNOLICONY GLASS)            -->
