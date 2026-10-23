@@ -31,7 +31,9 @@ const GameEngine = (() => {
     }
 
     function rollOutcome(chance) {
-        if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) throw new Error('Invalid chance');
+        if (typeof chance !== 'number' || chance < 0 || chance > 100 || isNaN(chance)) {
+            throw new Error('Invalid chance');
+        }
         const roll = secureRandom() * 100;
         return { roll, chance, outcome: roll <= chance, timestamp: Date.now(), spinId: 'spin_' + (++_spinCount) };
     }
@@ -134,7 +136,7 @@ const AudioSynth = {
 };
 
 /* ============================================= */
-/* ===== PARTYKUŁY I POMOCNICZE ================= */
+/* ===== POMOCNICZE ============================= */
 /* ============================================= */
 
 function spawnParticles(container, count, colors) {
@@ -293,33 +295,39 @@ function selectSourceItem(item) {
     if (isSpinning) return;
     selectedSourceItem = item;
     addedCash = 0;
+
     document.getElementById('source-empty').classList.add('hidden');
     document.getElementById('source-filled').classList.remove('hidden');
     document.getElementById('source-img').src = item.img;
     document.getElementById('source-name').textContent = item.name;
     document.getElementById('source-price').textContent = `$${item.price.toFixed(2)}`;
     document.getElementById('offered-item-wear').textContent = item.wear;
+
     const slider = document.getElementById('cash-slider');
     if (slider) { slider.value = 0; slider.max = Math.max(0, balance).toFixed(2); }
     document.getElementById('cash-add-label').textContent = '$0.00';
     document.getElementById('source-slot').classList.add('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+
     renderPlayerInventory();
-    updateTotals();
+    recalculateOdds();
 }
 
 function clearSourceItem() {
     if (isSpinning) return;
     selectedSourceItem = null;
     addedCash = 0;
+
     document.getElementById('source-empty').classList.remove('hidden');
     document.getElementById('source-filled').classList.add('hidden');
     document.getElementById('offered-item-wear').textContent = 'Brak';
+
     const slider = document.getElementById('cash-slider');
     if (slider) slider.value = 0;
     document.getElementById('cash-add-label').textContent = '$0.00';
     document.getElementById('source-slot').classList.remove('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+
     renderPlayerInventory();
-    updateTotals();
+    recalculateOdds();
 }
 
 function sellSelectedItem() {
@@ -343,10 +351,11 @@ function renderStoreCatalog(page = 1) {
     if (!grid) return;
 
     const search = (document.getElementById('catalog-search')?.value || '').toLowerCase().trim();
-    const sort = document.getElementById('catalog-sort')?.value || 'asc';
+    const sort = document.getElementById('catalog-sort')?.value || 'default';
 
     let filtered = storeCatalog.filter(item => item.name.toLowerCase().includes(search));
-    filtered.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
+    if (sort === 'asc') filtered.sort((a, b) => a.price - b.price);
+    if (sort === 'desc') filtered.sort((a, b) => b.price - a.price);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
     if (page < 1) page = 1;
@@ -373,8 +382,9 @@ function renderStoreCatalog(page = 1) {
     }
 
     pageItems.forEach(item => {
+        const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer group`;
+        card.className = `item-card ${item.rarity} p-2 cursor-pointer group ${isSelected ? 'ring-2 ring-[#38bdf8]' : ''}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
@@ -395,6 +405,7 @@ function renderStoreCatalog(page = 1) {
 function selectTargetItem(item) {
     if (isSpinning) return;
     selectedTargetItem = item;
+
     document.getElementById('target-empty').classList.add('hidden');
     document.getElementById('target-filled').classList.remove('hidden');
     document.getElementById('target-img').src = item.img;
@@ -402,20 +413,25 @@ function selectTargetItem(item) {
     document.getElementById('target-price').textContent = `$${item.price.toFixed(2)}`;
     document.getElementById('target-item-wear').textContent = item.wear;
     document.getElementById('target-slot').classList.add('border-[#38bdf8]', 'bg-[#38bdf8]/5');
-    updateTotals();
+
+    renderStoreCatalog(catalogPage);
+    recalculateOdds();
 }
 
 function clearTargetItem() {
     if (isSpinning) return;
     selectedTargetItem = null;
+
     document.getElementById('target-empty').classList.remove('hidden');
     document.getElementById('target-filled').classList.add('hidden');
     document.getElementById('target-item-wear').textContent = 'Brak';
     document.getElementById('target-slot').classList.remove('border-[#38bdf8]', 'bg-[#38bdf8]/5');
-    updateTotals();
+
+    renderStoreCatalog(catalogPage);
+    recalculateOdds();
 }
 
-function onCatalogSearch() { renderStoreCatalog(1); }
+function onCatalogSearch() { catalogPage = 1; renderStoreCatalog(1); }
 
 /* ============================================= */
 /* ===== SKLEP (PEŁNOEKRANOWY WIDOK) ============ */
@@ -479,13 +495,14 @@ function renderShop(page = 1) {
     }
 
     pageItems.forEach(item => {
+        const canAfford = balance >= item.price;
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2.5 cursor-pointer group`;
+        card.className = `item-card ${item.rarity} p-2.5 cursor-pointer group ${canAfford ? '' : 'opacity-60'}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
                     <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[11px] font-bold text-emerald-400">$${item.price.toFixed(2)}</span>
+                    <span class="${canAfford ? 'text-emerald-400' : 'text-red-400'} text-[11px] font-bold">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-2">
                     <img src="${item.img}" alt="${item.name}" class="max-h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200" onerror="this.style.opacity=0.3">
@@ -532,9 +549,11 @@ function buyShopItem(itemId) {
         slider.max = Math.max(0, balance).toFixed(2);
         if (parseFloat(slider.value) > balance) slider.value = 0;
     }
+
+    renderShop(shopPage);
 }
 
-function onShopSearch() { renderShop(1); }
+function onShopSearch() { shopPage = 1; renderShop(1); }
 
 /* ============================================= */
 /* ===== PAGINACJA ============================== */
@@ -559,7 +578,7 @@ function jumpToPage(context, value) {
 }
 
 /* ============================================= */
-/* ===== SALDO I SLIDER ========================= */
+/* ===== SALDO / SLIDER / ODDS ================== */
 /* ============================================= */
 
 function updateBalanceDisplay() {
@@ -570,44 +589,44 @@ function updateBalanceDisplay() {
 
 function onCashSliderChange(value) {
     if (isSpinning) return;
-    addedCash = parseFloat(value) || 0;
-    if (addedCash > balance) addedCash = balance;
+    let v = parseFloat(value) || 0;
+    if (v < 0) v = 0;
+    if (v > balance) v = balance;
+    addedCash = v;
+    const slider = document.getElementById('cash-slider');
+    if (slider) slider.value = v;
     document.getElementById('cash-add-label').textContent = `$${addedCash.toFixed(2)}`;
-    updateTotals();
+    recalculateOdds();
 }
 
-function updateTotals() {
+function recalculateOdds() {
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
-    document.getElementById('total-source-val').textContent = `$${sourceVal.toFixed(2)}`;
-
     const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
+    document.getElementById('total-source-val').textContent = `$${sourceVal.toFixed(2)}`;
     document.getElementById('total-target-val').textContent = `$${targetVal.toFixed(2)}`;
 
     const btn = document.getElementById('upgrade-btn');
     const status = document.getElementById('status-msg');
 
-    if (!selectedSourceItem && addedCash <= 0) {
-        btn.disabled = true;
-        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
-        status.textContent = 'Wybierz przedmioty';
+    if (sourceVal <= 0 || targetVal <= 0) {
+        calculatedChance = 0;
         document.getElementById('win-chance-text').textContent = '0.00%';
         document.getElementById('multiplier-text').textContent = '0.00x';
         updateWheelArc(0);
-        return;
-    }
-    if (!selectedTargetItem) {
         btn.disabled = true;
         btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
-        status.textContent = 'Wybierz cel ulepszenia';
+        status.textContent = 'Wybierz przedmioty do ulepszenia';
         return;
     }
+
     if (targetVal <= sourceVal) {
+        calculatedChance = 0;
+        document.getElementById('win-chance-text').textContent = '0.00%';
+        document.getElementById('multiplier-text').textContent = '0.00x';
+        updateWheelArc(0);
         btn.disabled = true;
         btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
         status.textContent = 'Cel musi być droższy';
-        document.getElementById('win-chance-text').textContent = '0.00%';
-        document.getElementById('multiplier-text').textContent = '0.00x';
-        updateWheelArc(0);
         return;
     }
 
@@ -617,236 +636,451 @@ function updateTotals() {
     document.getElementById('multiplier-text').textContent = `${multiplier}x`;
     updateWheelArc(calculatedChance);
 
+    if (addedCash > balance) {
+        btn.disabled = true;
+        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10';
+        status.textContent = 'Brak wystarczającego salda';
+        return;
+    }
+
     btn.disabled = false;
-    btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all upgrade-btn-active text-white cursor-pointer z-10 hover:brightness-110';
-    status.textContent = 'Gotowe do ulepszenia';
+    btn.className = 'upgrade-btn-active w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest text-white cursor-pointer z-10';
+    status.textContent = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
 }
 
-function updateWheelArc(chance) {
-    const circumference = 2 * Math.PI * 72;
-    const arcLength = (chance / 100) * circumference;
-    const left = document.getElementById('win-arc-left');
-    const right = document.getElementById('win-arc-right');
-    if (left) left.setAttribute('stroke-dasharray', `${arcLength} ${circumference}`);
-    if (right) right.setAttribute('stroke-dasharray', `${arcLength} ${circumference}`);
+function pickGradient(percentage) {
+    if (percentage < 35) return 'url(#gradRed)';
+    if (percentage < 50) return 'url(#gradOrange)';
+    if (percentage < 60) return 'url(#gradYellow)';
+    return 'url(#gradGreen)';
+}
+
+function updateWheelArc(percentage) {
+    const leftArc = document.getElementById('win-arc-left');
+    const rightArc = document.getElementById('win-arc-right');
+    if (!leftArc || !rightArc) return;
+    const circumference = 452.38;
+    const halfPercent = percentage / 2;
+    const strokeLength = (halfPercent / 100) * circumference;
+    leftArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
+    rightArc.setAttribute('stroke-dasharray', `${strokeLength} ${circumference}`);
+    const gradient = pickGradient(percentage);
+    leftArc.setAttribute('stroke', gradient);
+    rightArc.setAttribute('stroke', gradient);
 }
 
 /* ============================================= */
-/* ===== UPGRADE ================================ */
+/* ===== UPGRADE (LOSOWANIE) ==================== */
 /* ============================================= */
 
-function startUpgrade() {
-    if (isSpinning || !selectedSourceItem || !selectedTargetItem) return;
+async function startUpgrade() {
+    // WALIDACJA — bez tego przycisk mógł "nic nie robić"
+    if (isSpinning) return;
+    if (!selectedTargetItem) { showToast('Wybierz cel ulepszenia!', 'error'); return; }
+    if (!selectedSourceItem && addedCash <= 0) { showToast('Wybierz przedmiot lub dodaj saldo!', 'error'); return; }
+    if (addedCash > balance) { showToast('Brak wystarczającego salda!', 'error'); return; }
+
+    const rateCheck = GameEngine.canSpin();
+    const statusMsg = document.getElementById('status-msg');
+    if (!rateCheck.allowed) {
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-yellow-400 font-bold"><i class="fa-solid fa-clock mr-1"></i> ${rateCheck.reason}</span>`;
+        return;
+    }
 
     const sourceVal = (selectedSourceItem ? selectedSourceItem.price : 0) + addedCash;
-    const targetVal = selectedTargetItem ? selectedTargetItem.price : 0;
+    const targetVal = selectedTargetItem.price;
+    const chance = GameEngine.calculateRealChance(sourceVal, targetVal);
+    const rollRes = GameEngine.rollOutcome(chance);
+    const isWin = rollRes.outcome;
 
-    const spinCheck = GameEngine.canSpin();
-    if (!spinCheck.allowed) {
-        showToast(spinCheck.reason, 'error');
-        return;
+    if (addedCash > 0) {
+        balance -= addedCash;
+        updateBalanceDisplay();
+        const slider = document.getElementById('cash-slider');
+        if (slider) slider.max = Math.max(0, balance).toFixed(2);
     }
 
     isSpinning = true;
     GameEngine.recordSpin();
 
     const btn = document.getElementById('upgrade-btn');
-    btn.disabled = true;
-    btn.textContent = 'KRĘCENIE...';
-    document.getElementById('status-msg').textContent = 'Losowanie...';
-
-    const result = GameEngine.rollOutcome(calculatedChance);
-
-    const needle = document.getElementById('needle');
-    let angle = 0;
-    const duration = 2800;
-    const start = performance.now();
-    const targetAngle = 720 + Math.random() * 360;
-
-    function animateNeedle(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        angle = eased * targetAngle;
-        if (needle) needle.style.transform = `rotate(${angle}deg)`;
-        if (progress < 1) {
-            if (Math.random() < 0.15) AudioSynth.playTick(1 - progress);
-            requestAnimationFrame(animateNeedle);
-        } else {
-            finishUpgrade(result, sourceVal, targetVal);
-        }
+    if (btn) {
+        btn.disabled = true;
+        btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed z-10';
+        btn.innerText = 'LOSOWANIE...';
     }
-    requestAnimationFrame(animateNeedle);
+
+    const wonItemSnapshot = { ...selectedTargetItem };
+    const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
+
+    // Kąt igły — trafia w zielony (wygrana) lub czerwony (przegrana) łuk
+    let targetOffsetDeg = 0;
+    if (isWin) {
+        targetOffsetDeg = chance / 2;
+    } else {
+        const startRed = chance;
+        const endRed = 360;
+        targetOffsetDeg = startRed + ((endRed - startRed) / 2);
+    }
+    const totalRotations = (5 * 360) + targetOffsetDeg;
+    const needle = document.getElementById('needle');
+    const duration = 4500;
+
+    if (needle) {
+        needle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
+        needle.style.transform = `rotate(${totalRotations}deg)`;
+    }
+
+    // Tick sound
+    const TICK_STEP = 6;
+    let lastTickAngle = 0;
+    let animationStartTime = null;
+    let rafId = null;
+
+    function cubicBezier(t, p1x, p1y, p2x, p2y) {
+        const cx = 3 * p1x, bx = 3 * (p2x - p1x) - cx, ax = 1 - cx - bx;
+        const cy = 3 * p1y, by = 3 * (p2y - p1y) - cy, ay = 1 - cy - by;
+        let x = t;
+        for (let i = 0; i < 8; i++) {
+            const xEst = ((ax * x + bx) * x + cx) * x;
+            const dx = (3 * ax * x + 2 * bx) * x + cx;
+            if (Math.abs(dx) < 1e-6) break;
+            x -= (xEst - t) / dx;
+        }
+        return ((ay * x + by) * x + cy) * x;
+    }
+
+    function tickLoop(timestamp) {
+        if (!animationStartTime) animationStartTime = timestamp;
+        const elapsed = timestamp - animationStartTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = cubicBezier(progress, 0.1, 0.9, 0.2, 1);
+        const currentAngle = eased * totalRotations;
+        if (currentAngle - lastTickAngle >= TICK_STEP) {
+            const steps = Math.floor((currentAngle - lastTickAngle) / TICK_STEP);
+            lastTickAngle += steps * TICK_STEP;
+            const speedDegPerSec = elapsed > 0 ? (currentAngle / elapsed) * 1000 : 0;
+            const speedFactor = Math.min(speedDegPerSec / 2000, 1.5);
+            AudioSynth.playTick(speedFactor);
+        }
+        if (progress < 1) rafId = requestAnimationFrame(tickLoop);
+    }
+    rafId = requestAnimationFrame(tickLoop);
+
+    setTimeout(() => {
+        if (rafId) cancelAnimationFrame(rafId);
+        finishUpgrade(isWin, totalRotations, wonItemSnapshot, sacrificedItemSnapshot);
+    }, duration);
 }
 
-function finishUpgrade(result, sourceVal, targetVal) {
+function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
     isSpinning = false;
-
-    if (result.outcome) {
-        if (addedCash > 0) {
-            balance = parseFloat((balance - addedCash).toFixed(2));
-        }
-        inventory = inventory.filter(i => i.id !== selectedSourceItem.id);
-
-        const winItem = {
-            ...selectedTargetItem,
-            id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7)
-        };
-        inventory.push(winItem);
-
-        AudioSynth.playWin();
-        showResultModal(true, winItem);
-    } else {
-        if (addedCash > 0) {
-            balance = parseFloat((balance - addedCash).toFixed(2));
-        }
-        inventory = inventory.filter(i => i.id !== selectedSourceItem.id);
-
-        AudioSynth.playLoss();
-        showResultModal(false, selectedTargetItem);
+    const normalizedDegree = finalDegree % 360;
+    const needle = document.getElementById('needle');
+    if (needle) {
+        needle.style.transition = 'none';
+        needle.style.transform = `rotate(${normalizedDegree}deg)`;
     }
 
-    updateBalanceDisplay();
-    renderPlayerInventory();
-    clearSourceItem();
-    clearTargetItem();
+    const statusMsg = document.getElementById('status-msg');
 
-    const slider = document.getElementById('cash-slider');
-    if (slider) { slider.max = Math.max(0, balance).toFixed(2); slider.value = 0; }
+    if (isWin) {
+        AudioSynth.playWin();
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
+        if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
+
+        inventory.push({ ...wonItem, id: 'i' + Date.now() });
+        if (sacrificedItem) {
+            const idx = inventory.findIndex(i => i.id === sacrificedItem.id);
+            if (idx > -1) inventory.splice(idx, 1);
+        }
+        pushLiveFeed(wonItem, true);
+        openResultModal(true, wonItem);
+    } else {
+        AudioSynth.playLoss();
+        if (statusMsg) statusMsg.innerHTML = `<span class="text-red-400 font-bold"><i class="fa-solid fa-xmark mr-1"></i> ULEPSZENIE NIEUDANE</span>`;
+        if (navigator.vibrate) navigator.vibrate(200);
+
+        if (sacrificedItem) {
+            const idx = inventory.findIndex(i => i.id === sacrificedItem.id);
+            if (idx > -1) inventory.splice(idx, 1);
+        }
+        const wheelContainer = document.querySelector('.lg\\:col-span-4 .relative');
+        if (wheelContainer) {
+            wheelContainer.classList.add('shake');
+            setTimeout(() => wheelContainer.classList.remove('shake'), 400);
+        }
+        pushLiveFeed(wonItem, false);
+        openResultModal(false, wonItem);
+    }
+
+    setTimeout(() => {
+        if (needle) {
+            needle.style.transition = 'transform 600ms cubic-bezier(0.4, 0, 0.2, 1)';
+            needle.style.transform = 'rotate(0deg)';
+        }
+    }, 800);
+
+    const sliderEl = document.getElementById('cash-slider');
+    if (sliderEl) {
+        sliderEl.max = Math.max(0, balance).toFixed(2);
+        sliderEl.value = 0;
+    }
+    onCashSliderChange(0);
+
+    // Reset wyborów — ALE nie przez clearSourceItem/clearTargetItem, bo one wołają recalculateOdds z pustymi wartościami
+    selectedSourceItem = null;
+    selectedTargetItem = null;
+    addedCash = 0;
+    document.getElementById('source-empty').classList.remove('hidden');
+    document.getElementById('source-filled').classList.add('hidden');
+    document.getElementById('offered-item-wear').textContent = 'Brak';
+    document.getElementById('source-slot').classList.remove('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+    document.getElementById('target-empty').classList.remove('hidden');
+    document.getElementById('target-filled').classList.add('hidden');
+    document.getElementById('target-item-wear').textContent = 'Brak';
+    document.getElementById('target-slot').classList.remove('border-[#38bdf8]', 'bg-[#38bdf8]/5');
+    document.getElementById('cash-add-label').textContent = '$0.00';
+
+    renderPlayerInventory();
+    renderStoreCatalog(catalogPage);
+    recalculateOdds();
 
     const btn = document.getElementById('upgrade-btn');
-    btn.textContent = 'ULEPSZ';
+    if (btn) btn.innerText = 'ULEPSZ';
+
+    setTimeout(() => GameEngine.resetRateLimit(), 2500);
 }
 
 /* ============================================= */
 /* ===== MODAL WYNIKU =========================== */
 /* ============================================= */
 
-function showResultModal(isWin, item) {
+function openResultModal(isWin, item) {
+    if (!item) return;
     const modal = document.getElementById('result-modal');
     const content = document.getElementById('result-modal-content');
-    if (!modal) return;
-
     const icon = document.getElementById('modal-status-icon');
     const title = document.getElementById('modal-title');
     const desc = document.getElementById('modal-desc');
-    const img = document.getElementById('modal-item-img');
-    const name = document.getElementById('modal-item-name');
-    const price = document.getElementById('modal-item-price');
+    if (!modal) return;
 
     if (isWin) {
-        icon.className = 'w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-emerald-500/15 border-emerald-500/30 text-emerald-400';
-        icon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
-        title.textContent = 'WYGRANA!';
-        desc.textContent = 'Skin powędrował do ekwipunku.';
-        spawnParticles(content, 30, ['#34d399', '#10b981', '#a78bfa', '#fde047']);
+        if (icon) {
+            icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-emerald-500/20 text-emerald-400 border-emerald-500/50 relative z-10';
+            icon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+        }
+        if (title) {
+            title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 drop-shadow-md relative z-10';
+            title.innerText = 'WYGRANA!';
+        }
+        if (desc) desc.innerText = 'Twój nowy skin powędrował do ekwipunku.';
     } else {
-        icon.className = 'w-14 h-14 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-red-500/15 border-red-500/30 text-red-400';
-        icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-        title.textContent = 'PRZEGRANA';
-        desc.textContent = 'Przedmiot przepadł.';
+        if (icon) {
+            icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-red-500/20 text-red-400 border-red-500/50 relative z-10';
+            icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        }
+        if (title) {
+            title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 drop-shadow-md relative z-10';
+            title.innerText = 'PORAŻKA!';
+        }
+        if (desc) desc.innerText = 'Przedmiot spłonął podczas próby ulepszenia.';
     }
 
-    img.src = item.img;
-    name.textContent = item.name;
-    price.textContent = `$${item.price.toFixed(2)}`;
+    const imgEl = document.getElementById('modal-item-img');
+    const nameEl = document.getElementById('modal-item-name');
+    const priceEl = document.getElementById('modal-item-price');
+    if (imgEl) imgEl.src = item.img;
+    if (nameEl) nameEl.innerText = item.name;
+    if (priceEl) priceEl.innerText = `$${item.price.toFixed(2)}`;
 
     modal.classList.remove('hidden');
-    requestAnimationFrame(() => {
+    setTimeout(() => {
         modal.classList.remove('opacity-0');
-        content.classList.add('modal-in');
-    });
+        if (content) {
+            content.classList.remove('modal-in');
+            void content.offsetWidth;
+            content.classList.add('modal-in');
+        }
+    }, 10);
+
+    if (isWin && content) {
+        setTimeout(() => spawnParticles(content, 25, ['#10b981', '#34d399', '#6ee7b7', '#8b5cf6', '#38bdf8']), 100);
+    }
 }
 
 function closeResultModal() {
     const modal = document.getElementById('result-modal');
-    const content = document.getElementById('result-modal-content');
     if (!modal) return;
     modal.classList.add('opacity-0');
-    content.classList.remove('modal-in');
-    setTimeout(() => modal.classList.add('hidden'), 300);
-}
-
-/* ============================================= */
-/* ===== MODAL PROMO ============================ */
-/* ============================================= */
-
-function openPromoModal() {
-    const modal = document.getElementById('promo-modal');
-    if (modal) modal.classList.remove('hidden');
-}
-
-function closePromoModal() {
-    const modal = document.getElementById('promo-modal');
-    if (modal) modal.classList.add('hidden');
-    const msg = document.getElementById('promo-message');
-    if (msg) msg.textContent = '';
-}
-
-function redeemPromoCode() {
-    const input = document.getElementById('promo-input');
-    const msg = document.getElementById('promo-message');
-    if (!input || !msg) return;
-
-    const code = input.value.trim().toUpperCase();
-    if (!code) {
-        msg.textContent = 'Wpisz kod!';
-        msg.className = 'text-[11px] mb-2 h-4 text-red-400';
-        return;
-    }
-
-    if (code === 'FREE') {
-        balance = parseFloat((balance + 10).toFixed(2));
-        updateBalanceDisplay();
-        msg.textContent = '+$10.00 dodane do salda!';
-        msg.className = 'text-[11px] mb-2 h-4 text-emerald-400';
-        showToast('Kod wykorzystany: +$10.00', 'success');
-        setTimeout(closePromoModal, 1500);
-    } else {
-        msg.textContent = 'Nieprawidłowy kod.';
-        msg.className = 'text-[11px] mb-2 h-4 text-red-400';
-    }
-}
-
-/* ============================================= */
-/* ===== AUDIO TOGGLE =========================== */
-/* ============================================= */
-
-function toggleAudio() {
-    audioMuted = !audioMuted;
-    const icon = document.getElementById('sound-icon');
-    if (icon) {
-        icon.className = audioMuted ? 'fa-solid fa-volume-xmark text-sm' : 'fa-solid fa-volume-high text-sm';
-    }
+    setTimeout(() => modal.classList.add('hidden'), 200);
 }
 
 /* ============================================= */
 /* ===== LIVE FEED ============================== */
 /* ============================================= */
 
-function populateLiveFeed() {
+function pushLiveFeed(item, isWin) {
     const feed = document.getElementById('live-feed');
     if (!feed) return;
-    feed.innerHTML = '';
-    const sample = storeCatalog.slice(0, 8);
-    sample.forEach(item => {
-        const el = document.createElement('div');
-        el.className = 'live-drop-item flex items-center gap-2 px-2 py-1 shrink-0';
-        el.innerHTML = `
-            <img src="${item.img}" alt="${item.name}" class="w-6 h-6 object-contain" onerror="this.style.opacity=0.3">
-            <span class="text-[10px] font-semibold text-white truncate max-w-[100px]">${item.name}</span>
-            <span class="text-[10px] font-bold text-[#a78bfa]">$${item.price.toFixed(2)}</span>
-        `;
-        feed.appendChild(el);
-    });
+    const node = document.createElement('div');
+    node.className = 'live-drop-item px-3 py-1.5 flex items-center gap-2.5 flex-shrink-0 min-w-[130px] relative overflow-hidden';
+    node.innerHTML = `
+        <div class="absolute inset-0 bg-gradient-to-b ${isWin ? 'from-emerald-500/10' : 'from-red-500/10'} to-transparent pointer-events-none"></div>
+        <img src="${item.img}" class="w-10 h-7 object-contain drop-shadow-md z-10">
+        <div class="flex flex-col z-10">
+            <span class="font-bold text-[10px] text-gray-300 truncate max-w-[70px]">${item.name}</span>
+            <span class="${isWin ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold text-[10px]">$${item.price.toFixed(2)}</span>
+        </div>
+    `;
+    feed.insertBefore(node, feed.firstChild);
+    if (feed.children.length > 9) feed.removeChild(feed.lastChild);
+}
+
+function populateLiveFeed() {
+    if (!storeCatalog || storeCatalog.length === 0) return;
+    for (let i = 0; i < 8; i++) {
+        const item = storeCatalog[Math.floor(Math.random() * storeCatalog.length)];
+        pushLiveFeed(item, Math.random() > 0.5);
+    }
 }
 
 /* ============================================= */
-/* ===== STEAM LOGIN (PLACEHOLDER) ============= */
+/* ===== AUDIO / STEAM ========================== */
 /* ============================================= */
 
+function toggleAudio() {
+    audioMuted = !audioMuted;
+    const icon = document.getElementById('sound-icon');
+    if (icon) icon.className = audioMuted ? 'fa-solid fa-volume-xmark text-red-400 text-sm' : 'fa-solid fa-volume-high text-sm';
+}
+
 function toggleLogin() {
-    showToast('Logowanie Steam — wkrótce!', 'info');
+    const btn = document.getElementById('steam-btn-text');
+    if (btn) btn.innerText = btn.innerText === 'Steam' ? 'Niezalogowany' : 'Steam';
+}
+
+/* ============================================= */
+/* ===== PROMO ================================== */
+/* ============================================= */
+
+const PROMO_CODE = '98CASE';
+const PROMO_STORAGE_KEY = 'cscasepro_promo_used';
+
+function openPromoModal() {
+    const modal = document.getElementById('promo-modal');
+    const msg = document.getElementById('promo-message');
+    const input = document.getElementById('promo-input');
+    if (modal) modal.classList.remove('hidden');
+    if (msg) msg.innerHTML = '';
+    if (input) input.value = '';
+}
+
+function closePromoModal() {
+    const modal = document.getElementById('promo-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function redeemPromoCode() {
+    const inputEl = document.getElementById('promo-input');
+    const msg = document.getElementById('promo-message');
+    if (!inputEl || !msg) return;
+    const input = inputEl.value.trim().toUpperCase();
+
+    if (localStorage.getItem(PROMO_STORAGE_KEY) === 'true') {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Ten kod został już wykorzystany na tym koncie.</span>`;
+        return;
+    }
+    if (input !== PROMO_CODE) {
+        msg.innerHTML = `<span class="text-red-400 font-bold">❌ Nieprawidłowy kod.</span>`;
+        return;
+    }
+
+    const promoItems = [
+        { id: 'promo1_' + Date.now(), name: 'AK-47 | Safari Mesh', wear: 'FT', price: 0.46, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyLwlcK3wjFL0P-re6xSNPGdMWuZxuZi_rIxSirkkElyt2qEzI2heXiTaVIiX5siROQJtxnul4XnYbvgswOMgolbjXKpnRk9Yjk' },
+        { id: 'promo2_' + Date.now(), name: 'M4A4 | Urban DDPAT', wear: 'FT', price: 0.75, rarity: 'rarity-milspec', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAopC0PaqeKV5H-WBDFicyOl-pK8xF3DjzR5_4zncnouhcSjGPQ8jA5B3ELFbuhPqloDkPrvjsgXY2t5N02yg2Rf5X8A9' },
+        { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' }
+    ];
+
+    promoItems.forEach(it => inventory.push(it));
+    localStorage.setItem(PROMO_STORAGE_KEY, 'true');
+    renderPlayerInventory();
+    msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano skiny do ekwipunku.</span>`;
+    setTimeout(() => closePromoModal(), 1500);
+}
+
+/* ============================================= */
+/* ===== PŁATNOŚĆ =============================== */
+/* ============================================= */
+
+function openPaymentModal() {
+    const modal = document.getElementById('payment-modal');
+    const msg = document.getElementById('payment-message');
+    if (modal) modal.classList.remove('hidden');
+    if (msg) msg.innerHTML = '';
+    calculateBonus();
+}
+
+function closePaymentModal() {
+    const modal = document.getElementById('payment-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function selectAmount(amount) {
+    const input = document.getElementById('payment-input');
+    if (input) { input.value = amount; calculateBonus(); }
+}
+
+function calculateBonus() {
+    const input = document.getElementById('payment-input');
+    const receiveEl = document.getElementById('payment-receive-amount');
+    const btnAmountEl = document.getElementById('payment-button-amount');
+    const bonusTagContainer = document.getElementById('bonus-tag-container');
+    if (!input || !receiveEl || !btnAmountEl) return;
+
+    let amount = parseFloat(input.value) || 0;
+    if (amount < 0) amount = 0;
+
+    const promoInput = document.getElementById('main-promo-input');
+    const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+    const hasBonus = promoCode === 'FREE';
+    const finalAmount = hasBonus ? amount * 1.1 : amount;
+
+    receiveEl.innerText = `${finalAmount.toFixed(2)} PLN`;
+    btnAmountEl.innerText = `${amount.toFixed(2)} PLN`;
+    if (bonusTagContainer) bonusTagContainer.style.opacity = hasBonus ? '1' : '0.3';
+}
+
+function executePayment() {
+    const input = document.getElementById('payment-input');
+    const msg = document.getElementById('payment-message');
+    if (!input || !msg) return;
+
+    let amount = parseFloat(input.value) || 0;
+    if (amount < 4) {
+        msg.innerHTML = `<span class="text-red-400">Minimalna kwota to 4 PLN.</span>`;
+        return;
+    }
+
+    const promoInput = document.getElementById('main-promo-input');
+    const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
+    const hasBonus = promoCode === 'FREE';
+    const finalAmount = hasBonus ? amount * 1.1 : amount;
+
+    msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
+
+    setTimeout(() => {
+        balance += finalAmount;
+        if (hasBonus) msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
+        else msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
+
+        updateBalanceDisplay();
+        const slider = document.getElementById('cash-slider');
+        if (slider) slider.max = Math.max(0, balance).toFixed(2);
+        recalculateOdds();
+
+        setTimeout(() => { closePaymentModal(); msg.innerHTML = ''; }, 2500);
+    }, 1500);
 }
 
 /* ============================================= */
@@ -857,12 +1091,18 @@ window.addEventListener('DOMContentLoaded', () => {
     loadSkinsData();
     updateBalanceDisplay();
     updateWheelArc(0);
+    recalculateOdds();
 
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
     // ESC zamyka sklep
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeShop();
+        if (e.key === 'Escape') {
+            closeShop();
+            closeResultModal();
+            closePromoModal();
+            closePaymentModal();
+        }
     });
 });
