@@ -674,7 +674,6 @@ function updateWheelArc(percentage) {
 /* ============================================= */
 
 async function startUpgrade() {
-    // WALIDACJA — bez tego przycisk mógł "nic nie robić"
     if (isSpinning) return;
     if (!selectedTargetItem) { showToast('Wybierz cel ulepszenia!', 'error'); return; }
     if (!selectedSourceItem && addedCash <= 0) { showToast('Wybierz przedmiot lub dodaj saldo!', 'error'); return; }
@@ -713,7 +712,6 @@ async function startUpgrade() {
     const wonItemSnapshot = { ...selectedTargetItem };
     const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
 
-    // Kąt igły — trafia w zielony (wygrana) lub czerwony (przegrana) łuk
     let targetOffsetDeg = 0;
     if (isWin) {
         targetOffsetDeg = chance / 2;
@@ -731,7 +729,6 @@ async function startUpgrade() {
         needle.style.transform = `rotate(${totalRotations}deg)`;
     }
 
-    // Tick sound
     const TICK_STEP = 6;
     let lastTickAngle = 0;
     let animationStartTime = null;
@@ -828,7 +825,6 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
     }
     onCashSliderChange(0);
 
-    // Reset wyborów — ALE nie przez clearSourceItem/clearTargetItem, bo one wołają recalculateOdds z pustymi wartościami
     selectedSourceItem = null;
     selectedTargetItem = null;
     addedCash = 0;
@@ -1010,25 +1006,56 @@ function redeemPromoCode() {
 }
 
 /* ============================================= */
-/* ===== PŁATNOŚĆ =============================== */
+/* ===== MODAL PŁATNOŚCI (DOŁADOWANIE) ========== */
 /* ============================================= */
 
 function openPaymentModal() {
     const modal = document.getElementById('payment-modal');
+    const content = document.getElementById('payment-modal-content');
     const msg = document.getElementById('payment-message');
-    if (modal) modal.classList.remove('hidden');
+    
+    if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            if (content) content.classList.add('modal-in');
+        }, 10);
+    }
     if (msg) msg.innerHTML = '';
+    
+    // Ustaw domyślną kwotę
+    const input = document.getElementById('payment-input');
+    if (input && !input.value) input.value = 50;
+    
     calculateBonus();
 }
 
 function closePaymentModal() {
     const modal = document.getElementById('payment-modal');
-    if (modal) modal.classList.add('hidden');
+    const content = document.getElementById('payment-modal-content');
+    
+    if (modal) {
+        modal.classList.add('opacity-0');
+        if (content) content.classList.remove('modal-in');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
 }
 
-function selectAmount(amount) {
+function selectAmount(amount, btnElement) {
     const input = document.getElementById('payment-input');
-    if (input) { input.value = amount; calculateBonus(); }
+    if (input) {
+        input.value = amount;
+        calculateBonus();
+    }
+    
+    // Resetowanie klasy active na wszystkich przyciskach
+    const btns = document.querySelectorAll('.payment-amount-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+    
+    // Dodanie klasy active do klikniętego
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
 }
 
 function calculateBonus() {
@@ -1036,19 +1063,42 @@ function calculateBonus() {
     const receiveEl = document.getElementById('payment-receive-amount');
     const btnAmountEl = document.getElementById('payment-button-amount');
     const bonusTagContainer = document.getElementById('bonus-tag-container');
+    const checkIcon = document.getElementById('main-promo-check-icon');
+    const promoInput = document.getElementById('main-promo-input');
+
     if (!input || !receiveEl || !btnAmountEl) return;
 
     let amount = parseFloat(input.value) || 0;
     if (amount < 0) amount = 0;
 
-    const promoInput = document.getElementById('main-promo-input');
+    // Sprawdzanie kodu promo
     const promoCode = promoInput ? promoInput.value.trim().toUpperCase() : '';
     const hasBonus = promoCode === 'FREE';
+    
+    // Zmiana koloru ikony przy promo
+    if (checkIcon) {
+        if (hasBonus) {
+            checkIcon.classList.remove('bg-gray-600');
+            checkIcon.classList.add('bg-emerald-400');
+        } else {
+            checkIcon.classList.add('bg-gray-600');
+            checkIcon.classList.remove('bg-emerald-400');
+        }
+    }
+
+    // Obliczanie kwoty końcowej (+10% jeśli promo)
     const finalAmount = hasBonus ? amount * 1.1 : amount;
 
     receiveEl.innerText = `${finalAmount.toFixed(2)} PLN`;
     btnAmountEl.innerText = `${amount.toFixed(2)} PLN`;
-    if (bonusTagContainer) bonusTagContainer.style.opacity = hasBonus ? '1' : '0.3';
+
+    if (bonusTagContainer) {
+        if (hasBonus) {
+            bonusTagContainer.style.opacity = '1';
+        } else {
+            bonusTagContainer.style.opacity = '0.3';
+        }
+    }
 }
 
 function executePayment() {
@@ -1057,8 +1107,10 @@ function executePayment() {
     if (!input || !msg) return;
 
     let amount = parseFloat(input.value) || 0;
+    
+    // Walidacja minimalnej kwoty
     if (amount < 4) {
-        msg.innerHTML = `<span class="text-red-400">Minimalna kwota to 4 PLN.</span>`;
+        msg.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Minimalna kwota to 4 PLN.</span>`;
         return;
     }
 
@@ -1067,19 +1119,37 @@ function executePayment() {
     const hasBonus = promoCode === 'FREE';
     const finalAmount = hasBonus ? amount * 1.1 : amount;
 
-    msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin"></i> Przetwarzanie BLIK...</span>`;
+    // Symulacja płatności BLIK
+    msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Przetwarzanie BLIK...</span>`;
+    
+    const btn = document.getElementById('payment-submit-btn');
+    if (btn) btn.disabled = true;
 
     setTimeout(() => {
+        // Dodanie salda
         balance += finalAmount;
-        if (hasBonus) msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
-        else msg.innerHTML = `<span class="text-[#a3e635]">✅ Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
+        
+        if (hasBonus) {
+            msg.innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i> Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
+        } else {
+            msg.innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i> Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN.</span>`;
+        }
 
         updateBalanceDisplay();
-        const slider = document.getElementById('cash-slider');
-        if (slider) slider.max = Math.max(0, balance).toFixed(2);
+        updateShopBalance();
+        
+        const slider = document.getElementById('cash-slider'); 
+        if (slider) slider.max = Math.max(0, balance).toFixed(2); 
         recalculateOdds();
 
-        setTimeout(() => { closePaymentModal(); msg.innerHTML = ''; }, 2500);
+        if (btn) btn.disabled = false;
+
+        // Zamknięcie po 2.5 sekundach
+        setTimeout(() => { 
+            closePaymentModal(); 
+            if (msg) msg.innerHTML = ''; 
+        }, 2500);
+
     }, 1500);
 }
 
@@ -1096,7 +1166,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
-    // ESC zamyka sklep
+    // ESC zamyka wszystkie okna
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeShop();
