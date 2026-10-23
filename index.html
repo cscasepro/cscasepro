@@ -14,6 +14,7 @@ tailwind.config = {
             colors: {
                 siteBg: '#0d0b1f', panelBg: '#151329', cardBg: '#1a1830',
                 borderBorder: '#2a2748', accentViolet: '#8b5cf6', accentBlue: '#38bdf8',
+                emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' }
             },
             fontFamily: { rajdhani: ['Rajdhani', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
         }
@@ -107,6 +108,37 @@ input[type=range]::-webkit-slider-runnable-track {
     pointer-events: none;
 }
 
+/* NOWA KARTA SKLEPU (GLASS + ZIELONE AKCENTY) */
+.shop-item-card { 
+    background: rgba(26, 24, 48, 0.6); 
+    backdrop-filter: blur(16px);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 4px 6px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+.shop-item-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(30, 28, 55, 0.8);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(16, 185, 129, 0.2);
+}
+.shop-item-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.6) 100%);
+    pointer-events: none;
+}
+.shop-item-card.not-affordable { opacity: 0.6; cursor: not-allowed; }
+.shop-item-card.not-affordable:hover { transform: none; border-color: rgba(255, 255, 255, 0.15); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 4px 6px rgba(0,0,0,0.3); }
+
 /* UJEDNOLICONE TŁO DLA KART PŁATNOŚCI */
 .payment-amount-card { 
     background: rgba(26, 24, 48, 0.6);
@@ -117,9 +149,9 @@ input[type=range]::-webkit-slider-runnable-track {
     cursor: pointer; 
 }
 .payment-amount-card:hover { 
-    border-color: rgba(255, 255, 255, 0.15); 
+    border-color: rgba(16, 185, 129, 0.4); 
     transform: translateY(-2px); 
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5); 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5), 0 0 15px rgba(16, 185, 129, 0.15); 
     background: rgba(30, 28, 55, 0.8);
 }
 
@@ -179,17 +211,8 @@ input[type=range]::-webkit-slider-runnable-track {
     background: linear-gradient(90deg, rgba(23, 25, 41, 0.2) 0%, rgba(23, 25, 41, 0.85) 35%, rgba(23, 25, 41, 0.98) 100%);
     z-index: 1;
 }
-.promo-banner > * {
-    position: relative;
-    z-index: 2;
-}
-.promo-input-field {
-    background: transparent;
-    border: none;
-    outline: none;
-    width: 60px;
-    text-align: left;
-}
+.promo-banner > * { position: relative; z-index: 2; }
+.promo-input-field { background: transparent; border: none; outline: none; width: 60px; text-align: left; }
 
 .glow-effect {
     position: absolute;
@@ -205,23 +228,15 @@ select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a78bfa%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2334d399%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
     background-size: 0.65rem auto;
     padding-right: 2.5rem;
     cursor: pointer;
 }
-select:focus {
-    outline: none;
-    border-color: #8b5cf6;
-}
-select option {
-    background-color: #1c1f2e;
-    color: #e2e8f0;
-    padding: 10px;
-    font-family: 'Inter', sans-serif;
-}
+select:focus { outline: none; border-color: #10b981; }
+select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-family: 'Inter', sans-serif; }
 
 .hero-video {
     position: fixed;
@@ -264,7 +279,6 @@ select option {
     background: rgba(5, 4, 10, 0.85);
     backdrop-filter: blur(12px);
 }
-
 .modal-shell {
     background: rgba(21, 19, 41, 0.92);
     backdrop-filter: blur(24px);
@@ -272,18 +286,15 @@ select option {
     border-radius: 24px;
     box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255,255,255,0.06);
 }
-
 .modal-header {
     background: rgba(26, 24, 48, 0.7);
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-
 .modal-icon-badge {
-    background: rgba(139, 92, 246, 0.12);
-    border: 1px solid rgba(139, 92, 246, 0.3);
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 14px;
 }
-
 .modal-input {
     background: rgba(13, 11, 31, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -293,21 +304,19 @@ select option {
 }
 .modal-input:focus {
     outline: none;
-    border-color: rgba(139, 92, 246, 0.5);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    border-color: rgba(16, 185, 129, 0.5);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 }
-
 .modal-btn-primary {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.35);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
     transition: all 0.2s ease;
 }
 .modal-btn-primary:hover {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-    box-shadow: 0 0 28px rgba(139, 92, 246, 0.5);
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+    box-shadow: 0 0 28px rgba(16, 185, 129, 0.5);
     transform: translateY(-1px);
 }
-
 .modal-btn-ghost {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.08);
@@ -317,14 +326,13 @@ select option {
     background: rgba(255, 255, 255, 0.08);
     border-color: rgba(255, 255, 255, 0.15);
 }
-
 .modal-pagination-btn {
     background: rgba(26, 24, 48, 0.6);
     border: 1px solid rgba(255, 255, 255, 0.08);
     transition: all 0.2s ease;
 }
 .modal-pagination-btn:hover {
-    border-color: rgba(139, 92, 246, 0.5);
+    border-color: rgba(16, 185, 129, 0.5);
     background: rgba(40, 36, 70, 0.8);
 }
 </style>
@@ -356,18 +364,18 @@ select option {
     </div>
 
     <div class="flex items-center gap-2 sm:gap-3">
-        <button onclick="openShopModal()" class="stat-badge hover:border-[#8b5cf6]/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-cart-shopping text-[#a78bfa]"></i>
+        <button onclick="openShopModal()" class="stat-badge hover:border-emerald-500/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-cart-shopping text-emerald-400"></i>
             <span class="text-[11px] sm:text-xs">Sklep</span>
         </button>
 
         <div class="stat-badge flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs">
-            <i class="fa-solid fa-wallet text-[#a78bfa] text-[10px] sm:text-xs"></i>
+            <i class="fa-solid fa-wallet text-emerald-400 text-[10px] sm:text-xs"></i>
             <span id="user-balance" class="text-white font-mono font-bold text-xs sm:text-sm">$0.00</span>
         </div>
 
-        <button onclick="openPaymentModal()" class="stat-badge hover:border-[#8b5cf6]/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
-            <i class="fa-solid fa-credit-card text-[#a78bfa]"></i>
+        <button onclick="openPaymentModal()" class="stat-badge hover:border-emerald-500/50 hover:bg-[#1a1c2e] text-white font-rajdhani font-bold px-3 py-1.5 rounded-xl flex items-center gap-2 transition text-xs sm:text-sm">
+            <i class="fa-solid fa-credit-card text-emerald-400"></i>
             <span class="text-[11px] sm:text-xs">Doładuj</span>
         </button>
 
@@ -579,7 +587,7 @@ select option {
 </main>
 
 <!-- ============================================ -->
-<!-- MODAL: SKLEP (ujednolicony premium)          -->
+<!-- MODAL: SKLEP (UJEDNOLICONY GLASS + ZIELONE)  -->
 <!-- ============================================ -->
 <div id="shop-modal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-3">
     <div class="modal-shell max-w-5xl w-full flex flex-col overflow-hidden max-h-[90vh]">
@@ -587,7 +595,7 @@ select option {
         <div class="modal-header px-6 py-4 flex items-center justify-between">
             <div class="flex items-center gap-4">
                 <div class="modal-icon-badge p-2.5 flex items-center justify-center">
-                    <i class="fa-solid fa-store text-[#a78bfa] text-xl"></i>
+                    <i class="fa-solid fa-store text-emerald-400 text-xl"></i>
                 </div>
                 <div>
                     <h3 class="text-white font-bold text-xl font-rajdhani uppercase leading-none tracking-wide">Sklep Skinów</h3>
@@ -598,7 +606,7 @@ select option {
             <div class="flex items-center gap-4">
                 <div class="stat-badge px-4 py-2 rounded-xl flex items-center gap-2">
                     <span class="text-xs text-gray-400">Twoje saldo:</span>
-                    <span id="modal-user-balance" class="text-[#a78bfa] font-mono font-bold text-sm">$0.00</span>
+                    <span id="modal-user-balance" class="text-emerald-400 font-mono font-bold text-sm">$0.00</span>
                 </div>
                 <button onclick="closeShopModal()" class="text-gray-400 hover:text-white p-2 transition">
                     <i class="fa-solid fa-xmark text-xl"></i>
@@ -632,7 +640,7 @@ select option {
 
                 <div class="flex items-center gap-3 text-sm font-mono text-gray-400 bg-black/20 px-5 py-2.5 rounded-xl border border-white/10 shadow-inner">
                     <span>Strona</span>
-                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-transparent border-b border-white/10 text-center text-white focus:outline-none focus:border-[#8b5cf6]/50 py-1 font-bold" value="1">
+                    <input type="number" id="shop-page-input" onchange="jumpToPage('shop', this.value)" onkeypress="if(event.key==='Enter') this.blur();" class="w-12 bg-transparent border-b border-white/10 text-center text-white focus:outline-none focus:border-emerald-500/50 py-1 font-bold" value="1">
                     <span id="shop-page-total">/ 1</span>
                 </div>
 
@@ -645,7 +653,7 @@ select option {
 </div>
 
 <!-- ============================================ -->
-<!-- MODAL: WYNIK (ujednolicony premium)          -->
+<!-- MODAL: WYNIK (UJEDNOLICONY GLASS)            -->
 <!-- ============================================ -->
 <div id="result-modal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden opacity-0 transition-opacity p-3">
 <div id="result-modal-content" class="modal-shell p-6 max-w-xs w-full flex flex-col items-center text-center relative">
@@ -666,7 +674,7 @@ select option {
 </div>
 
 <!-- ============================================ -->
-<!-- MODAL: KOD PROMO (ujednolicony premium)      -->
+<!-- MODAL: KOD PROMO (UJEDNOLICONY GLASS)        -->
 <!-- ============================================ -->
 <div id="promo-modal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-3">
     <div class="modal-shell p-6 max-w-xs w-full flex flex-col items-center text-center">
@@ -685,7 +693,7 @@ select option {
 </div>
 
 <!-- ============================================ -->
-<!-- MODAL: DOŁADOWANIE (ujednolicony premium)    -->
+<!-- MODAL: DOŁADOWANIE (UJEDNOLICONY GLASS)      -->
 <!-- ============================================ -->
 <div id="payment-modal" class="fixed inset-0 modal-overlay flex items-center justify-center z-50 hidden p-3">
     <div class="modal-shell max-w-4xl w-full flex flex-col overflow-hidden">
@@ -712,7 +720,7 @@ select option {
                     <div class="flex flex-col">
                         <div class="flex items-center gap-1.5">
                             <h4 class="text-white font-bold text-base sm:text-lg leading-tight drop-shadow-sm">
-                                Użyj kodu <span class="text-[#a78bfa] drop-shadow-md">FREE</span>
+                                Użyj kodu <span class="text-emerald-400 drop-shadow-md">FREE</span>
                             </h4>
                             <button type="button" class="text-gray-400 hover:text-white transition-colors" title="Informacja">
                                 <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20">
@@ -721,7 +729,7 @@ select option {
                             </button>
                         </div>
                         <p class="text-gray-300 text-xs sm:text-sm font-medium mt-1">
-                            Zgarnij <span class="text-[#a78bfa] font-bold">10% Bonusu do doładowania</span>
+                            Zgarnij <span class="text-emerald-400 font-bold">10% Bonusu do doładowania</span>
                         </p>
                     </div>
                 </div>
@@ -736,7 +744,7 @@ select option {
                             </svg>
                         </div>
                     </div>
-                    <button type="button" class="text-[#a78bfa] hover:underline text-xs font-bold tracking-wide uppercase ml-2">
+                    <button type="button" class="text-emerald-400 hover:underline text-xs font-bold tracking-wide uppercase ml-2">
                         Zmień
                     </button>
                 </div>
@@ -746,42 +754,42 @@ select option {
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(20)">
                     <img src="money_10.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">20 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 2 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(40)">
                     <img src="money_25.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">40 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 4 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(100)">
                     <img src="money_50.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">100 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 10 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(200)">
                     <img src="money_100.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">200 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 20 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(400)">
                     <img src="money_200.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">400 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 40 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(800)">
                     <img src="money_500.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">800 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 80 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(2000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">2000 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 200 PLN Bonus</span>
                 </div>
                 <div class="payment-amount-card p-4 flex flex-col items-center justify-center relative" onclick="selectAmount(4000)">
                     <img src="money_1000.webp" alt="Coins" class="h-32 w-auto mb-2 object-contain drop-shadow-md">
                     <span class="text-white font-bold font-rajdhani text-lg">4000 PLN</span>
-                    <span class="text-[#a78bfa] text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
+                    <span class="text-emerald-400 text-[10px] font-bold mt-1">+ 400 PLN Bonus</span>
                 </div>
             </div>
 
@@ -797,14 +805,14 @@ select option {
             <div>
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Otrzymasz</p>
                 <div class="bg-black/25 border border-white/5 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="text-[#a78bfa] font-black font-rajdhani text-3xl drop-shadow-md" id="payment-receive-amount">50.00 PLN</div>
+                    <div class="text-emerald-400 font-black font-rajdhani text-3xl drop-shadow-md" id="payment-receive-amount">50.00 PLN</div>
                     <div class="flex items-center gap-2 transition-opacity duration-300" id="bonus-tag-container">
                         <div class="bg-white/5 border border-white/10 rounded-lg px-3 py-1 flex items-center gap-2 shadow-inner">
                             <span class="text-white text-xs font-bold">10% BONUS</span>
-                            <span class="text-[#a78bfa] text-[10px] font-bold">WLICZONY</span>
+                            <span class="text-emerald-400 text-[10px] font-bold">WLICZONY</span>
                         </div>
-                        <div class="bg-[#8b5cf6]/10 border border-[#8b5cf6]/30 rounded-lg px-3 py-1 flex items-center gap-1 shadow-inner">
-                            <i class="fa-solid fa-gem text-[#a78bfa]"></i>
+                        <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-1 flex items-center gap-1 shadow-inner">
+                            <i class="fa-solid fa-gem text-emerald-400"></i>
                             <span class="text-white text-xs font-bold">1250 EVENT POINTS</span>
                         </div>
                     </div>
