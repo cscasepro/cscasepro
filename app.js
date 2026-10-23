@@ -63,6 +63,7 @@ let storeCatalog = [];
 let catalogPage = 1;
 let shopPage = 1;
 const ITEMS_PER_PAGE = 8;
+const SHOP_ITEMS_PER_PAGE = 15;
 
 /* ============================================= */
 /* ===== AUDIO SYNTH ============================ */
@@ -417,8 +418,29 @@ function clearTargetItem() {
 function onCatalogSearch() { renderStoreCatalog(1); }
 
 /* ============================================= */
-/* ===== SKLEP Z SKINAMI ======================== */
+/* ===== SKLEP (PEŁNOEKRANOWY WIDOK) ============ */
 /* ============================================= */
+
+function openShop() {
+    const view = document.getElementById('shop-view');
+    if (!view) return;
+    view.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    updateShopBalance();
+    renderShop(shopPage);
+}
+
+function closeShop() {
+    const view = document.getElementById('shop-view');
+    if (!view) return;
+    view.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function updateShopBalance() {
+    const el = document.getElementById('shop-balance');
+    if (el) el.textContent = `$${balance.toFixed(2)}`;
+}
 
 function renderShop(page = 1) {
     const grid = document.getElementById('shop-grid');
@@ -430,13 +452,13 @@ function renderShop(page = 1) {
     let filtered = storeCatalog.filter(item => item.name.toLowerCase().includes(search));
     filtered.sort((a, b) => sort === 'asc' ? a.price - b.price : b.price - a.price);
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+    const totalPages = Math.max(1, Math.ceil(filtered.length / SHOP_ITEMS_PER_PAGE));
     if (page < 1) page = 1;
     if (page > totalPages) page = totalPages;
     shopPage = page;
 
-    const start = (page - 1) * ITEMS_PER_PAGE;
-    const pageItems = filtered.slice(start, start + ITEMS_PER_PAGE);
+    const start = (page - 1) * SHOP_ITEMS_PER_PAGE;
+    const pageItems = filtered.slice(start, start + SHOP_ITEMS_PER_PAGE);
 
     const badge = document.getElementById('shop-count-badge');
     if (badge) badge.textContent = `${filtered.length} szt.`;
@@ -449,28 +471,28 @@ function renderShop(page = 1) {
 
     if (pageItems.length === 0) {
         grid.innerHTML = `
-            <div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-8">
-                <i class="fa-solid fa-box-open text-2xl"></i>
-                <span class="text-xs uppercase font-semibold tracking-wider">Brak wyników</span>
+            <div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-12">
+                <i class="fa-solid fa-box-open text-3xl"></i>
+                <span class="text-sm uppercase font-semibold tracking-wider">Brak wyników</span>
             </div>`;
         return;
     }
 
     pageItems.forEach(item => {
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer group`;
+        card.className = `item-card ${item.rarity} p-2.5 cursor-pointer group`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
                     <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[10px] font-bold text-emerald-400">$${item.price.toFixed(2)}</span>
+                    <span class="text-[11px] font-bold text-emerald-400">$${item.price.toFixed(2)}</span>
                 </div>
-                <div class="flex-1 flex items-center justify-center py-1">
-                    <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-20 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-200" onerror="this.style.opacity=0.3">
+                <div class="flex-1 flex items-center justify-center py-2">
+                    <img src="${item.img}" alt="${item.name}" class="max-h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200" onerror="this.style.opacity=0.3">
                 </div>
-                <div class="text-[10px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.2em]">${item.name}</div>
+                <div class="text-[11px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.4em]">${item.name}</div>
                 <button onclick="event.stopPropagation(); buyShopItem('${item.id}')"
-                    class="mt-1.5 w-full py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400/50 text-[10px] font-bold uppercase tracking-wider transition">
+                    class="mt-2 w-full py-2 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400/50 text-[11px] font-bold uppercase tracking-wider transition">
                     <i class="fa-solid fa-cart-shopping mr-1"></i> Kup
                 </button>
             </div>
@@ -492,6 +514,7 @@ function buyShopItem(itemId) {
 
     balance = parseFloat((balance - item.price).toFixed(2));
     updateBalanceDisplay();
+    updateShopBalance();
 
     const newItem = {
         ...item,
@@ -542,6 +565,7 @@ function jumpToPage(context, value) {
 function updateBalanceDisplay() {
     const el = document.getElementById('user-balance');
     if (el) el.textContent = `$${balance.toFixed(2)}`;
+    updateShopBalance();
 }
 
 function onCashSliderChange(value) {
@@ -633,7 +657,6 @@ function startUpgrade() {
 
     const result = GameEngine.rollOutcome(calculatedChance);
 
-    // Animacja igły
     const needle = document.getElementById('needle');
     let angle = 0;
     const duration = 2800;
@@ -660,7 +683,6 @@ function finishUpgrade(result, sourceVal, targetVal) {
     isSpinning = false;
 
     if (result.outcome) {
-        // WYGRANA
         if (addedCash > 0) {
             balance = parseFloat((balance - addedCash).toFixed(2));
         }
@@ -675,7 +697,6 @@ function finishUpgrade(result, sourceVal, targetVal) {
         AudioSynth.playWin();
         showResultModal(true, winItem);
     } else {
-        // PRZEGRANA
         if (addedCash > 0) {
             balance = parseFloat((balance - addedCash).toFixed(2));
         }
@@ -840,5 +861,8 @@ window.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('cash-slider');
     if (slider) slider.max = Math.max(0, balance).toFixed(2);
 
-    renderShop(1);
+    // ESC zamyka sklep
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeShop();
+    });
 });
