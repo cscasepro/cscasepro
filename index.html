@@ -14,7 +14,8 @@ tailwind.config = {
             colors: {
                 siteBg: '#0d0b1f', panelBg: '#151329', cardBg: '#1a1830',
                 borderBorder: '#2a2748', accentViolet: '#8b5cf6', accentBlue: '#38bdf8',
-                lime: { 400: '#a3e635', 500: '#84cc16' },
+                // LIME = EMERALD (ujednolicenie zieleni w całym projekcie)
+                lime: { 400: '#34d399', 500: '#10b981' },
                 emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' }
             },
             fontFamily: { rajdhani: ['Rajdhani', 'sans-serif'], sans: ['Inter', 'sans-serif'] }
@@ -199,20 +200,20 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     display: flex; flex-direction: column; position: relative;
 }
 .payment-pack:hover {
-    background: rgba(30, 28, 55, 0.8); border-color: rgba(163, 230, 53, 0.4);
+    background: rgba(30, 28, 55, 0.8); border-color: rgba(16, 185, 129, 0.4);
     transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
 .payment-pack.active {
-    border-color: #a3e635; background: rgba(163, 230, 53, 0.1);
-    box-shadow: 0 0 15px rgba(163, 230, 53, 0.2);
+    border-color: #10b981; background: rgba(16, 185, 129, 0.1);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
 }
 .pack-bonus-bar {
     background: rgba(0, 0, 0, 0.4); width: 100%; text-align: center;
-    padding: 4px 0; font-size: 11px; font-weight: 700; color: #a3e635;
+    padding: 4px 0; font-size: 11px; font-weight: 700; color: #34d399;
     border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;
 }
 .bonus-tag {
-    background: linear-gradient(135deg, #3b82f6, #a3e635);
+    background: linear-gradient(135deg, #10b981, #34d399);
     color: #000; font-weight: 800; font-size: 10px;
     padding: 4px 8px; border-radius: 4px; text-transform: uppercase; text-align: center; line-height: 1.1;
 }
@@ -228,8 +229,8 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     transition: all 0.2s ease;
 }
 .payment-input-group:focus-within {
-    border-color: #a3e635;
-    box-shadow: 0 0 15px rgba(163, 230, 53, 0.2);
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
     background: rgba(13, 11, 31, 0.8);
 }
 .payment-input-group .input-prefix {
@@ -267,6 +268,31 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
 .payment-input-group input::placeholder {
     color: rgba(255, 255, 255, 0.3);
 }
+
+/* ===== PRZYCISK ZAPŁAĆ (ujednolicony z emerald) ===== */
+.payment-submit-btn {
+    width: 100%;
+    background: #10b981;
+    color: #000;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+.payment-submit-btn:hover:not(:disabled) {
+    background: #34d399;
+    box-shadow: 0 0 28px rgba(16, 185, 129, 0.5);
+}
+.payment-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
@@ -561,8 +587,8 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
             <!-- Header -->
             <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-lime-400/10 border border-lime-400/20 flex items-center justify-center">
-                        <i class="fa-solid fa-wallet text-lime-400 text-lg"></i>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-400/10 border border-emerald-400/20 flex items-center justify-center">
+                        <i class="fa-solid fa-wallet text-emerald-400 text-lg"></i>
                     </div>
                     <div>
                         <h3 class="font-rajdhani text-xl font-bold uppercase text-white">Doładuj Saldo</h3>
@@ -571,7 +597,7 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
                 </div>
                 <div class="flex items-center gap-2">
                     <div class="stat-badge flex items-center gap-2 px-3 py-1.5 rounded-xl">
-                        <i class="fa-solid fa-wallet text-lime-400 text-xs"></i>
+                        <i class="fa-solid fa-wallet text-emerald-400 text-xs"></i>
                         <span class="text-white font-mono font-bold text-sm" id="modal-user-balance">$100.00</span>
                     </div>
                     <button onclick="closePaymentModal()" class="w-8 h-8 rounded-lg bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 flex items-center justify-center transition"><i class="fa-solid fa-xmark"></i></button>
@@ -582,56 +608,56 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="payment-amounts-grid">
                 <button onclick="selectAmount(20, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_10.webp" alt="20 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_10.webp" alt="20 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">20 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 2 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(40, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_25.webp" alt="40 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_25.webp" alt="40 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">40 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 4 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(100, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_50.webp" alt="100 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_50.webp" alt="100 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">100 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 10 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(200, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_100.webp" alt="200 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_100.webp" alt="200 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">200 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 20 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(400, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_200.webp" alt="400 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_200.webp" alt="400 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">400 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 40 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(800, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_500.webp" alt="800 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_500.webp" alt="800 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">800 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 80 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(2000, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_1000.webp" alt="2000 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_1000.webp" alt="2000 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">2000 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 200 PLN Bonus</div>
                 </button>
                 <button onclick="selectAmount(4000, this)" class="payment-pack">
                     <div class="p-4 flex flex-col items-center justify-center flex-1">
-                        <img src="money_1000.webp" alt="4000 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%23a3e635\' rx=\'4\'/></svg>'">
+                        <img src="money_1000.webp" alt="4000 PLN" class="h-12 sm:h-14 object-contain drop-shadow-md mb-2" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'40\' height=\'24\' viewBox=\'0 0 40 24\'><rect width=\'40\' height=\'24\' fill=\'%2310b981\' rx=\'4\'/></svg>'">
                         <span class="text-white font-rajdhani font-bold text-lg">4000 PLN</span>
                     </div>
                     <div class="pack-bonus-bar">+ 400 PLN Bonus</div>
@@ -652,14 +678,14 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
             <div class="mb-6">
                 <label class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2 block">Otrzymasz</label>
                 <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex flex-wrap justify-between items-center gap-3">
-                    <div class="font-rajdhani text-2xl sm:text-3xl font-bold text-lime-400" id="payment-receive-amount">20.00 PLN</div>
+                    <div class="font-rajdhani text-2xl sm:text-3xl font-bold text-emerald-400" id="payment-receive-amount">20.00 PLN</div>
                     <div class="flex items-center gap-2">
                         <div class="bonus-tag">10% BONUS<br>WLICZONY</div>
-                        <div class="bg-blue-500/20 border border-blue-500/30 rounded-lg px-3 py-1.5 flex items-center gap-2">
-                            <i class="fa-solid fa-coins text-blue-400 text-sm"></i>
+                        <div class="bg-emerald-500/20 border border-emerald-500/30 rounded-lg px-3 py-1.5 flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-emerald-400 text-sm"></i>
                             <div class="text-left leading-tight">
                                 <div class="text-white font-bold text-xs" id="payment-event-points">500</div>
-                                <div class="text-[9px] text-blue-300 uppercase tracking-wider">Event Points</div>
+                                <div class="text-[9px] text-emerald-300 uppercase tracking-wider">Event Points</div>
                             </div>
                         </div>
                     </div>
@@ -669,7 +695,7 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
             <div id="payment-message" class="text-xs font-bold mb-3 h-4 text-center"></div>
 
             <!-- Przycisk Zapłać -->
-            <button onclick="executePayment()" id="payment-submit-btn" class="w-full bg-[#a3e635] hover:bg-[#bef264] text-black font-rajdhani font-bold text-xl uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(163,230,53,0.3)] flex items-center justify-center gap-2">
+            <button onclick="executePayment()" id="payment-submit-btn" class="payment-submit-btn">
                 ZAPŁAĆ <span id="payment-button-amount">20.00 PLN</span>
             </button>
         </div>
