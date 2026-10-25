@@ -26,7 +26,7 @@ const GameEngine = (() => {
 /* ===== STAN GLOBALNY ========================== */
 /* ============================================= */
 
-let balance = 100.00;
+let balance = 100.00; // Startowe saldo
 let addedCash = 0.00;
 let isSpinning = false;
 let audioMuted = false;
@@ -120,7 +120,7 @@ function showToast(message, type = 'info') {
     if (!toast) {
         toast = document.createElement('div'); toast.id = 'app-toast'; document.body.appendChild(toast);
     }
-    const colors = { success: 'text-emerald-400 border-emerald-500/40', error: 'text-red-400 border-red-500/40', info: 'text-[#a78bfa] border-[#8b5cf6]/40' };
+    const colors = { success: 'text-lime-400 border-lime-500/40', error: 'text-red-400 border-red-500/40', info: 'text-lime-400 border-lime-500/40' };
     toast.className = `fixed bottom-4 left-1/2 -translate-x-1/2 z-[100] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-300 modal-shell ${colors[type] || colors.info}`;
     toast.textContent = message;
     toast.style.opacity = '0'; toast.style.transform = 'translate(-50%, 0)';
@@ -175,12 +175,12 @@ function renderPlayerInventory() {
     inventory.forEach(item => {
         const card = document.createElement('div');
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer ${isSelected ? 'ring-2 ring-[#a78bfa]' : ''}`;
+        card.className = `item-card ${item.rarity} p-2 cursor-pointer ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
                     <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[10px] font-bold text-[#a78bfa]">$${item.price.toFixed(2)}</span>
+                    <span class="text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-1">
                     <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-20 w-auto object-contain drop-shadow-lg" onerror="this.style.opacity=0.3">
@@ -199,7 +199,7 @@ function selectSourceItem(item) {
     document.getElementById('source-price').textContent = `$${item.price.toFixed(2)}`; document.getElementById('offered-item-wear').textContent = item.wear;
     const slider = document.getElementById('cash-slider'); if (slider) { slider.value = 0; slider.max = Math.max(0, balance).toFixed(2); }
     document.getElementById('cash-add-label').textContent = '$0.00';
-    document.getElementById('source-slot').classList.add('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+    document.getElementById('source-slot').classList.add('border-lime-400', 'bg-lime-400/5');
     renderPlayerInventory(); recalculateOdds();
 }
 
@@ -210,7 +210,7 @@ function clearSourceItem() {
     document.getElementById('offered-item-wear').textContent = 'Brak';
     const slider = document.getElementById('cash-slider'); if (slider) slider.value = 0;
     document.getElementById('cash-add-label').textContent = '$0.00';
-    document.getElementById('source-slot').classList.remove('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+    document.getElementById('source-slot').classList.remove('border-lime-400', 'bg-lime-400/5');
     renderPlayerInventory(); recalculateOdds();
 }
 
@@ -248,12 +248,12 @@ function renderStoreCatalog(page = 1) {
     pageItems.forEach(item => {
         const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer group ${isSelected ? 'ring-2 ring-[#38bdf8]' : ''}`;
+        card.className = `item-card ${item.rarity} p-2 cursor-pointer group ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
                     <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[10px] font-bold text-[#38bdf8]">$${item.price.toFixed(2)}</span>
+                    <span class="text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-1">
                     <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-20 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-200" onerror="this.style.opacity=0.3">
@@ -270,7 +270,7 @@ function selectTargetItem(item) {
     document.getElementById('target-empty').classList.add('hidden'); document.getElementById('target-filled').classList.remove('hidden');
     document.getElementById('target-img').src = item.img; document.getElementById('target-name').textContent = item.name;
     document.getElementById('target-price').textContent = `$${item.price.toFixed(2)}`; document.getElementById('target-item-wear').textContent = item.wear;
-    document.getElementById('target-slot').classList.add('border-[#38bdf8]', 'bg-[#38bdf8]/5');
+    document.getElementById('target-slot').classList.add('border-lime-400', 'bg-lime-400/5');
     renderStoreCatalog(catalogPage); recalculateOdds();
 }
 
@@ -279,7 +279,7 @@ function clearTargetItem() {
     selectedTargetItem = null;
     document.getElementById('target-empty').classList.remove('hidden'); document.getElementById('target-filled').classList.add('hidden');
     document.getElementById('target-item-wear').textContent = 'Brak';
-    document.getElementById('target-slot').classList.remove('border-[#38bdf8]', 'bg-[#38bdf8]/5');
+    document.getElementById('target-slot').classList.remove('border-lime-400', 'bg-lime-400/5');
     renderStoreCatalog(catalogPage); recalculateOdds();
 }
 
@@ -328,13 +328,13 @@ function renderShop(page = 1) {
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
                     <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="${canAfford ? 'text-emerald-400' : 'text-red-400'} text-[11px] font-bold">$${item.price.toFixed(2)}</span>
+                    <span class="${canAfford ? 'text-lime-400' : 'text-red-400'} text-[11px] font-bold">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-2">
                     <img src="${item.img}" alt="${item.name}" class="max-h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200" onerror="this.style.opacity=0.3">
                 </div>
                 <div class="text-[11px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.4em]">${item.name}</div>
-                <button onclick="event.stopPropagation(); buyShopItem('${item.id}')" class="mt-2 w-full py-2 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25 hover:border-emerald-400/50 text-[11px] font-bold uppercase tracking-wider transition">
+                <button onclick="event.stopPropagation(); buyShopItem('${item.id}')" class="mt-2 w-full py-2 rounded-lg bg-lime-400/15 border border-lime-400/30 text-lime-400 hover:bg-lime-400/25 hover:border-lime-400/50 text-[11px] font-bold uppercase tracking-wider transition">
                     <i class="fa-solid fa-cart-shopping mr-1"></i> Kup
                 </button>
             </div>`;
@@ -511,7 +511,7 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
     const statusMsg = document.getElementById('status-msg');
 
     if (isWin) {
-        AudioSynth.playWin(); if (statusMsg) statusMsg.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
+        AudioSynth.playWin(); if (statusMsg) statusMsg.innerHTML = `<span class="text-lime-400 font-bold"><i class="fa-solid fa-check mr-1"></i> ULEPSZENIE UDANE!</span>`;
         if (navigator.vibrate) navigator.vibrate([50, 30, 50, 30, 100]);
         inventory.push({ ...wonItem, id: 'i' + Date.now() });
         if (sacrificedItem) { const idx = inventory.findIndex(i => i.id === sacrificedItem.id); if (idx > -1) inventory.splice(idx, 1); }
@@ -532,9 +532,9 @@ function finishUpgrade(isWin, finalDegree, wonItem, sacrificedItem) {
 
     selectedSourceItem = null; selectedTargetItem = null; addedCash = 0;
     document.getElementById('source-empty').classList.remove('hidden'); document.getElementById('source-filled').classList.add('hidden');
-    document.getElementById('offered-item-wear').textContent = 'Brak'; document.getElementById('source-slot').classList.remove('border-[#a78bfa]', 'bg-[#a78bfa]/5');
+    document.getElementById('offered-item-wear').textContent = 'Brak'; document.getElementById('source-slot').classList.remove('border-lime-400', 'bg-lime-400/5');
     document.getElementById('target-empty').classList.remove('hidden'); document.getElementById('target-filled').classList.add('hidden');
-    document.getElementById('target-item-wear').textContent = 'Brak'; document.getElementById('target-slot').classList.remove('border-[#38bdf8]', 'bg-[#38bdf8]/5');
+    document.getElementById('target-item-wear').textContent = 'Brak'; document.getElementById('target-slot').classList.remove('border-lime-400', 'bg-lime-400/5');
     document.getElementById('cash-add-label').textContent = '$0.00';
     renderPlayerInventory(); renderStoreCatalog(catalogPage); recalculateOdds();
     const btn = document.getElementById('upgrade-btn'); if (btn) btn.innerText = 'ULEPSZ';
@@ -552,8 +552,8 @@ function openResultModal(isWin, item) {
     if (!modal) return;
 
     if (isWin) {
-        if (icon) { icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-emerald-500/20 text-emerald-400 border-emerald-500/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-trophy"></i>'; }
-        if (title) { title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-emerald-400 drop-shadow-md relative z-10'; title.innerText = 'WYGRANA!'; }
+        if (icon) { icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-lime-400/20 text-lime-400 border-lime-400/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-trophy"></i>'; }
+        if (title) { title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-lime-400 drop-shadow-md relative z-10'; title.innerText = 'WYGRANA!'; }
         if (desc) desc.innerText = 'Twój nowy skin powędrował do ekwipunku.';
     } else {
         if (icon) { icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-red-500/20 text-red-400 border-red-500/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-xmark"></i>'; }
@@ -570,7 +570,7 @@ function openResultModal(isWin, item) {
         if (content) { content.classList.remove('modal-in'); void content.offsetWidth; content.classList.add('modal-in'); }
     }, 10);
 
-    if (isWin && content) setTimeout(() => spawnParticles(content, 25, ['#10b981', '#34d399', '#6ee7b7', '#8b5cf6', '#38bdf8']), 100);
+    if (isWin && content) setTimeout(() => spawnParticles(content, 25, ['#a3e635', '#84cc16', '#bef264', '#d9f99d', '#facc15']), 100);
 }
 
 function closeResultModal() {
@@ -587,11 +587,11 @@ function pushLiveFeed(item, isWin) {
     const node = document.createElement('div');
     node.className = 'live-drop-item px-3 py-1.5 flex items-center gap-2.5 flex-shrink-0 min-w-[130px] relative overflow-hidden';
     node.innerHTML = `
-        <div class="absolute inset-0 bg-gradient-to-b ${isWin ? 'from-emerald-500/10' : 'from-red-500/10'} to-transparent pointer-events-none"></div>
+        <div class="absolute inset-0 bg-gradient-to-b ${isWin ? 'from-lime-500/10' : 'from-red-500/10'} to-transparent pointer-events-none"></div>
         <img src="${item.img}" class="w-10 h-7 object-contain drop-shadow-md z-10">
         <div class="flex flex-col z-10">
             <span class="font-bold text-[10px] text-gray-300 truncate max-w-[70px]">${item.name}</span>
-            <span class="${isWin ? 'text-emerald-400' : 'text-red-400'} font-mono font-bold text-[10px]">$${item.price.toFixed(2)}</span>
+            <span class="${isWin ? 'text-lime-400' : 'text-red-400'} font-mono font-bold text-[10px]">$${item.price.toFixed(2)}</span>
         </div>`;
     feed.insertBefore(node, feed.firstChild); if (feed.children.length > 9) feed.removeChild(feed.lastChild);
 }
@@ -642,7 +642,7 @@ function redeemPromoCode() {
         { id: 'promo3_' + Date.now(), name: 'P2000 | Imperial', wear: 'MW', price: 1.25, rarity: 'rarity-restricted', img: 'https://community.steamstatic.com/economy/image/i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttyVfPaERSR0Wqmu7LAocGIGz3UqlXOLrxM-vMGmW8VNxu5Dx60noTyL5lYayrXIL0POjV7Q_cKDDMW6d0etkueBlcDu2kSIrujqNjsGrJH6XPQ9xAsZ5FLIDtBG5mtfhY7nl4gGNiosTzH792ntOvC1stbsDT-N7ra_mVv2F' }
     ];
     promoItems.forEach(it => inventory.push(it)); localStorage.setItem(PROMO_STORAGE_KEY, 'true');
-    renderPlayerInventory(); msg.innerHTML = `<span class="text-emerald-400 font-bold">✅ Odebrano! Dodano skiny do ekwipunku.</span>`;
+    renderPlayerInventory(); msg.innerHTML = `<span class="text-lime-400 font-bold">✅ Odebrano! Dodano skiny do ekwipunku.</span>`;
     setTimeout(() => closePromoModal(), 1500);
 }
 
@@ -683,7 +683,7 @@ function calculateBonus() {
     if (amount < 0) amount = 0;
 
     const finalAmount = amount * 1.10; 
-    const points = Math.floor(amount * 25);
+    const points = Math.floor(amount * 25); 
 
     receiveEl.innerText = `${finalAmount.toFixed(2)} PLN`;
     btnAmountEl.innerText = `${amount.toFixed(2)} PLN`;
@@ -697,13 +697,13 @@ function executePayment() {
     let amount = parseFloat(input.value) || 0;
     if (amount < 4) { msg.innerHTML = `<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Minimalna kwota to 4 PLN.</span>`; return; }
 
-    const finalAmount = amount * 1.10;
+    const finalAmount = amount * 1.10; 
     msg.innerHTML = `<span class="text-yellow-400"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Przetwarzanie BLIK...</span>`;
     const btn = document.getElementById('payment-submit-btn'); if (btn) btn.disabled = true;
 
     setTimeout(() => {
         balance += finalAmount;
-        msg.innerHTML = `<span class="text-emerald-400"><i class="fa-solid fa-check mr-1"></i> Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
+        msg.innerHTML = `<span class="text-lime-400"><i class="fa-solid fa-check mr-1"></i> Pomyślnie doładowano ${finalAmount.toFixed(2)} PLN (w tym 10% bonusu)!</span>`;
         updateBalanceDisplay(); 
         const slider = document.getElementById('cash-slider'); if (slider) slider.max = Math.max(0, balance).toFixed(2); 
         recalculateOdds();
