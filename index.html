@@ -3,11 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- Zabezpieczenie przed cache przeglądarki -->
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-
 <title>CSCASEPRO - CS2 Upgrader</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -149,10 +145,22 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
 .hero-video-left { left: 0; transform: translateX(-25%) scale(1.1); }
 .hero-video-right { right: 0; transform: translateX(25%) scale(1.1) scaleX(-1); }
 
+/* ==== ZMIENIONE TŁO (2 WARSTWY) ==== */
 .bg-video-container {
-    position: fixed; inset: 0; z-index: -1; overflow: hidden; opacity: 0.15; pointer-events: none;
+    position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
 }
-.bg-video-container video { width: 100%; height: 100%; object-fit: cover; filter: blur(4px) brightness(0.5); }
+.bg-video-layer-1 {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    filter: blur(2px) brightness(0.6); /* Delikatny blur */
+    opacity: 0.35; /* Wyraźniejsza warstwa 1 */
+}
+.bg-video-layer-2 {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    filter: blur(6px) brightness(0.3); /* Mocniejszy blur */
+    opacity: 0.25; /* Delikatniejsza warstwa 2 dla głębi */
+    mix-blend-mode: screen; /* Efekt nakładania się świateł */
+}
+
 @media (max-width: 1024px) { .hero-video { display: none; } }
 
 .modal-overlay { background: rgba(5, 4, 10, 0.85); backdrop-filter: blur(12px); }
@@ -249,10 +257,19 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
 </head>
 <body class="min-h-screen flex flex-col relative">
 
-<!-- TYLKO JEDNO TŁO WIDEO -->
+<!-- PODWÓJNE TŁO WIDEO -->
 <div class="bg-video-container">
-    <video autoplay loop muted playsinline><source src="background-slide-mid-qual.webm" type="video/webm"></video>
+    <!-- Warstwa 1 (bardziej wyraźna) -->
+    <video class="bg-video-layer-1" autoplay loop muted playsinline>
+        <source src="background-slide-mid-qual.webm" type="video/webm">
+    </video>
+    <!-- Warstwa 2 (rozmyta, nadaje głębi) -->
+    <video class="bg-video-layer-2" autoplay loop muted playsinline>
+        <source src="background-slide-mid-qual.webm" type="video/webm">
+    </video>
 </div>
+
+<!-- BOCZNE WIDEO (Postacie) -->
 <video class="hero-video hero-video-left" autoplay loop muted playsinline><source src="1-place-hero-new.webm" type="video/webm"></video>
 <video class="hero-video hero-video-right" autoplay loop muted playsinline><source src="3-place-hero-new.webm" type="video/webm"></video>
 
@@ -652,7 +669,7 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
     </div>
 </div>
 
-<!-- DODANO ?v=2 ABY ZMUSIĆ PRZEGLĄDARKĘ DO POBRANIA NOWEGO SKRYPTU -->
-<script src="app.js?v=2"></script>
+<!-- WERSJA Z CACHE BUSTING -->
+<script src="app.js?v=3"></script>
 </body>
 </html>
