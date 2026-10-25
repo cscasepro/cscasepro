@@ -14,7 +14,6 @@ tailwind.config = {
             colors: {
                 siteBg: '#0d0b1f', panelBg: '#151329', cardBg: '#1a1830',
                 borderBorder: '#2a2748', accentViolet: '#8b5cf6', accentBlue: '#38bdf8',
-                // LIME = EMERALD (ujednolicenie zieleni w całym projekcie)
                 lime: { 400: '#34d399', 500: '#10b981' },
                 emerald: { 400: '#34d399', 500: '#10b981', 600: '#059669' }
             },
@@ -268,31 +267,6 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
 .payment-input-group input::placeholder {
     color: rgba(255, 255, 255, 0.3);
 }
-
-/* ===== PRZYCISK ZAPŁAĆ (ujednolicony z emerald) ===== */
-.payment-submit-btn {
-    width: 100%;
-    background: #10b981;
-    color: #000;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 1.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    padding: 1rem;
-    border-radius: 0.75rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-.payment-submit-btn:hover:not(:disabled) {
-    background: #34d399;
-    box-shadow: 0 0 28px rgba(16, 185, 129, 0.5);
-}
-.payment-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between relative">
@@ -695,7 +669,7 @@ select option { background-color: #1c1f2e; color: #e2e8f0; padding: 10px; font-f
             <div id="payment-message" class="text-xs font-bold mb-3 h-4 text-center"></div>
 
             <!-- Przycisk Zapłać -->
-            <button onclick="executePayment()" id="payment-submit-btn" class="payment-submit-btn">
+            <button onclick="executePayment()" id="payment-submit-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-black font-rajdhani font-bold text-xl uppercase tracking-widest py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.35)] flex items-center justify-center gap-2">
                 ZAPŁAĆ <span id="payment-button-amount">20.00 PLN</span>
             </button>
         </div>
