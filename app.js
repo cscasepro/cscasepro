@@ -169,23 +169,23 @@ function renderPlayerInventory() {
     if (badge) badge.textContent = `${inventory.length} szt.`;
     grid.innerHTML = '';
     if (inventory.length === 0) {
-        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-8"><i class="fa-solid fa-box-open text-2xl"></i><span class="text-xs uppercase font-semibold tracking-wider">Ekwipunek jest pusty</span></div>`;
+        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-6 sm:py-8"><i class="fa-solid fa-box-open text-xl sm:text-2xl"></i><span class="text-[10px] sm:text-xs uppercase font-semibold tracking-wider">Ekwipunek jest pusty</span></div>`;
         return;
     }
     inventory.forEach(item => {
         const card = document.createElement('div');
         const isSelected = selectedSourceItem && selectedSourceItem.id === item.id;
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
+        card.className = `item-card ${item.rarity} p-1.5 sm:p-2 cursor-pointer ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
-                    <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
+                    <span class="text-[8px] sm:text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1 sm:px-1.5 py-0.5 rounded">${item.wear}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-1">
-                    <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-20 w-auto object-contain drop-shadow-lg" onerror="this.style.opacity=0.3">
+                    <img src="${item.img}" alt="${item.name}" class="max-h-12 sm:max-h-20 w-auto object-contain drop-shadow-lg" onerror="this.style.opacity=0.3">
                 </div>
-                <div class="text-[10px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.2em]">${item.name}</div>
+                <div class="text-[9px] sm:text-[10px] font-semibold text-white leading-tight line-clamp-2 min-h-[2em] sm:min-h-[2.2em]">${item.name}</div>
             </div>`;
         card.onclick = () => selectSourceItem(item); grid.appendChild(card);
     });
@@ -242,23 +242,23 @@ function renderStoreCatalog(page = 1) {
     const pageInput = document.getElementById('catalog-page-input'); if (pageInput) pageInput.value = page;
     grid.innerHTML = '';
     if (pageItems.length === 0) {
-        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-8"><i class="fa-solid fa-box-open text-2xl"></i><span class="text-xs uppercase font-semibold tracking-wider">Brak wyników</span></div>`;
+        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-6 sm:py-8"><i class="fa-solid fa-box-open text-xl sm:text-2xl"></i><span class="text-[10px] sm:text-xs uppercase font-semibold tracking-wider">Brak wyników</span></div>`;
         return;
     }
     pageItems.forEach(item => {
         const isSelected = selectedTargetItem && selectedTargetItem.id === item.id;
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2 cursor-pointer group ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
+        card.className = `item-card ${item.rarity} p-1.5 sm:p-2 cursor-pointer group ${isSelected ? 'ring-2 ring-lime-400' : ''}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
-                    <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
+                    <span class="text-[8px] sm:text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1 sm:px-1.5 py-0.5 rounded">${item.wear}</span>
+                    <span class="text-[9px] sm:text-[10px] font-bold text-lime-400">$${item.price.toFixed(2)}</span>
                 </div>
                 <div class="flex-1 flex items-center justify-center py-1">
-                    <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-20 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-200" onerror="this.style.opacity=0.3">
+                    <img src="${item.img}" alt="${item.name}" class="max-h-12 sm:max-h-20 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-200" onerror="this.style.opacity=0.3">
                 </div>
-                <div class="text-[10px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.2em]">${item.name}</div>
+                <div class="text-[9px] sm:text-[10px] font-semibold text-white leading-tight line-clamp-2 min-h-[2em] sm:min-h-[2.2em]">${item.name}</div>
             </div>`;
         card.onclick = () => selectTargetItem(item); grid.appendChild(card);
     });
@@ -317,25 +317,25 @@ function renderShop(page = 1) {
     const pageInput = document.getElementById('shop-page-input'); if (pageInput) pageInput.value = page;
     grid.innerHTML = '';
     if (pageItems.length === 0) {
-        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-12"><i class="fa-solid fa-box-open text-3xl"></i><span class="text-sm uppercase font-semibold tracking-wider">Brak wyników</span></div>`;
+        grid.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center text-gray-500 gap-2 py-10 sm:py-12"><i class="fa-solid fa-box-open text-2xl sm:text-3xl"></i><span class="text-xs sm:text-sm uppercase font-semibold tracking-wider">Brak wyników</span></div>`;
         return;
     }
     pageItems.forEach(item => {
         const canAfford = balance >= item.price;
         const card = document.createElement('div');
-        card.className = `item-card ${item.rarity} p-2.5 cursor-pointer group ${canAfford ? '' : 'opacity-60'}`;
+        card.className = `item-card ${item.rarity} p-2 sm:p-2.5 cursor-pointer group ${canAfford ? '' : 'opacity-60'}`;
         card.innerHTML = `
             <div class="relative z-10 flex flex-col h-full">
                 <div class="flex items-start justify-between gap-1">
-                    <span class="text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1.5 py-0.5 rounded">${item.wear}</span>
-                    <span class="${canAfford ? 'text-lime-400' : 'text-red-400'} text-[11px] font-bold">$${item.price.toFixed(2)}</span>
+                    <span class="text-[8px] sm:text-[9px] font-mono uppercase text-gray-400 bg-black/30 px-1 sm:px-1.5 py-0.5 rounded">${item.wear}</span>
+                    <span class="${canAfford ? 'text-lime-400' : 'text-red-400'} text-[9px] sm:text-[11px] font-bold">$${item.price.toFixed(2)}</span>
                 </div>
-                <div class="flex-1 flex items-center justify-center py-2">
-                    <img src="${item.img}" alt="${item.name}" class="max-h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200" onerror="this.style.opacity=0.3">
+                <div class="flex-1 flex items-center justify-center py-1 sm:py-2">
+                    <img src="${item.img}" alt="${item.name}" class="max-h-16 sm:max-h-24 w-auto object-contain drop-shadow-lg group-hover:scale-110 transition-transform duration-200" onerror="this.style.opacity=0.3">
                 </div>
-                <div class="text-[11px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.4em]">${item.name}</div>
-                <button onclick="event.stopPropagation(); buyShopItem('${item.id}')" class="mt-2 w-full py-2 rounded-lg bg-lime-400/15 border border-lime-400/30 text-lime-400 hover:bg-lime-400/25 hover:border-lime-400/50 text-[11px] font-bold uppercase tracking-wider transition">
-                    <i class="fa-solid fa-cart-shopping mr-1"></i> Kup
+                <div class="text-[9px] sm:text-[11px] font-semibold text-white leading-tight line-clamp-2 min-h-[2.2em] sm:min-h-[2.4em]">${item.name}</div>
+                <button onclick="event.stopPropagation(); buyShopItem('${item.id}')" class="mt-1.5 sm:mt-2 w-full py-1.5 sm:py-2 rounded-lg bg-lime-400/15 border border-lime-400/30 text-lime-400 hover:bg-lime-400/25 hover:border-lime-400/50 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition">
+                    <i class="fa-solid fa-cart-shopping mr-0.5 sm:mr-1"></i> Kup
                 </button>
             </div>`;
         grid.appendChild(card);
@@ -405,13 +405,13 @@ function recalculateOdds() {
     if (sourceVal <= 0 || targetVal <= 0) {
         calculatedChance = 0; document.getElementById('win-chance-text').textContent = '0.00%';
         document.getElementById('multiplier-text').textContent = '0.00x'; updateWheelArc(0);
-        btn.disabled = true; btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
+        btn.disabled = true; btn.className = 'w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
         status.textContent = 'Wybierz przedmioty do ulepszenia'; return;
     }
     if (targetVal <= sourceVal) {
         calculatedChance = 0; document.getElementById('win-chance-text').textContent = '0.00%';
         document.getElementById('multiplier-text').textContent = '0.00x'; updateWheelArc(0);
-        btn.disabled = true; btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
+        btn.disabled = true; btn.className = 'w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-600 border border-white/10 cursor-not-allowed z-10';
         status.textContent = 'Cel musi być droższy'; return;
     }
     calculatedChance = GameEngine.calculateRealChance(sourceVal, targetVal);
@@ -421,10 +421,10 @@ function recalculateOdds() {
     updateWheelArc(calculatedChance);
 
     if (addedCash > balance) {
-        btn.disabled = true; btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10';
+        btn.disabled = true; btn.className = 'w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-red-950/40 text-red-400 border border-red-800/60 cursor-not-allowed z-10';
         status.textContent = 'Brak wystarczającego salda'; return;
     }
-    btn.disabled = false; btn.className = 'upgrade-btn-active w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest text-white cursor-pointer z-10';
+    btn.disabled = false; btn.className = 'upgrade-btn-active w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest text-white cursor-pointer z-10';
     status.textContent = `Szansa na sukces: ${calculatedChance.toFixed(2)}%`;
 }
 
@@ -460,7 +460,7 @@ async function startUpgrade() {
     isSpinning = true; GameEngine.recordSpin();
 
     const btn = document.getElementById('upgrade-btn');
-    if (btn) { btn.disabled = true; btn.className = 'w-full py-3.5 rounded-xl font-rajdhani text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed z-10'; btn.innerText = 'LOSOWANIE...'; }
+    if (btn) { btn.disabled = true; btn.className = 'w-full py-3 sm:py-3.5 rounded-xl font-rajdhani text-lg sm:text-xl font-bold uppercase tracking-widest transition-all bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed z-10'; btn.innerText = 'LOSOWANIE...'; }
 
     const wonItemSnapshot = { ...selectedTargetItem }; const sacrificedItemSnapshot = selectedSourceItem ? { ...selectedSourceItem } : null;
     let targetOffsetDeg = 0;
@@ -552,12 +552,12 @@ function openResultModal(isWin, item) {
     if (!modal) return;
 
     if (isWin) {
-        if (icon) { icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-lime-400/20 text-lime-400 border-lime-400/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-trophy"></i>'; }
-        if (title) { title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-lime-400 drop-shadow-md relative z-10'; title.innerText = 'WYGRANA!'; }
+        if (icon) { icon.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 border shadow-inner bg-lime-400/20 text-lime-400 border-lime-400/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-trophy"></i>'; }
+        if (title) { title.className = 'font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-lime-400 drop-shadow-md relative z-10'; title.innerText = 'WYGRANA!'; }
         if (desc) desc.innerText = 'Twój nowy skin powędrował do ekwipunku.';
     } else {
-        if (icon) { icon.className = 'w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-2xl mb-3 border shadow-inner bg-red-500/20 text-red-400 border-red-500/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-xmark"></i>'; }
-        if (title) { title.className = 'font-rajdhani text-2xl font-bold uppercase tracking-wider text-red-400 drop-shadow-md relative z-10'; title.innerText = 'PORAŻKA!'; }
+        if (icon) { icon.className = 'w-12 h-12 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-xl sm:text-2xl mb-2 sm:mb-3 border shadow-inner bg-red-500/20 text-red-400 border-red-500/50 relative z-10'; icon.innerHTML = '<i class="fa-solid fa-xmark"></i>'; }
+        if (title) { title.className = 'font-rajdhani text-xl sm:text-2xl font-bold uppercase tracking-wider text-red-400 drop-shadow-md relative z-10'; title.innerText = 'PORAŻKA!'; }
         if (desc) desc.innerText = 'Przedmiot spłonął podczas próby ulepszenia.';
     }
 
@@ -585,13 +585,13 @@ function closeResultModal() {
 function pushLiveFeed(item, isWin) {
     const feed = document.getElementById('live-feed'); if (!feed) return;
     const node = document.createElement('div');
-    node.className = 'live-drop-item px-3 py-1.5 flex items-center gap-2.5 flex-shrink-0 min-w-[130px] relative overflow-hidden';
+    node.className = 'live-drop-item px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1.5 sm:gap-2.5 flex-shrink-0 min-w-[100px] sm:min-w-[130px] relative overflow-hidden';
     node.innerHTML = `
         <div class="absolute inset-0 bg-gradient-to-b ${isWin ? 'from-lime-500/10' : 'from-red-500/10'} to-transparent pointer-events-none"></div>
-        <img src="${item.img}" class="w-10 h-7 object-contain drop-shadow-md z-10">
+        <img src="${item.img}" class="w-8 h-5 sm:w-10 sm:h-7 object-contain drop-shadow-md z-10">
         <div class="flex flex-col z-10">
-            <span class="font-bold text-[10px] text-gray-300 truncate max-w-[70px]">${item.name}</span>
-            <span class="${isWin ? 'text-lime-400' : 'text-red-400'} font-mono font-bold text-[10px]">$${item.price.toFixed(2)}</span>
+            <span class="font-bold text-[9px] sm:text-[10px] text-gray-300 truncate max-w-[60px] sm:max-w-[70px]">${item.name}</span>
+            <span class="${isWin ? 'text-lime-400' : 'text-red-400'} font-mono font-bold text-[9px] sm:text-[10px]">$${item.price.toFixed(2)}</span>
         </div>`;
     feed.insertBefore(node, feed.firstChild); if (feed.children.length > 9) feed.removeChild(feed.lastChild);
 }
@@ -611,7 +611,7 @@ function populateLiveFeed() {
 function toggleAudio() {
     audioMuted = !audioMuted;
     const icon = document.getElementById('sound-icon');
-    if (icon) icon.className = audioMuted ? 'fa-solid fa-volume-xmark text-red-400 text-sm' : 'fa-solid fa-volume-high text-sm';
+    if (icon) icon.className = audioMuted ? 'fa-solid fa-volume-xmark text-red-400 text-xs sm:text-sm' : 'fa-solid fa-volume-high text-xs sm:text-sm';
 }
 
 function toggleLogin() {
